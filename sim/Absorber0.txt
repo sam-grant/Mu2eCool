@@ -1,0 +1,24 @@
+# A 10 cm thick cylinder with front face at ZXXX 
+
+# Set z-position
+
+param -unset BeAbsorber_z=1965 # 1964.5+100 # front face
+
+# The absorber is a beryllium cylinder 200 mm radius and 100 mm thick
+
+cylinder Absorber radius=200 length=100 material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
+# Place it at 0 in front of the muon beam 
+place Absorber z=$BeAbsorber_z
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
+# Place it flush with the front face of the target
+place BeAbsorber_DetIn z=$BeAbsorber_z-51
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
+# Place it flush with the back face of the target
+place BeAbsorber_DetOut z=$BeAbsorber_z+51

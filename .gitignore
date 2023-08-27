@@ -1,0 +1,14 @@
+*.png
+*.pdf
+*.root
+*.h5
+*.log
+*.csv
+run-3.08/
+run-3.06/
+logs/
+plots/
+img/
+txt/
+beamFiles/
+gif/

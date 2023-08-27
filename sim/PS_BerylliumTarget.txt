@@ -1,0 +1,20 @@
+# Production target z-pos is 1764.5
+# Target holder has an outer radius of 200 mm 
+
+# The target is a beryllium cylinder 200 mm radius and 0.5 m thick; make it blue.
+cylinder Target radius=200 length=500 material=Be color=0,0,1 maxStep=50.e-3
+# Place it 1000 mm behind the production target 
+place Target z=764.5
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector BeTarget_DetIn radius=200 length=1 color=0,1,0
+# Place it flush with the front face of the target
+place BeTarget_DetIn z=1016
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector BeTarget_DetOut radius=200 length=1 color=1,0,0
+# Place it flush with the back face of the target
+place BeTarget_DetOut z=514

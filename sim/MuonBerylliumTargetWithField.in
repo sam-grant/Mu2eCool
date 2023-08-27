@@ -1,0 +1,61 @@
+# mu- on a Be target
+
+param NEVENTS=10000
+
+# The "default" physics list is QGSP_BERT
+# Mu2e likes ShieldingM for some reason
+
+physics ShieldingM
+
+trackcuts keep=mu-
+
+1,0.5,0
+particlecolor mu-=1,1,0 # yellow muons
+
+# The beam is 100 MeV kinetic energy, the mass of a mu- is 105.7 MeV
+param M=105.7 KE=100.0
+param P=sqrt(($M+$KE)*($M+$KE)-$M*$M)
+
+# Zero-emittance beam mu-. It emanates from z=-1000.
+beam gaussian meanMomentum=$P nEvents=$NEVENTS particle=mu- beamZ=-1000 
+
+# The target is a beryllium cylinder 200 mm radius and 100 mm thick; make it silver-grey
+cylinder Target radius=200 length=100 material=Be color=0.66,0.67,0.71 maxStep=50.e-3
+# Place it at 0 in front of the muon beam 
+place Target z=0
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector DetForward radius=200 length=1 color=0,1,0,0.7
+# Place it flush with the front face of the target
+place DetForward z=-51
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector DetBackward radius=200 length=1 color=1,0,0,0.7
+# Place it flush with the back face of the target
+place DetBackward z=51
+
+# Magnetic field
+
+# display magnetic field lines
+# fieldlines exit=0 center=0,0,0 nLines=100 
+
+# Solenoid coil
+coil C innerRadius=300 outerRadius=400 length=1000
+
+# Add high field solenoid, 500 mm in radius. 1 m long. 
+solenoid S1 coil=C current=14.642255 color=1,1,1,0.3
+place S1 z=-1000
+# 
+# Add middle field solenoid, 500 mm in radius. 1 m long. 
+solenoid S2 coil=C current=11.300001 color=1,1,1,0.3
+place S2 z=0
+# 
+# # Add low field solenoid, 500 mm in radius. 1 m long. 
+solenoid S3 coil=C current=7.9577472 color=1,1,1,0.3
+# solenoid S3 coil=C current=11.300001 color=1,1,1,0.3
+place S3 z=1000
+
+

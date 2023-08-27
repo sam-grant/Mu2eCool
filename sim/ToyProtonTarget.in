@@ -1,0 +1,70 @@
+# Just for fun
+
+param -unset First_Event=1
+param -unset Num_Events=5000
+
+# The "default" physics list is QGSP_BERT
+physics QGSP_BERT
+
+# Cut out neutrals, e+-, and charged exotics 
+trackcuts keep=proton,pi-,pi+,mu-,mu+
+# trackcuts keep=proton,pi-,mu-
+
+# By default, particle tracks are visible: red for negatives, blue for positives, and green for neutrals
+tubs pTarget outerRadius=10 length=100 material=W color=1,1,1,0.50
+place pTarget z=0 
+
+# Proton beam with 8 GeV kinetic energy, the mass of a proton is 938.27231 MeV
+param BoosterKE=8000.0
+param ProtonMass=938.27231
+param ProtonMomentum=sqrt(($BoosterKE+$ProtonMass)^2-$ProtonMass^2)
+param xBeam=0 
+param yBeam=0 
+param zBeam=-1000
+param BYangle=0 
+param BXangle=0 
+param BsigmaX=1.0
+param BsigmaY=1.0
+param BsigmaT=0.0001
+
+beam gaussian \
+    particle=proton \
+    nEvents=$Num_Events firstEvent=$First_Event \
+    beamX=$xBeam beamY=$yBeam beamZ=$zBeam \
+    sigmaX=$BsigmaX sigmaY=$BsigmaY \
+	sigmaXp=0.00 sigmaYp=0.00 \
+    meanMomentum=$ProtonMomentum sigmaP=0.0 \
+    meanT=0.0 \
+	sigmaT=$BsigmaT \
+    rotation=X$BXangle,Y$BYangle
+
+box EdgeBox1 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox1 z=2500 x=2500 y=2500
+
+box EdgeBox2 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox2 z=-2500 x=2500 y=2500
+
+box EdgeBox3 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox3 z=2500 x=-2500 y=2500
+
+box EdgeBox4 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox4 z=2500 x=2500 y=-2500
+
+box EdgeBox5 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox5 z=-2500 x=-2500 y=2500
+
+box EdgeBox6 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox6 z=2500 x=-2500 y=-2500
+
+box EdgeBox7 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox7 z=-2500 x=2500 y=-2500
+
+box EdgeBox8 material=Vacuum color=1,1,1,0 length=100 height=100 width=100
+place EdgeBox8 z=-2500 x=-2500 y=-2500
+
+
+fieldmap PSMagneticField file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PSMap.txt
+place PSMagneticField \
+            x=0\
+            y=0 \
+            z=0

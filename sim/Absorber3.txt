@@ -1,0 +1,28 @@
+# A wedge, max thickness 10 cm thick cylinder in the PS
+
+param -unset BeAbsorber_z=1965
+
+# for i 0 1 2 3 4 5 6 7 8 9 10 # 11 12 13 14 15 16 17 18 19 20
+#     tubs Target outerRadius=200-$i*10 innerRadius=180-$i*10 length=100-$i*9.5 \
+# 	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0
+# 	place Target x=0. z=$BeAbsorber_z rename=Target:$i 
+# endfor
+
+for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+    tubs Target outerRadius=200-$i*5 innerRadius=190-$i*5 length=100-$i*4.75 \
+	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0
+	place Target x=0. z=$BeAbsorber_z rename=Target:$i 
+endfor
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
+# Place it flush with the front face of the target
+place BeAbsorber_DetIn z=$BeAbsorber_z-51
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
+# Place it flush with the back face of the target
+place BeAbsorber_DetOut z=$BeAbsorber_z+51

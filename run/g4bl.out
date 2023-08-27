@@ -1,0 +1,46 @@
+G4BL_DIR=/Applications/G4beamline-3.06.app/Contents
+G4ENSDFSTATEDATA=/Users/sgrant/Geant4Data/G4ENSDFSTATE2.2
+G4LEDATA=/Users/sgrant/Geant4Data/G4EMLOW7.7
+G4LEVELGAMMADATA=/Users/sgrant/Geant4Data/PhotonEvaporation5.3
+G4SAIDXSDATA=/Users/sgrant/Geant4Data/G4SAIDDATA2.0
+G4NEUTRONHPDATA=/Users/sgrant/Geant4Data/G4NDL4.5
+G4NEUTRONXSDATA=/Users/sgrant/Geant4Data/G4NEUTRONXS1.4
+G4PIIDATA=/Users/sgrant/Geant4Data/G4PII1.3
+G4RADIOACTIVEDATA=/Users/sgrant/Geant4Data/RadioactiveDecay5.3
+G4REALSURFACEDATA=/Users/sgrant/Geant4Data/RealSurface2.1.1
+G4ABLADATA=/Users/sgrant/Geant4Data/G4ABLA3.1
+G4PARTICLEXSDATA=/Users/sgrant/Geant4Data/G4PARTICLEXS1.1
+G4INCLDATA=/Users/sgrant/Geant4Data/G4INCL1.0
+G4TENDLDATA=/Users/sgrant/Geant4Data/G4TENDL1.3.2
+G4beamline Process ID 15549
+
+*************************************************************
+ g4beamline version: 3.06                        (Jan 18 2019)
+                      Copyright : Tom Roberts, Muons, Inc.
+                        License : Gnu Public License
+                            WWW : http://g4beamline.muonsinc.com
+**************************************************************
+ Geant4 version Name: geant4-10-05    (7-December-2018)
+                       Copyright : Geant4 Collaboration
+                      References : NIM A 506 (2003), 250-303
+                                 : IEEE-TNS 53 (2006), 270-278
+                                 : NIM A 835 (2016), 186-225
+                             WWW : http://geant4.org/
+**************************************************************
+
+param        viewer        best,1
+geometry                   nPoints=100 printGeometry=0 visual=0
+                           tolerance=0.002
+
+World size (before incrementing by 201.357 mm): 0.0 H  0.0 W  0.0 L
+**************************************************************************
+*** G4Exception: Empty World
+***    severity: Fatal Exception
+***   issued by: main
+*** description: No elements have been placed into the World
+**************************************************************************
+g4beamline: attempting to close up after fatal G4Exception...
+
+Exceptions: 1 Fatal, 0 Events Aborted, 0 Stuck Tracks (stopped), 0 Warnings
+      1 times: Empty World
+g4beamline: simulation aborted

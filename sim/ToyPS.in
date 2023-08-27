@@ -1,0 +1,190 @@
+*   ToyPS.in
+*	---> This is a simplified version of the Mu2e production solenoid: to be used for testing and debugging. 
+
+# Use three solenoids to approximate the graded field. 
+# Proton beam is incident on a production target a 17 degree angle.
+# Borrow the production target from the main code, without any of the supports.
+# Place a virtual detector 1 m behind the PT. 
+
+# Should be 0 if generating new proton events
+param -unset Read_Beam_File=1
+param -unset Beam_File=/Users/samuelgrant/Documents/mu2e/g4bl/beamFiles/v3.06/g4beamline_ToyPS_1e4events_bm.2.txt
+
+# Unsure you update the first event on command line if running in parallel!
+param -unset First_Event=1
+param -unset Num_Events=10000
+
+# The "default" physics list is QGSP_BERT
+physics QGSP_BERT
+
+# Cut out neutrals, e+-, and charged exotics 
+trackcuts keep=proton,pi-,pi+,mu-,mu+
+
+# Production target, from G4BeamlineScripts/Geometry/Proton_Target_W.txt
+param Tposition=1764.5
+param Tlength=160.0 Tradius=6.299*.5
+param TYangle=14.00
+param TXangle=0.0
+param -unset Tmaterial=W
+
+tubs pTarget outerRadius=$Tradius length=$Tlength material=$Tmaterial color=1.0,0.83,0.67
+place pTarget z=$Tposition rotation=X$TXangle,Y$TYangle
+
+# Proton beam with 8 GeV kinetic energy, the mass of a proton is 938.27231 MeV
+param BoosterKE=8000.0
+param ProtonMass=938.27231
+param ProtonMomentum=sqrt(($BoosterKE+$ProtonMass)^2-$ProtonMass^2)
+param xBeam=0.5*($Tlength+1)*sin($TYangle*3.14159/180.0)*cos($TXangle*3.14159/180.0)
+param yBeam=-0.5*($Tlength+1)*sin($TXangle*3.14159/180.0)
+param zBeam=$Tposition+0.5*($Tlength+1)*cos($TYangle*3.14159/180.0)*cos($TXangle*3.14159/180.0)
+param BYangle=$TYangle+180.0
+param BXangle=-1.0*($TXangle)
+param BsigmaX=1.0
+param BsigmaY=1.0
+param BsigmaT=0.0001
+
+# Run from beam file 
+if $Read_Beam_File==0
+    beam gaussian \
+        particle=proton \
+        nEvents=$Num_Events firstEvent=$First_Event \
+        beamX=$xBeam beamY=$yBeam beamZ=$zBeam \
+        sigmaX=$BsigmaX sigmaY=$BsigmaY \
+    	sigmaXp=0.00 sigmaYp=0.00 \
+        meanMomentum=$ProtonMomentum sigmaP=0.0 \
+        meanT=0.0 \
+    	sigmaT=$BsigmaT \
+        rotation=X$BXangle,Y$BYangle
+
+elseif $Read_Beam_File==1
+    beam ascii nEvents=$Num_Events filename=$Beam_File 
+
+endif
+
+# Magnetic fields, just the PS field
+
+fieldmap PSMagneticField file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PSMap.txt
+place PSMagneticField \
+            x=-3904.0 \
+            y=0 \
+            z=7929.0
+
+# Info from /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/TS_Collimators.txt and BasicDetectors.txt
+param Coll_01_length=1000.0
+param Coll_01_z=4385.0-$Coll_01_length/2.0
+# x=$Coll_01_x \
+# z=$Coll_01_z-0.3 \
+
+# Virtual detector, place it at Coll_01_DetIn
+
+virtualdetector VD radius=200 length=1 color=0,1,0
+# Place it 1 m behind the target 
+place VD z=$Coll_01_z-0.3 # $Tposition+1000
+
+# Zntuple plane, 25 cm behind the PT
+zntuple BeamFile z=$Tposition+500 
+
+# Just check that the znutple is where you think it it
+# box zBox width=1000 height=1000 length=1 material=Be color=0,0,1 
+# place zBox z=$Tposition+250
+
+## ----------- Busy work below -----------
+
+# Extend world volume
+
+# box EdgeBox1 material=Vacuum color=1,1,1,0 length=1000 height=1000 width=1000
+# place EdgeBox1 z=25000 x=-7808.00
+# 
+# box EdgeBox2 material=Vacuum color=1,1,1,0 length=1000 height=1000 width=1000
+# place EdgeBox2 z=$Tposition y=50000
+# 
+# box EdgeBox2 material=Vacuum color=1,1,1,0 length=1000 height=1000 width=1000
+# place EdgeBox2 z=$Tposition y=-50000
+# 
+# 
+# box EdgeBox3 material=Vacuum color=1,1,1,0 length=1000 height=1000 width=1000
+# place EdgeBox3 z=$Tposition y=-2000
+# 
+# box EdgeBox4 material=Vacuum color=1,1,1,0 length=1000 height=1000 width=1000
+# place EdgeBox4 z=25000 x=-12500.00
+
+
+# # Solenoid coil, 250 mm long
+# coil C innerRadius=300 outerRadius=400 length=250
+# 
+# # Currents
+# param I1=14.642255
+# param I2=14.034572472727273
+# param I3=13.426889945454546
+# param I4=12.819207418181819
+# param I5=12.211524890909091
+# param I6=11.603842363636364
+# param I7=10.996159836363637
+# param I8=10.38847730909091
+# param I9=9.780794781818182
+# param I10=9.173112254545455
+# param I11=8.565429727272727
+# param I12=7.9577472
+# 
+# # Z-positions
+# param Z1=-1375
+# param Z2=-1125
+# param Z3=-875
+# param Z4=-625
+# param Z5=-375
+# param Z6=-125
+# param Z7=125
+# param Z8=375
+# param Z9=625
+# param Z10=875
+# param Z11=1125
+# param Z12=1375
+# 
+# # Solenoids, high to low field
+# solenoid S1 coil=C current=$I1 color=1,1,1,0.1
+# place S1 z=$Z1
+# 
+# solenoid S2 coil=C current=$I2 color=1,1,1,0.1
+# place S2 z=$Z2
+# 
+# solenoid S3 coil=C current=$I3 color=1,1,1,0.1
+# place S3 z=$Z3
+# 
+# solenoid S4 coil=C current=$I4 color=1,1,1,0.1
+# place S4 z=$Z4
+# 
+# solenoid S5 coil=C current=$I5 color=1,1,1,0.1
+# place S5 z=$Z5
+# 
+# solenoid S6 coil=C current=$I6 color=1,1,1,0.1
+# place S6 z=$Z6
+# 
+# solenoid S7 coil=C current=$I7 color=1,1,1,0.1
+# place S7 z=$Z7
+# 
+# solenoid S8 coil=C current=$I8 color=1,1,1,0.1
+# place S8 z=$Z8
+# 
+# solenoid S9 coil=C current=$I9 color=1,1,1,0.1
+# place S9 z=$Z9
+# 
+# solenoid S10 coil=C current=$I10 color=1,1,1,0.1
+# place S10 z=$Z10
+# 
+# solenoid S11 coil=C current=$I11 color=1,1,1,0.1
+# place S11 z=$Z11
+# 
+# solenoid S12 coil=C current=$I12 color=1,1,1,0.1
+# place S12 z=$Z12
+
+
+
+
+
+
+
+
+
+
+
+

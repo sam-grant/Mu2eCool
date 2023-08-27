@@ -1,0 +1,37 @@
+# Run a test to see how momentum is reduced per cm of Be 
+
+# Mean momentum at Z1850 [MeV]
+# ---> pion: 182.31958
+# ---> muon: 82.702324
+
+# The "default" physics list is QGSP_BERT
+physics QGSP_BERT
+
+param -unset NEVENTS=1000
+param -unset MEAN_MOMENTUM=182.31958 # MeV 
+param -unset PARTICLE=pi-
+param -unset THICKNESS=100 # mm
+
+# Track cuts
+trackcuts keep=$PARTICLE
+
+# Zero-emittance beam. It emanates from z=0.
+beam gaussian meanMomentum=$MEAN_MOMENTUM nEvents=$NEVENTS particle=$PARTICLE
+
+# The target is a beryllium slab 2000 mm x 2000 mm; make it blue.
+box Target width=2000 height=2000 length=$THICKNESS material=Be color=0,0,1 maxStep=50.e-3
+# Place it 1000 mm away from beam origin
+place Target z=1000
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector DetForward width=2000 height=2000 length=1 color=0,1,0
+# Place it flush with the front face of the target
+place DetForward z=999-$THICKNESS/2 
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector DetBackward width=2000 height=2000 length=1 color=1,0,0
+# Place it flush with the back face of the target
+place DetBackward z=1001+$THICKNESS/2 
