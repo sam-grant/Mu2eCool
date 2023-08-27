@@ -1,6 +1,6 @@
-# g4bl 
+# Mu2eCool
 
-Toy models using the Mu2e G4beamline simulation. I run them locally. 
+G4beamline models looking at using ionisation cooling to improve Mu2e muon stopping rate 
 
 The Mu2e model has been copied from the repository below, which is owned by krlynch. 
 
