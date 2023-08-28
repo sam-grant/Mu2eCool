@@ -53,17 +53,17 @@ import pandas as pd
 
 def TTreeToDataFrame(finName, treeName, branchNames):
 
-    print("\n---> Reading...")
+    # print("\n---> Reading...")
 
     # Open the ROOT file
     fin = uproot.open(finName)
     
-    print("---> Got input file ", finName, ", ", (fin))
+    # print("---> Got input file ", finName, ", ", (fin))
 
     # Get tree
     tree = fin[treeName]
 
-    print("---> Got tree ", str(tree))
+    # print("---> Got tree ", str(tree))
 
     # Create an empty dictionary to store the selected columns as NumPy arrays
     branchData = {}
@@ -78,7 +78,7 @@ def TTreeToDataFrame(finName, treeName, branchNames):
     # Create the DataFrame directly from the dictionary of column data
     df = pd.DataFrame(branchData)
 
-    print("---> Reading done, closing input file...")
+    # print("---> Reading done, closing input file...")
 
     # Close the ROOT file
     fin.close()

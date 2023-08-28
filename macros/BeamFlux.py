@@ -260,13 +260,19 @@ def Run(config, branchNames, particle):
     mom_stoppedMuons = np.sqrt( pow(df_stoppedMuons["Px"],2) + pow(df_stoppedMuons["Py"],2) + pow(df_stoppedMuons["Pz"],2) ) 
 
     # Run plots config+":\n"+r"$\mu^{-}$ at " 
-    ut.Plot1D(mom_Z2265, 750, 0, 750, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Z2265_"+particle+"_"+config+".pdf", "upper right", errors=True) 
-    ut.Plot1D(mom_Coll_01_DetOut, 750, 0, 750, config+":\n"+r"$\mu^{-}$ entering TS collimator 1" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Coll_01_DetOut_"+particle+"_"+config+".pdf", "upper right", errors=True) 
+    ut.Plot1D(mom_Z2265, 750, 0, 750, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Z2265_"+particle+"_"+config+".png", "upper right", errors=True) 
+    ut.Plot1D(mom_Coll_01_DetOut, 750, 0, 750, r"$\mu^{-}$ entering TS collimator 1" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Coll_01_DetOut_"+particle+"_"+config+".png", "upper right", errors=True) 
     # ut.Plot1D(mom_Coll_05_DetOut, 500, 0, 500, r""+g4blVer+", $\mu^{-}$ out of TS collimator 5" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Coll_05_DetOut_"+config+particle+"_"+nEvents+"events.pdf", "upper right") 
-    ut.Plot1D(mom_prestop, 150, 0, 150, r"$\mu^{-}$ entering stopping target" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_prestop_"+particle+"_"+config+".pdf", "upper right", errors=True) 
-    ut.Plot1D(mom_stoppedMuons, 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_stoppedMuons_"+particle+"_"+config+".pdf", "upper right", errors=True) 
+    ut.Plot1D(mom_prestop, 150, 0, 150, r"$\mu^{-}$ entering stopping target" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_prestop_"+particle+"_"+config+".png", "upper right", errors=True) 
+    ut.Plot1D(mom_stoppedMuons, 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_stoppedMuons_"+particle+"_"+config+".png", "upper right", errors=True) 
     # ut.Plot1DOverlay([mom_Coll_01_DetIn, mom_Coll_05_DetOut, mom_prestop, mom_stoppedMuons], 300, 0, 300, config, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+config+".pdf", ["$\mu^{-}$ before TS", "$\mu^{-}$ after TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best", 100)
-    ut.Plot1DOverlay([mom_Coll_01_DetOut, mom_prestop, mom_stoppedMuons], 250, 0, 250, config, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+particle+"_"+config+".pdf", ["$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best", 100)
+    ut.Plot1DOverlay([mom_Coll_01_DetOut, mom_prestop, mom_stoppedMuons], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+particle+"_"+config+".png", ["$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
+
+    df_prestop["P"] = np.sqrt( pow(df_prestop["Px"],2) + pow(df_prestop["Py"],2) + pow(df_prestop["Pz"],2) )
+
+
+    # print("Number of muons at prestop below 50 MeV", len(mom_prestop))
+    print("Number of muons at prestop below 50 MeV", df_prestop["P"][df_prestop["P"] < 50].shape[0])
 
     return
 
@@ -299,21 +305,51 @@ def main():
     # Run("Mu2E_1e7events_wnewparticlentuple_fromZ2265_parallel", branchNames, particle) 
     # Run("Mu2E_1e7events_Absorber0_fromZ2265_parallel", branchNames, particle) 
     # Run("Mu2E_1e7events_Absorber1_fromZ2265_parallel", branchNames, particle)  
-    # Run("Mu2E_1e7events_Absorber2_fromZ2265_parallel", branchNames, particle)  
+    # Run("Mu2E_1e7events_Absorber2_fromZ2265_parallel", branchNames, particle) 
+
     # Run("Mu2E_1e7events_Z1850", branchNames, particle)
     # Run("Mu2E_1e7events_fromZ1850_parallel", branchNames, particle)
     # Run("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, particle)
 
+    # Run("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_100mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel", branchNames, particle)
 
-    # Run("Mu2E_1e7events_Absorber0_fromZ1850_parallel_noColl03", branchNames, particle)
-    # Run("Mu2E_1e7events_Absorber1_fromZ1850_parallel_noColl03", branchNames, particle)
-    # Run("Mu2E_1e7events_Absorber2_fromZ1850_parallel_noColl03", branchNames, particle)
-    # Run("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_100mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel_noColl03", branchNames, particle)
 
-    Run("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, particle)
-    Run("Mu2E_1e7events_Absorber1_fromZ1850_parallel", branchNames, particle)
-    Run("Mu2E_1e7events_Absorber2_fromZ1850_parallel", branchNames, particle)
-    Run("Mu2E_1e7events_Absorber3_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber0_20mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_20mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_20mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_20mm_fromZ1850_parallel", branchNames, particle)
+
+    # Run("Mu2E_1e7events_Absorber0_20mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_20mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_20mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_20mm_fromZ1850_parallel_noColl03", branchNames, particle)
+
+    # Run("Mu2E_1e7events_Absorber0_30mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_30mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_30mm_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_30mm_fromZ1850_parallel", branchNames, particle)
+
+    # Run("Mu2E_1e7events_Absorber0_30mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_30mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    Run("Mu2E_1e7events_Absorber2_30mm_fromZ1850_parallel_noColl03", branchNames, particle)
+    Run("Mu2E_1e7events_Absorber3_30mm_fromZ1850_parallel_noColl03", branchNames, particle)
+
+    # Run("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_fromZ1850_parallel", branchNames, particle)
+
+    # Run("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber1_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber2_fromZ1850_parallel", branchNames, particle)
+    # Run("Mu2E_1e7events_Absorber3_fromZ1850_parallel", branchNames, particle)
 
 
 if __name__ == "__main__":

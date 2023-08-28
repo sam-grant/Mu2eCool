@@ -507,7 +507,7 @@ def main():
 		# extend as needed
 		]  
 
-	particle = "mu+-" # "mu+-" # "pi+-" # mu+-" # pi+-" # mu+-" # all" # "pi+-" # "mu+-" # "no_proton"
+	particle =  "pi+-" # "mu+-" # "mu+-" # "pi+-" # mu+-" # pi+-" # mu+-" # all" # "pi+-" # "mu+-" # "no_proton"
 
 	config="Mu2E_1e6events_ManyZNTuple1"
 	outDir="DispersionAndBeamSpot" # AnaRadius" # "RadiusVsMomentumStudy"  # "AnaRadius" # "RadiusVsMomentumStudy" 

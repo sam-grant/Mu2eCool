@@ -353,7 +353,7 @@ def Run(config, branchNames, ntupleName, particle):
 
 
 
-    title = "Z = "+ntupleName[1:]+" mm"
+    title = particle+", Z = "+ntupleName[1:]+" mm"
 
     # Particle populations
     ut.BarChart(df['PDGid'], particleDict, config+", "+title, "", "Percentage / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionPecentage_"+ntupleName+"_"+config+".png", percentage=True)
@@ -386,8 +386,7 @@ def Run(config, branchNames, ntupleName, particle):
     print("mu+ =", df[df['PDGid'] == -13].shape[0])
     print("mu- =", df[df['PDGid'] == 13].shape[0])
 
-    return
-
+    # return
 
     # Filter particles
     PDGid = 0
@@ -411,10 +410,10 @@ def Run(config, branchNames, ntupleName, particle):
         df = df[(df['PDGid'] == -13) | (df['PDGid'] == 13)]
 
     # Momentum and radial distributions 
-    df['P'] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) + pow(df["Pz"],2) ) 
-    df['R'] = np.sqrt( pow(df['x'],2) + pow(df['y'],2)) 
+    df.loc[:, 'P'] = np.sqrt( np.power(df["Px"],2) + np.power(df["Py"],2) + np.power(df["Pz"],2) ) 
+    df.loc[:, 'R'] = np.sqrt( np.power(df['x'],2) + np.power(df['y'],2)) 
     # Tranvserse momentum 
-    df['PT'] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
+    df.loc[:, 'PT'] = np.sqrt( np.power(df["Px"],2) + np.power(df["Py"],2) ) 
 
     # Make dispersion plots
     ut.Plot2D(df['P'], df['x'], 250, 0, 250, 440, -220, 220, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
@@ -426,7 +425,7 @@ def Run(config, branchNames, ntupleName, particle):
     ut.Plot2D(df['Pz'], df['x'], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png" , cb=False)
     ut.Plot2D(df['Pz'], df['y'], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_YvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png" , cb=False)
 
-    ut.Plot2D(df['P'], df['R'], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+    ut.Plot2D(df['P'], df['R'], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=True)
 
     # ---- Special plots for illustration ----
 
@@ -519,11 +518,18 @@ def RunParticleMomentum(config, branchNames, ntupleName):
     print("---> pion:", np.mean(df_pion["P"]))
     print("---> muon:", np.mean(df_muon["P"]))
 
-    print("Peak momentum [MeV]:")
-    print("---> all:", df["P"].value_counts().idxmax())
-    print("---> proton:", df_proton["P"].value_counts().idxmax())
-    print("---> pion:", df_pion["P"].value_counts().idxmax())
-    print("---> muon:", df_muon["P"].value_counts().idxmax())
+    print("RMS momentum [MeV]:")
+    print("---> all:", np.std(df["P"]))
+    print("---> proton:", np.std(df_proton["P"])) 
+    print("---> pion:", np.std(df_pion["P"]))
+    print("---> muon:", np.std(df_muon["P"]))
+
+
+    # print("Peak momentum [MeV]:")
+    # print("---> all:", df["P"].value_counts().idxmax())
+    # print("---> proton:", df_proton["P"].value_counts().idxmax())
+    # print("---> pion:", df_pion["P"].value_counts().idxmax())
+    # print("---> muon:", df_muon["P"].value_counts().idxmax())
 
     return
 
@@ -548,6 +554,7 @@ def main():
     ]  
 
     # config="Mu2E_1e7events_fromZ1800_parallel"
+    config="Mu2E_1e7events_fromZ2265_parallel"
 
     # config="Mu2E_1e7events" # _ManyZNTuple1"
     # config="Mu2E_1e7events_fromZ1800_parallel"
@@ -555,7 +562,9 @@ def main():
     # config="Mu2E_1e7events_fromZ2265_parallel" 
     # config="Mu2E_1e7events_fromZ1800_parallel" 
 
-    ntupleName="NTuple/Z1850" # 965"
+    ntupleName="NTuple/Z2265" # 965"
+
+    # ntupleName="NTuple/Z1850" # 965"
     # ntupleName="NTuple/Z3265"
     # ntupleName="VirtualDetector/BeAbsorber_DetIn"
     # config="Mu2E_1e7events_Absorber0_fromZ2265_parallel" 
@@ -574,18 +583,30 @@ def main():
 
     # Run("Mu2E_1e7events_Z1850", branchNames, ntupleName, "no_proton") 
 
-    RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, ntupleName)
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, ntupleName)
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "NTuple/Z1850")
-    RunParticleMomentum("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, "NTuple/Z1850") # "VirtualDetector/BeAbsorber_DetIn")
-    RunParticleMomentum("Mu2E_1e7events_Absorber0_fromZ1850_parallel_noColl03", branchNames, "NTuple/Z1850") # "VirtualDetector/BeAbsorber_DetIn")
+    # RunParticleMomentum("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, "NTuple/Z1850") # "VirtualDetector/BeAbsorber_DetIn")
+    # RunParticleMomentum("Mu2E_1e7events_Absorber0_fromZ1850_parallel_noColl03", branchNames, "NTuple/Z1850") # "VirtualDetector/BeAbsorber_DetIn")
     # RunParticleMomentum("Mu2E_1e7events_Absorber0_fromZ1850_parallel", branchNames, "VirtualDetector/BeAbsorber_DetIn")
+
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "NTuple/Z1850")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_01_DetIn")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_01_DetOut")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_03_DetIn")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_03_DetOut")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_05_DetIn")
     # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/Coll_05_DetOut")
-    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/prestop")
+    RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel", branchNames, "VirtualDetector/prestop")
+
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "NTuple/Z1850")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_01_DetIn")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_01_DetOut")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_03_DetIn")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_03_DetOut")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_05_DetIn")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/Coll_05_DetOut")
+    # RunParticleMomentum("Mu2E_1e7events_fromZ1850_parallel_noColl03", branchNames, "VirtualDetector/prestop")
+
 
 if __name__ == "__main__":
     main()
