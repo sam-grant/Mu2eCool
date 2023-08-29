@@ -51,9 +51,44 @@ def GetBasicStats(data, xmin, xmax):
 import uproot
 import pandas as pd
 
+branchNamesExtended = [ 
+    "x", 
+    "y", 
+    "z", 
+    "Px", 
+    "Py",
+    "Pz",
+    "t",
+    "PDGid",
+    "EventID",
+    "TrackID",
+    "ParentID",
+    "Weight",
+    "Bx",
+    "By",
+    "Bz",
+    "Ex",
+    "Ey",
+    "Ez",
+    "ProperTime",
+    "PathLength",
+    "PolX",
+    "PolY",
+    "PoyZ",
+    "InitX",
+    "InitY",
+    "InitZ",
+    "InitKE"
+]  
+
+# Just up to "Weight"
+branchNames = branchNamesExtended[:12]
+
 def TTreeToDataFrame(finName, treeName, branchNames):
 
     # print("\n---> Reading...")
+
+    print("---> Reading", treeName, "in", finName)
 
     # Open the ROOT file
     fin = uproot.open(finName)
@@ -78,8 +113,6 @@ def TTreeToDataFrame(finName, treeName, branchNames):
     # Create the DataFrame directly from the dictionary of column data
     df = pd.DataFrame(branchData)
 
-    # print("---> Reading done, closing input file...")
-
     # Close the ROOT file
     fin.close()
 
@@ -88,6 +121,59 @@ def TTreeToDataFrame(finName, treeName, branchNames):
 
     # Return the DataFrame
     return df
+
+# ---------------------------------
+# PDGid wrangling
+# ---------------------------------
+
+particleDict = {
+    2212: 'proton',
+    211: 'pi+',
+    -211: 'pi-',
+    -13: 'mu+',
+    13: 'mu-'
+    # Add more particle entries as needed
+    }
+
+def FilterParticles(df, particle): 
+
+    # Filter particles
+    if particle in particleDict.values():
+        PDGid = list(particleDict.keys())[list(particleDict.values()).index(particle)]
+        df = df[df['PDGid'] == PDGid]
+
+    if particle=="no_proton":
+
+        df = df[df['PDGid'] != 2212]
+
+    if particle=="pi-_and_mu-":
+
+        df = df[(df['PDGid'] == -211) | (df['PDGid'] == 13)]
+
+    if particle=="pi+-":
+
+        df = df[(df['PDGid'] == 211) | (df['PDGid'] == -221)]
+
+    if particle=="mu+-":
+
+        df = df[(df['PDGid'] == -13) | (df['PDGid'] == 13)]
+
+    return df
+
+def GetLatexParticleName(particle):
+
+    if particle == "proton": return "$p$"
+    elif particle == "pi+-": return "$\pi^{\pm}$"
+    elif particle == "pi+": return "$\pi^{+}$"
+    elif particle == "pi-": return "$\pi^{-}$"
+    elif particle == "mu+-": return "$\mu^{\pm}$"
+    elif particle == "mu+": return "$\mu^{+}$"
+    elif particle == "mu+": return "$\mu^{-}$"
+    elif particle == "no_proton": return "No $p$"
+    elif particle == "pi-_and_mu-": return "$\pi^{-}$ & $\mu^{-}$"
+    elif particle == "pi+_and_mu+": return "$\pi^{+}$ & $\mu^{+}$"
+    # Add more as required
+    else: return particle
 
 # --------------------
 # Plotting
@@ -104,19 +190,27 @@ def ProfileX(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=
     xBinWidths = xEdge_[1]-xEdge_[0]
 
     # Calculate the mean and RMS values of each vertical slice of the 2D distribution
-    ySliceMean_, ySliceRMS_ = [], []
+    xSlice_, xSliceErr_, ySlice_, ySliceErr_ = [], [], [], []
+
     for i in range(len(xEdge_) - 1):
+
+        # Average x-value
+        xSlice = x[ (xEdge_[i] < x) & (x <= xEdge_[i+1]) ]
+
         # Get y-slice within current x-bin
         ySlice = y[ (xEdge_[i] < x) & (x <= xEdge_[i+1]) ]
-        # Append the means and rms in each slice
-        ySliceMean_.append(ySlice.mean()) 
-        ySliceRMS_.append(ySlice.std())
 
-    # Convert lists to numpy arrays
-    ySliceMean_ = np.array(ySliceMean_)
-    ySliceRMS_ = np.array(ySliceRMS_)
+        # Avoid empty slices
+        if len(xSlice) == 0 or len(ySlice) == 0:
+            continue
 
-    return ySliceMean_, ySliceRMS_
+        # Central values are means and errors are standard errors on the mean
+        xSlice_.append(np.mean(xSlice))
+        xSliceErr_.append(xSlice.std() / len(xSlice))
+        ySlice_.append(ySlice.mean()) 
+        ySliceErr_.append(ySlice.std() / len(ySlice))
+
+    return np.array(xSlice_), np.array(xSliceErr_), np.array(ySlice_), np.array(ySliceErr_)
 
 import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
@@ -228,6 +322,9 @@ def PlotGraph(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scat
     # Plot scatter with error bars
     if len(xerr)==0: xerr = [0] * len(x) # Sometimes we only use yerr
     if len(yerr)==0: yerr = [0] * len(y) # Sometimes we only use yerr
+
+    if len(x) != len(y): print("Warning: x has length", len(x),", while y has length", len(y))
+
     ax.errorbar(x, y, xerr=xerr, yerr=yerr, fmt='o', color='black', markersize=4, ecolor='black', capsize=2, elinewidth=1, linestyle='None')
 
     # Set title, xlabel, and ylabel
@@ -258,7 +355,7 @@ def PlotGraph(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scat
     plt.clf()
     plt.close()
 
-def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300):
+def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False):
 
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -268,7 +365,7 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
 
     # Define the colourmap colours
     colours = [
-        # (0., 0., 0.),                                                   # Black
+        (0., 0., 0.),                                                   # Black
         (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
         (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
         (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
@@ -288,6 +385,8 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
 
     # Iterate over the hists and plot each one
     for i, hist in enumerate(hists):
+        colour = cmap(i)
+        if not includeBlack: colour = cmap(i+1)
         counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=cmap(i), linewidth=1.0, fill=False, density=False, color=cmap(i), label=labels[i])
 
     # Set x-axis limits
@@ -535,3 +634,5 @@ def BarChart(data, label_dict, title=None, xlabel=None, ylabel=None, fout="bar_c
     # Clear memory
     plt.clf()
     plt.close()
+
+
