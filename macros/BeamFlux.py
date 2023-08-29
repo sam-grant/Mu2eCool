@@ -16,21 +16,6 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 g4blVer="v3.06"
 
-branchNames = [ 
-    "x", 
-    "y", 
-    "z", 
-    "Px", 
-    "Py",
-    "Pz",
-    "t",
-    "PDGid",
-    "EventID",
-    "TrackID",
-    "ParentID",
-    "Weight",
-]  
-
 def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     df["P"] = np.sqrt( np.power(df["Px"], 2) + np.power(df["Py"], 2) + np.power(df["Pz"], 2) )
@@ -70,16 +55,17 @@ def RunMuonFlux(config):
     finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
  
     # Read in TTrees
-    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z1850", branchNames)
-    df_Coll_01_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetIn", branchNames)
-    df_Coll_01_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetOut", branchNames)
-    df_Coll_03_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetIn", branchNames)
-    df_Coll_03_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetOut", branchNames)
-    df_Coll_05_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_05_DetIn", branchNames)
-    df_Coll_05_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_05_DetOut", branchNames)
-    df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", branchNames)
-    df_poststop = ut.TTreeToDataFrame(finName, "VirtualDetector/poststop", branchNames)
-    df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", branchNames)
+    # TODO: store this all in a dictionary
+    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z1850", ut.branchNames)
+    df_Coll_01_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetIn", ut.branchNames)
+    df_Coll_01_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetOut", ut.branchNames)
+    df_Coll_03_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetIn", ut.branchNames)
+    df_Coll_03_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetOut", ut.branchNames)
+    df_Coll_05_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_05_DetIn", ut.branchNames)
+    df_Coll_05_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_05_DetOut", ut.branchNames)
+    df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNames)
+    df_poststop = ut.TTreeToDataFrame(finName, "VirtualDetector/poststop", ut.branchNames)
+    df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNames)
 
     # ------ All flux ------
 

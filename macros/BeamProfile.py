@@ -15,15 +15,6 @@ from matplotlib.patches import Rectangle
 # Globals
 g4blVer="v3.06"
 
-particleDict = {
-    2212: "proton",
-    211: "pi+",
-    -211: "pi-",
-    -13: "mu+",
-    13: "mu-"
-    # Add more particle entries as needed
-    }
-
 # ---- Start of plotting functions ---- 
 
 # def Plot2DCustomLine(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", NDPI=300):
@@ -241,8 +232,8 @@ def RunBeamProfile(config, ntupleName, particle):
     title = ut.GetLatexParticleName(particle)+", Z = "+ntupleName[1:]+" mm"
 
     # Particle populations
-    ut.BarChart(df["PDGid"], particleDict, title, "", "Percentage / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionPecentage_"+ntupleName+"_"+config+".png", percentage=True)
-    ut.BarChart(df["PDGid"], particleDict, title, "", "Counts / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionCounts_"+ntupleName+"_"+config+".png", percentage=False)
+    ut.BarChart(df["PDGid"], ut.particleDict, title, "", "Percentage / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionPecentage_"+ntupleName+"_"+config+".png", percentage=True)
+    ut.BarChart(df["PDGid"], ut.particleDict, title, "", "Counts / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionCounts_"+ntupleName+"_"+config+".png", percentage=False)
 
     # Upstream / downstream particles
     # df_upstream = df[df["Pz"] > 0]

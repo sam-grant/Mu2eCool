@@ -2,7 +2,6 @@
 # Rely on a set of 11 ZNTuples spaced around the PT, at 1265:2265:100 mm 
 # Code draws on BeamProfile.py 
 
-
 import uproot
 import pandas as pd
 import csv
@@ -17,47 +16,12 @@ from matplotlib.patches import Rectangle
 # Globals
 g4blVer="v3.06"
 
-particleDict = {
-	2212: 'proton',
-	211: 'pi+',
-	-211: 'pi-',
-	-13: 'mu+',
-	13: 'mu-'
-
-	# Add more particle entries as needed
-	}
-
-def FilterParticles(df, particle): 
-
-	# Filter particles
-	if particle in particleDict.values():
-		PDGid = list(particleDict.keys())[list(particleDict.values()).index(particle)]
-		df = df[df['PDGid'] == PDGid]
-
-	if particle=="no_proton":
-
-		df = df[df['PDGid'] != 2212]
-
-	if particle=="pi-_and_mu-":
-
-		df = df[(df['PDGid'] == -211) | (df['PDGid'] == 13)]
-
-	if particle=="pi+-":
-
-		df = df[(df['PDGid'] == -211) | (df['PDGid'] == 211)]
-
-	if particle=="mu+-":
-
-		df = df[(df['PDGid'] == 13) | (df['PDGid'] == -13)]
-
-
-	return df
-
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
 import math
 
+# Have since updated/simplified graph overlay method, but this works fine in this case
 def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300):
 
 	# Create figure and axes
@@ -97,12 +61,7 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 			# Get the axes
 			z, N = zip(*data)
 
-			# Update the labels
-			if label == "proton": label = "$p$"
-			elif label == "pi+": label = "$\pi^{+}$"
-			elif label == "pi-": label = "$\pi^{-}$"
-			elif label == "mu+": label = "$\mu^{+}$"
-			elif label == "mu-": label = "$\mu^{-}$"
+			label = ut.GetLatexParticleName(label)
 
 			# Plot
 			ax.scatter(z, N, label=label, marker='o', color=cmap(i), s=4) # , linestyle="-")
@@ -174,6 +133,8 @@ def RunZScan(config, branchNames, particle, outDir):
 
 	# Nested dictionary for particle populations over all Z
 	particleNZ = {}
+
+	# Lists of parameters
 	z_ = []
 	theta_ = []
 	thetaRMS_ = []
@@ -194,16 +155,13 @@ def RunZScan(config, branchNames, particle, outDir):
 		print("---> Reading", ntupleName)
 
 		# Load TTree into DataFrame
-		df = ut.TTreeToDataFrame(finName, "NTuple/"+ntupleName, branchNames) 
-
-		# Filter upstream particles 
-		# df = df[df['Pz'] > 0]
+		df = ut.TTreeToDataFrame(finName, "NTuple/"+ntupleName, ut.branchNames) 
 
 		# Dictionary for particles at this Z
 		particleN = {}
 
 	    # Loop through particleDict
-		for PDGid, particleName in particleDict.items():
+		for PDGid, particleName in ut.particleDict.items():
 			# Count the occurrences of pdg_id in the DataFrame and add the count to particleN dictionary
 			# if particleName=="proton": continue
 			particleN[particleName] = df[df['PDGid'] == PDGid].shape[0]
@@ -244,8 +202,7 @@ def RunZScan(config, branchNames, particle, outDir):
 		alpha_.append(np.mean(df['Alpha']))
 		beta_.append(np.mean(df['Beta']))
 
-		title="$Z="+ntupleName.split("Z")[1]+"$ mm"
-
+		title=ut.GetLatexParticleName(particle)+", $Z="+ntupleName.split("Z")[1]+"$ mm"
 
 		# Make dispersion plots
 		ut.Plot2D(df['P'], df['x'], 500, 0, 500, 250, -250, 250, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
@@ -257,7 +214,6 @@ def RunZScan(config, branchNames, particle, outDir):
 		ut.Plot2D(df['Pz'], df['x'], 1000, -500, 500, 250, -250, 250, title, "Longitundinal momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_XvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 		ut.Plot2D(df['Pz'], df['y'], 1000, -500, 500, 500, -250, 250, title, "Longitundinal momentum [MeV]", "y [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_YvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 
-
 		# ut.Plot1D(df['Theta'], int(np.pi)*1000, -np.pi/2, np.pi/2, title, r"$\theta$ [rad]", "Counts / mrad", fout="../img/"+g4blVer+"/"+outDir+"/h1_Theta_"+ntupleName+"_"+particle+"_"+config+".png", legPos="best", stats=False, errors=False)
 		# ut.Plot1D(df['Phi'], int(np.pi)*1000, -np.pi/2, np.pi/2, title, r"$\phi$ [rad]", "Counts / mrad", fout="../img/"+g4blVer+"/"+outDir+"/h1_Phi_"+ntupleName+"_"+particle+"_"+config+".png", legPos="best", stats=False, errors=False)
 
@@ -265,7 +221,6 @@ def RunZScan(config, branchNames, particle, outDir):
 		ut.Plot1D(df['x'], 400, -200, 200, title, "x [mm]", "Counts / mm", "../img/"+g4blVer+"/"+outDir+"/h1_X_"+ntupleName+"_"+particle+"_"+config+".png", stats=False) # , cb=False)
 		ut.Plot1D(df['y'], 400, -200, 200, title, "y [mm]", "Counts / mm", "../img/"+g4blVer+"/"+outDir+"/h1_Y_"+ntupleName+"_"+particle+"_"+config+".png", stats=False) # , cb=False)
 		ut.Plot2D(df['x'], df['y'], 400, -200, 200, 400, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_XY_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
-
 
 		# # Plot radius vs. momentum at each z
 		ut.Plot2D(df['P'], df['R'], 500, 0, 500, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
@@ -301,9 +256,8 @@ def RunZScan(config, branchNames, particle, outDir):
 
 	return
 
-
 # Cut left and right populations at Z2265
-def RunInitParam(config, branchNames, particle, outDir):
+def RunCutLeftRight(config, particle, outDir):
 
 	# Setup input 
 	finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
@@ -331,8 +285,6 @@ def RunInitParam(config, branchNames, particle, outDir):
 	df['Phi'] = np.arctan(df['Py']/df['Px'])
 	# Initial radius
 	df['InitR'] = np.sqrt( pow(df['InitX'],2) + pow(df['InitY'],2))
-
-
 
 	# Cut at P_z >< 100 MeV and plot R vs P 
 	ut.Plot2D(df['P'], df['R'], 250, 0, 250, 200, 0, 200, particle, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/"+outDir+"/h2_RadiusVsMom_"+ntupleName+"_"+particle+"_"+config+".png")
@@ -387,7 +339,6 @@ def RunInitParam(config, branchNames, particle, outDir):
 	return
 
 import math
-
 
 # Calculate Theta while handling cases outside -1 to 1
 def adjust_angle(angle, cos_value, Bx, By):

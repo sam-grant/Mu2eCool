@@ -17,16 +17,6 @@ from matplotlib.patches import Rectangle
 # Globals
 g4blVer="v3.06"
 
-particleDict = {
-	2212: 'proton',
-	211: 'pi+',
-	-211: 'pi-',
-	-13: 'mu+',
-	13: 'mu-'
-
-	# Add more particle entries as needed
-	}
-
 def FilterParticles(df, particle): 
 
 	# Filter particles

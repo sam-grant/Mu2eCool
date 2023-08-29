@@ -52,7 +52,7 @@ import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import ScalarFormatter
 
-def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300):
+def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300, includeBlack=False):
 
 	# Create figure and axes
 	fig, ax = plt.subplots()
@@ -62,7 +62,7 @@ def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xl
 
 	# Define the colourmap colours
 	colours = [
-	    # (0., 0., 0.),                                                   # Black
+	    (0., 0., 0.),                                                   # Black
 	    (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
 	    (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
 	    (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
@@ -82,7 +82,8 @@ def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xl
 
 	# Iterate over the hists and plot each one
 	for i, hist in enumerate(hists):
-		
+		colour = cmap(i)
+		if not includeBlack: colour = cmap(i+1)
 		# Calculate statistics
 		N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = ut.GetBasicStats(hist, xmin, xmax)
 		# Create legend text

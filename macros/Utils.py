@@ -140,25 +140,22 @@ def FilterParticles(df, particle):
     # Filter particles
     if particle in particleDict.values():
         PDGid = list(particleDict.keys())[list(particleDict.values()).index(particle)]
-        df = df[df['PDGid'] == PDGid]
+        return df[df['PDGid'] == PDGid]
 
-    if particle=="no_proton":
-
-        df = df[df['PDGid'] != 2212]
+    elif particle=="no_proton":
+        return df[df['PDGid'] != 2212]
 
     if particle=="pi-_and_mu-":
-
-        df = df[(df['PDGid'] == -211) | (df['PDGid'] == 13)]
+        return df[(df['PDGid'] == -211) | (df['PDGid'] == 13)]
 
     if particle=="pi+-":
-
-        df = df[(df['PDGid'] == 211) | (df['PDGid'] == -221)]
+        return df[(df['PDGid'] == 211) | (df['PDGid'] == -221)]
 
     if particle=="mu+-":
+        return df[(df['PDGid'] == -13) | (df['PDGid'] == 13)]
 
-        df = df[(df['PDGid'] == -13) | (df['PDGid'] == 13)]
-
-    return df
+    else: 
+        return df
 
 def GetLatexParticleName(particle):
 
@@ -168,7 +165,7 @@ def GetLatexParticleName(particle):
     elif particle == "pi-": return "$\pi^{-}$"
     elif particle == "mu+-": return "$\mu^{\pm}$"
     elif particle == "mu+": return "$\mu^{+}$"
-    elif particle == "mu+": return "$\mu^{-}$"
+    elif particle == "mu-": return "$\mu^{-}$"
     elif particle == "no_proton": return "No $p$"
     elif particle == "pi-_and_mu-": return "$\pi^{-}$ & $\mu^{-}$"
     elif particle == "pi+_and_mu+": return "$\pi^{+}$ & $\mu^{+}$"
@@ -387,7 +384,7 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
     for i, hist in enumerate(hists):
         colour = cmap(i)
         if not includeBlack: colour = cmap(i+1)
-        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=cmap(i), linewidth=1.0, fill=False, density=False, color=cmap(i), label=labels[i])
+        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=labels[i])
 
     # Set x-axis limits
     ax.set_xlim(xmin, xmax)
@@ -400,6 +397,76 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
     ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
     ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
     
+    # Scientific notation
+    if ax.get_xlim()[1] > 9999:
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(14)
+    if ax.get_ylim()[1] > 9999:
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(14)
+
+    # Add legend to the plot
+    ax.legend(loc=legPos, frameon=False, fontsize=12)
+
+    # Save the figure
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    # Clear memory
+    plt.close()
+
+def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300, includeBlack=False):
+
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # Define a colormap
+    # cmap = cm.get_cmap('tab10') # !!deprecated!!
+
+    # Define the colourmap colours
+    colours = [
+        (0., 0., 0.),                                                   # Black
+        (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
+        (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
+        (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
+        (1.0, 0.4980392156862745, 0.054901960784313725),                # Orange
+        (0.5803921568627451, 0.403921568627451, 0.7411764705882353),    # Purple
+        (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),   # Cyan
+        (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),   # Pink
+        (0.5490196078431373, 0.33725490196078434, 0.29411764705882354), # Brown
+        (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),   # Gray 
+        (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
+    ]
+
+    # Create the colormap
+    cmap = ListedColormap(colours)
+
+    # cmap = cm.get_cmap('tab10')
+
+    # Iterate over the hists and plot each one
+    for i, hist in enumerate(hists):
+        colour = cmap(i)
+        if not includeBlack: colour = cmap(i+1)
+        # Calculate statistics
+        N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = GetBasicStats(hist, xmin, xmax)
+        # Create legend text
+        legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
+        if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
+        counts, bin_edges, _ = ax.hist(hist, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=r"$\bf{"+labels[i]+"}$"+"\n"+legend_text)
+
+    # Set x-axis limits
+    ax.set_xlim(xmin, xmax)
+
+    ax.set_title(title, fontsize=16, pad=10)
+    ax.set_xlabel(xlabel, fontsize=14, labelpad=10) 
+    ax.set_ylabel(ylabel, fontsize=14, labelpad=10) 
+
+    # Set font size of tick labels on x and y axes
+    ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+
     # Scientific notation
     if ax.get_xlim()[1] > 9999:
         ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))

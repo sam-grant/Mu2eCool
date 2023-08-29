@@ -1,5 +1,4 @@
-# Make beam profile plots at a zntuple or VD
-# Interested in the relationship between momentum and traverse space, for absorber study
+# How many duplicated events (same EventID and TrackID)
 
 import uproot
 import pandas as pd
@@ -31,12 +30,8 @@ def Run(config, branchNames, ntupleName):
 
     ntupleName = ntupleName.split("/")[1] 
 
-    # df['UniqueID'] = 1e6*df['EventID'] + 1e3*df['TrackID'] 
-
-    # Calculate the number of dropped duplicates
-
     # Keep one of the duplicates while dropping the rest
-    df_duplicates = df[df.duplicated(subset=["EventID", "TrackID"], keep=False)] # , keep='first') == False]
+    df_duplicates = df[df.duplicated(subset=["EventID", "TrackID"], keep='first')] # , keep='first') == False]
     # mask_first_occurrences = df.duplicated(subset=["EventID", "TrackID"], keep="first")
     # df_duplicates = df_duplicates[~mask_first_occurrences]
     # print(df_duplicates)
@@ -74,5 +69,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
