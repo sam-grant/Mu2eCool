@@ -4,11 +4,22 @@
 # ---> pion: 182.31958
 # ---> muon: 82.702324
 
+# Mean momentum [MeV]:
+# ---> all: 325.09283
+# ---> proton: 391.6868
+# ---> pion: 182.31958
+# ---> muon: 82.702324
+# RMS momentum [MeV]:
+# ---> all: 187.39487
+# ---> proton: 174.89955
+# ---> pion: 112.04425
+# ---> muon: 46.529785
+
 # The "default" physics list is QGSP_BERT
 physics QGSP_BERT
 
 param -unset NEVENTS=1000
-param -unset MEAN_MOMENTUM=182.31958 # MeV 
+param -unset MOMENTUM=182.31958 # MeV 
 param -unset PARTICLE=pi-
 param -unset THICKNESS=100 # mm
 
@@ -16,7 +27,7 @@ param -unset THICKNESS=100 # mm
 trackcuts keep=$PARTICLE
 
 # Zero-emittance beam. It emanates from z=0.
-beam gaussian meanMomentum=$MEAN_MOMENTUM nEvents=$NEVENTS particle=$PARTICLE
+beam gaussian meanMomentum=$MOMENTUM nEvents=$NEVENTS particle=$PARTICLE
 
 # The target is a beryllium slab 2000 mm x 2000 mm; make it blue.
 box Target width=2000 height=2000 length=$THICKNESS material=Be color=0,0,1 maxStep=50.e-3
