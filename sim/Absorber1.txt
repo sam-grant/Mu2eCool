@@ -6,7 +6,7 @@
 # zntuple is at 2264.5
 
 param -unset ZPOSITION=1965
-param -unset THICKNESS=10
+param -unset THICKNESS=50
 
 # The absorber is a beryllium cylinder 200 mm radius and 20 mm thick
 

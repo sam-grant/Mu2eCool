@@ -102,7 +102,7 @@ def Plot2DCustomBox(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0
 
     # Draw line
     ax.axvline(x=50.0, color="white", linestyle="--", linewidth=1)
-    ax.axhline(y=100.0, color="white", linestyle="--", linewidth=1)
+    ax.axhline(y=85.0, color="white", linestyle="--", linewidth=1)
     
     # Scientific notation
     if ax.get_xlim()[1] > 9999:
@@ -221,7 +221,7 @@ def Plot3DCustomCircle(x, y, z, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymi
 
 # ---- End of plotting functions ----  
 
-def RunBeamProfile(config, ntupleName, particle):
+def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
     # Setup input 
     finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
@@ -229,7 +229,9 @@ def RunBeamProfile(config, ntupleName, particle):
 
     # Titles and names
     ntupleName = ntupleName.split("/")[1] 
-    title = ut.GetLatexParticleName(particle)+", Z = "+ntupleName[1:]+" mm"
+    title = ut.GetLatexParticleName(particle) # 
+    if ntupleName[0] == "Z": title += ", Z = "+ntupleName[1:]+" mm"
+    else: title += ", "+ntupleName
 
     # Particle populations
     ut.BarChart(df["PDGid"], ut.particleDict, title, "", "Percentage / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionPecentage_"+ntupleName+"_"+config+".png", percentage=True)
@@ -249,6 +251,23 @@ def RunBeamProfile(config, ntupleName, particle):
     # Filter particles
     df = ut.FilterParticles(df, particle)
 
+    # Need to translate position, based on where we are along the beamline
+    df_trans = df 
+
+    if ntupleName[:7] == "Coll_03":
+        # x is now z, shifted by z position of collimator 5
+        # param Coll_03_up_z=$MECO_G4_zTrans
+        # param MECO_G4_zTrans=(5.00+2.929)*1000
+        df_trans["x"] = df["z"] - (5.00+2.929)*1000 # 082
+        df = df_trans
+
+    if ntupleName[:7] == "Coll_05" or ntupleName == "prestop" or ntupleName == "poststop":
+        # x is still x, but shifted by x position of collimator 5
+        # param MECO_G4_xTrans=-(2.929+1.950/2.0)*1000
+        # param Coll_05_x=-3904+$MECO_G4_xTrans
+        df_trans["x"] = df["x"] + 3904 + (2.929+1.950/2.0)*1000
+        df = df_trans 
+
     # Momentum 
     df["P"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) + pow(df["Pz"],2) ) 
     # Radius 
@@ -257,8 +276,14 @@ def RunBeamProfile(config, ntupleName, particle):
     df["PT"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
 
     # Momentum and radial distributions
-    ut.Plot1D(df["P"], 500, 0, 500, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
-    ut.Plot1D(df["R"], 300, 0, 300, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+    ut.Plot1D(df["P"], 500, 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
+    # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
+
+    ut.Plot1D(df["R"], 500, 0, 500, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+
+    # Tranvserse position
+    # ut.Plot2D(df["x"], df["y"], 400, -200, 200, 400, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
+    ut.Plot2D(df["x"], df["y"], 40, -200, 200, 40, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
 
     # Make 2D dispersion plots
     ut.Plot2D(df["P"], df["x"], 250, 0, 250, 440, -220, 220, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png") 
@@ -270,15 +295,17 @@ def RunBeamProfile(config, ntupleName, particle):
     ut.Plot2D(df["Pz"], df["x"], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png")
     ut.Plot2D(df["Pz"], df["y"], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_YvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png")
 
-    ut.Plot2D(df["P"], df["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config+".png")
+    ut.Plot2D(df["P"], df["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # ---- Special plots for illustration ----
 
-    Plot2DCustomBox(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RVsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
+    Plot2DCustomBox(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
+    ut.Plot2D(df["P"], df["R"], 50, 0, 250, 40, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_coarseBinning_"+ntupleName+"_"+particle+"_"+config+".png")
+    Plot2DCustomBox(df["P"], df["R"], 50, 0, 250, 40, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_wline_coarseBinning_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # x vs y vs mom
-    ut.Plot3D(df["x"], df["y"], df["P"], 80, -200, 200, 80, -200, 200, 250, title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
-    Plot3DCustomCircle(df["x"], df["y"], df["P"], 80, -200, 200, 80, -200, 200, 250, title, "x [mm]", "y [mm]", "Mean momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_wcirc_"+ntupleName+"_"+particle+"_"+config+".png", contours=False, radius=100)
+    ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    Plot3DCustomCircle(df["x"], df["y"], df["P"], 80, -200, 200, 80, -200, 200, maxMom, title, "x [mm]", "y [mm]", "Mean momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_wcirc_"+ntupleName+"_"+particle+"_"+config+".png", contours=False, radius=80)
 
     # Slice momentum 
     for i in range(0, 201, 50):
@@ -292,11 +319,13 @@ def RunBeamProfile(config, ntupleName, particle):
         # Cut momentum while preserving the structure of mom array
         momCut[(df["P"] >= i) & (df["P"] < j)] = df["P"][(df["P"] >= i) & (df["P"] < j)]
 
-        ut.Plot2D(df[(df["P"] >= i) & (df["P"] < j)]["x"], df[(df["P"] >= i) & (df["P"] < j)]["y"], 400, -200, 200, 400, -200, 200, title+":\n "+str(int(i))+"< p [MeV] < "+str(j), "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/MomSlices/h2_XY_"+ntupleName+"_"+particle+"_"+config+"_"+str(int(i))+"_"+str(int(j))+"MeV.png")
+        ut.Plot2D(df[(df["P"] >= i) & (df["P"] < j)]["x"], df[(df["P"] >= i) & (df["P"] < j)]["y"], 40, -200, 200, 40, -200, 200, title+":\n "+str(int(i))+"< p [MeV] < "+str(j), "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/MomSlices/h2_XY_"+ntupleName+"_"+particle+"_"+config+"_"+str(int(i))+"_"+str(int(j))+"MeV.png")
+        Plot2DCustomCircle(df[(df["P"] >= i) & (df["P"] < j)]["x"], df[(df["P"] >= i) & (df["P"] < j)]["y"], 40, -200, 200, 40, -200, 200, title+":\n "+str(int(i))+"< p [MeV] < "+str(j), "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/MomSlices/h2_XY_wcirc_"+ntupleName+"_"+particle+"_"+config+"_"+str(int(i))+"_"+str(int(j))+"MeV.png", radius=85)
 
     # Radius verus momentum 2D
     ut.Plot2D(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RadiusVsMom_"+ntupleName+"_"+particle+"_"+config+".png")
-    Plot2DCustomBox(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RadiusVsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
+    # Plot2DCustomBox(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RadiusVsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
+    # Plot2DCustomBox(df["P"], df["R"], 25, 0, 25, 20, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RadiusVsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # xProfile of momentum versus radius
     x_, xerr_, y_, yerr_ = ut.ProfileX(df["P"], df["R"], 250, 0, 250, 200, 0, 200)
@@ -306,7 +335,40 @@ def RunBeamProfile(config, ntupleName, particle):
 
 def main():
 
-    RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi+-")
+    RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "no_proton", 300)
+    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "pi+-", 300)
+    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "mu+-", 300)
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "no_proton", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "pi+-", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "mu+-", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "pi-", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "mu-", 600)
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi+-", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "mu+-", 600)
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "no_proton", 600)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_01_DetOut", "no_proton", 300)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "no_proton", 150)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetOut", "no_proton", 150)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/prestop", "no_proton", 150)
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi+-")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi+")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi-")
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn", "mu+-")
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+-")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu-")
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetOut", "mu+-")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+")
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu-")
+
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_05_DetOut", "mu+-")
 
 if __name__ == "__main__":
     main()

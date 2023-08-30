@@ -249,13 +249,49 @@ def RunPSZScan(config, particle):
 
 	return
 
+# --- This stuff should in a standalone macro
+
+def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
+
+    df["P"] = np.sqrt( np.power(df["Px"], 2) + np.power(df["Py"], 2) + np.power(df["Pz"], 2) )
+
+    # df_proton = ut.FilterParticles(df, "proton") 
+    df_pi_plus = ut.FilterParticles(df, "pi+") 
+    df_pi_minus = ut.FilterParticles(df, "pi-") 
+    df_mu_plus = ut.FilterParticles(df, "mu+") 
+    df_mu_minus = ut.FilterParticles(df, "mu-")  
+
+    ut.Plot1DOverlay([df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"]], nbins=int(xmax/10), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / 10 MeV", labels = ["$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/PSZScan/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=False)
+
+    return
+
+def RunSinglePSZ(config, ntupleName):
+
+	# Setup input 
+	finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
+
+	# Get ntuple name
+	title = "Z = "+ntupleName[1:]+" mm"
+
+	print("---> Reading", ntupleName)
+
+	# Load TTree into DataFrame
+	df = ut.TTreeToDataFrame(finName, "NTuple/"+ntupleName, ut.branchNamesExtended) 
+
+	ParticleMomentumOverlay(df, ntupleName, title, config, 700)
+
+	return
+
 def main():
 
 
 	config="Mu2E_1e6events_ManyZNTuple1"
 	particle =  "mu+-" # pi+-" # "mu+-" # "mu+-" # "pi+-" # mu+-" # pi+-" # mu+-" # all" # "pi+-" # "mu+-" # "no_proton"
 
-	RunPSZScan(config,  particle) 
+	# RunPSZScan(config,  particle) 
+
+	# I really just want to plot the momentum
+	RunSinglePSZ(config, "Z1965")
 
 	# --- These functions are commented below main --- 
 	# RunCutLeftRight(config, branchNames, particle, outDir) 

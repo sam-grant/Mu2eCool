@@ -8,7 +8,7 @@ param -unset ZPOSITION=1965
 # 1 = thickness - 20 * a
 # a = (thickness-1)/20
 
-param -unset THICKNESS=30
+param -unset THICKNESS=50
 
 # a must equal 1 mm at 
 

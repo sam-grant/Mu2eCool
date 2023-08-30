@@ -193,7 +193,7 @@ muminuscapturefix neutronMeanNumber=0.277 neutronMeanEnergy=20.07
 #                                Z-plane demo 
 # ****************************************************************************
 
-# include /Users/sgrant/mu2e/g4bl/sim/ZPlaneDemo.txt
+# include /Users/sgrant/mu2e/Mu2eCool/sim/ZPlaneDemo.txt
 
 # ****************************************************************************
 #                                Set the kill parameter on various shielding
@@ -622,17 +622,17 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
-include /Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
+param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber1.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber1.txt 
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber2.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber2.txt 
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber3.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber3.txt 
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
 
 # ****************************************************************************
 #                                Proton Beam
@@ -670,10 +670,10 @@ param -unset READ_Beam_File=3
 param -unset Use_Basic_Det=1
 param -unset Make_ZNtuple=1
 
-param -unset Beam_File=/Users/sgrant/mu2e/g4bl/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt # /Users/sgrant/mu2e/g4bl/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt  # /Users/sgrant/mu2e/g4bl/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1800_bm_0.txt
+param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt  # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1800_bm_0.txt
 
-# /Users/sgrant/mu2e/g4bl/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt 
-# param -unset Beam_File=/Users/sgrant/mu2e/g4bl/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_bm_0.txt
+# /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt 
+# param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_bm_0.txt
 
 # TODO: should change this to "Use_Track_Calo" and "Make_Beam_File" for clarity 
 # param -unset No_Track_Calo=0 # Remove tracker and calo info

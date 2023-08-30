@@ -9,8 +9,8 @@
 #
 
 ver="v3.06"
-dir="DispersionAndBeamSpot"
-name="combo_XYRvsMomZ" # combo_XY"
+dir="PSZScan/CombinedImgs"
+name="combo_XYRvsMomZ" # combo_XYRvsMomZ" # combo_XY"
 particle="pi+-" # "pi+-" # "mu+-"
 config="${name}_${particle}_Mu2E_1e6events_ManyZNTuple1"
 

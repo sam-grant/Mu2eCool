@@ -1,7 +1,7 @@
 # A wedge, max thickness 10 cm thick cylinder in the PS
 
 param -unset ZPOSITION=1965
-param -unset THICKNESS=30
+param -unset THICKNESS=50
 
 for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
     tubs Target outerRadius=200-$i*10 innerRadius=190-$i*10 length=$THICKNESS-$i*($THICKNESS-1)/19 \

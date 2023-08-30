@@ -8,6 +8,8 @@
 import math
 import numpy as np
 from scipy import stats
+from scipy.stats import norm
+from scipy.optimize import curve_fit
 
 def Round(value, sf):
 
@@ -43,6 +45,14 @@ def GetBasicStats(data, xmin, xmax):
     overflows = len(data[data > xmax])
 
     return N, mean, meanErr, stdDev, stdDevErr, underflows, overflows
+
+# --------------------
+# Fit function
+# --------------------
+
+# The Gaussian function
+def gaussian(x, norm, mu, sigma):
+    return norm * np.exp(-((x - mu) / (2 * sigma)) ** 2)
 
 # --------------------
 # TTree wrangling 
@@ -179,7 +189,7 @@ def GetLatexParticleName(particle):
     elif particle == "mu+-": return "$\mu^{\pm}$"
     elif particle == "mu+": return "$\mu^{+}$"
     elif particle == "mu-": return "$\mu^{-}$"
-    elif particle == "no_proton": return "No $p$"
+    elif particle == "no_proton": return "No protons"
     elif particle == "pi-_and_mu-": return "$\pi^{-}$ & $\mu^{-}$"
     elif particle == "pi+_and_mu+": return "$\pi^{+}$ & $\mu^{+}$"
     # Add more as required
@@ -228,7 +238,7 @@ from matplotlib.colors import ListedColormap
 # Enable LaTeX rendering
 # plt.rcParams["text.usetex"] = True
 
-def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", underOver=False, stats=True, errors=False, NDPI=300):
+def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", stats=True, peak=False, underOver=False, errors=False, NDPI=300):
     
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -241,13 +251,91 @@ def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel
 
     # Calculate statistics
     N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = GetBasicStats(data, xmin, xmax)
+    # peak = np.max(counts)
+    # peak_bin_edges = bin_edges[i_peak:i_peak + 2]
+    # peak = counts[i_peak]
+    # peakErr = (bin_edges[1] - bin_edges[0]) / 2
     # N, mean, meanErr, stdDev, stdDevErr = str(N), Round(mean, 3), Round(mean, 3), Round(meanErr, 1), Round(stdDev, 3), Round(stdDevErr, 1) 
 
     # Create legend text
     legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
     # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
     if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
+    # if peak: legend_text += f"\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
     if underOver: legend_text += f"\nUnderflows: {underflows}\nOverflows: {overflows}"
+
+    # legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDev, 1)}"
+
+    # Add legend to the plot
+    if stats: ax.legend([legend_text], loc=legPos, frameon=False, fontsize=14)
+
+    ax.set_title(title, fontsize=16, pad=10)
+    ax.set_xlabel(xlabel, fontsize=14, labelpad=10) 
+    ax.set_ylabel(ylabel, fontsize=14, labelpad=10) 
+
+    # Set font size of tick labels on x and y axes
+    ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+
+    # Scientific notation
+    # if ax.get_xlim()[1] > 999:
+    #     ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    #     ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    #     ax.xaxis.offsetText.set_fontsize(14)
+    # if ax.get_ylim()[1] > 999:
+    #     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    #     ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    #     ax.yaxis.offsetText.set_fontsize(14)
+
+    if ax.get_xlim()[1] > 9999:
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(14)
+    if ax.get_ylim()[1] > 9999:
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(14)
+
+    # Save the figure
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    # Clear memory
+    plt.clf()
+    plt.close()
+
+def Plot1DWithGaussFit(data, nBins=100, xmin=-1.0, xmax=1.0, norm=1.0, mu=0.0, sigma=1.0, fitMin=-1.0, fitMax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", stats=True, peak=False, underOver=False, errors=False, NDPI=300):
+    
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # Plot the histogram with outline
+    counts, bin_edges, _ = ax.hist(data, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor='black', linewidth=1.0, fill=False, density=False)
+
+    # Set x-axis limits
+    ax.set_xlim(xmin, xmax)
+
+    # Fit gaussian
+
+    # Calculate bin centers
+    bin_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+    # Fit the Gaussian function to the histogram data
+    params, covariance = curve_fit(gaussian, bin_centres[(bin_centres >= fitMin) & (bin_centres <= fitMax)], counts, p0=[norm, mu, sigma])
+    # Extract parameters from the fitting
+    norm, mu, sigma = params
+    # Plot the Gaussian curve
+    ax.plot(bin_centres, gaussian(bin_centres, norm, mu, sigma), color="red", label=f"Norm: {norm}\n$\mu$: {mu}\n$sigma {sigma}")
+
+    # Calculate statistics
+    N, mean, meanErr, stdDev, stdDevErr, underflows, overflows = GetBasicStats(data, xmin, xmax)
+
+    # Create legend text
+    legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
+    # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
+    if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
+    # if peak: legend_text += f"\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
+    if underOver: legend_text += f"\nUnderflows: {underflows}\nOverflows: {overflows}"
+
     # legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDev, 1)}"
 
     # Add legend to the plot
@@ -347,11 +435,11 @@ def PlotGraph(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scat
     ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
 
      # Scientific notation
-    if ax.get_xlim()[1] > 999:
+    if ax.get_xlim()[1] > 9999:
         ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
         ax.xaxis.offsetText.set_fontsize(14)
-    if ax.get_ylim()[1] > 999:
+    if ax.get_ylim()[1] > 9999:
         ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
         ax.yaxis.offsetText.set_fontsize(14)
@@ -502,7 +590,7 @@ def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xl
 
 # Input is a dictionary with four lists per key
 # Lists are x, xerr, y, err; key is the label
-def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300):
+def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300, offsetLegend=False, useCustomCmap=True):
 
     # Create a scatter plot with error bars using NumPy arrays 
 
@@ -510,25 +598,26 @@ def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="sca
     fig, ax = plt.subplots()
 
     # Define the colourmap colours
-    # colours = [
-    #   # (0., 0., 0.),                                                   # Black
-    #   (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
-    #   (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
-    #   (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
-    #   (1.0, 0.4980392156862745, 0.054901960784313725),                # Orange
-    #   (0.5803921568627451, 0.403921568627451, 0.7411764705882353),    # Purple
-    #   (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),   # Cyan
-    #   (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),   # Pink
-    #   (0.5490196078431373, 0.33725490196078434, 0.29411764705882354), # Brown
-    #   (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),   # Gray 
-    #   (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
-    # ]
+    colours = [
+      # (0., 0., 0.),                                                   # Black
+      (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
+      (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
+      (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
+      (1.0, 0.4980392156862745, 0.054901960784313725),                # Orange
+      (0.5803921568627451, 0.403921568627451, 0.7411764705882353),    # Purple
+      (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),   # Cyan
+      (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),   # Pink
+      (0.5490196078431373, 0.33725490196078434, 0.29411764705882354), # Brown
+      (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),   # Gray 
+      (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
+    ]
 
     # Create the colormap
     # cmap = ListedColormap(colours)
     colour_idx = 0
 
-    cmap = cm.get_cmap('tab10') # !!deprecated!!
+    cmap = ListedColormap(colours) 
+    if not useCustomCmap: cmap = cm.get_cmap('tab10') # !!deprecated!!
 
     print(graph_dict)
 
@@ -541,8 +630,6 @@ def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="sca
 
             print("\n", label, graph)
 
-            # print("HHHHEEELLLOOOO")
-
             x = graph['x']
             y = graph['y']
             xerr = graph['xerr'] 
@@ -554,7 +641,7 @@ def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="sca
             # if len(xerr)==0: xerr = [0] * len(x) # Sometimes we only use yerr
             # if len(yerr)==0: yerr = [0] * len(y) # Sometimes we only use yerr
 
-            ax.errorbar(x=x, y=y, xerr=xerr, yerr=yerr, fmt='o', color=cmap(colour_idx), markersize=4, ecolor=cmap(colour_idx), capsize=2, elinewidth=1, linestyle='None', label=str(label)+" MeV")
+            ax.errorbar(x=x, y=y, xerr=xerr, yerr=yerr, fmt='o', color=cmap(colour_idx), markersize=4, ecolor=cmap(colour_idx), capsize=2, elinewidth=1, linestyle='None', label=label)
 
             colour_idx += 1
 
@@ -569,7 +656,11 @@ def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="sca
     ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
     ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
 
-    legend = ax.legend(loc="center left", frameon=False, fontsize=14, bbox_to_anchor=(1, 0.5)) 
+    if offsetLegend: 
+        legend = ax.legend(loc="center left", frameon=False, fontsize=14, bbox_to_anchor=(1, 0.5)) 
+    else: 
+        legend = ax.legend(loc="best", frameon=False, fontsize=14) 
+
     # Add a legend on the right side outside the plot
     # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
