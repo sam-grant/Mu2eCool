@@ -1,3 +1,0 @@
-#BLTrackFile: Source file
-#x            y            z            Px         Py         Pz         t            PDGid   EventID    TrackID    ParentID  TrackID
-#mm           mm           mm           MeV/c      MeV/c      MeV/c      ns           ID      ID         ID         ID        ID     
