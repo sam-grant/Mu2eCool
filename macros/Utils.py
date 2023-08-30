@@ -158,13 +158,13 @@ def FilterParticles(df, particle):
     elif particle=="no_proton":
         return df[df['PDGid'] != 2212]
 
-    if particle=="pi-_and_mu-":
+    elif particle=="pi-_and_mu-":
         return df[(df['PDGid'] == -211) | (df['PDGid'] == 13)]
 
-    if particle=="pi+-":
-        return df[(df['PDGid'] == 211) | (df['PDGid'] == -221)]
+    elif particle=="pi+-":
+        return df[(df['PDGid'] == 211) | (df['PDGid'] == -211)]
 
-    if particle=="mu+-":
+    elif particle=="mu+-":
         return df[(df['PDGid'] == -13) | (df['PDGid'] == 13)]
 
     else: 
