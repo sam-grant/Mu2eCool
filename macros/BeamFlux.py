@@ -94,8 +94,10 @@ def RunMuonFlux(config):
     ParticleMomentumOverlay(df_prestop, "df_prestop", "Entering ST", config, 150)
     ParticleMomentumOverlay(df_poststop, "df_poststop", "Exiting ST", config, 150)
 
-    # ------ Muon flux ------
+    # Store pi- entering the TS, for a plot...
+    df_Coll_01_DetOut_piminus = ut.FilterParticles(df_Coll_01_DetOut, "pi-")
 
+    # ------ Muon flux ------
     print("\n---> Muon flux:")
     # Filter muons
     particle = "mu-"
@@ -120,6 +122,7 @@ def RunMuonFlux(config):
     df_Z["P"] = np.sqrt( pow(df_Z["Px"],2) + pow(df_Z["Py"],2) + pow(df_Z["Pz"],2) )
     # df_Coll_01_DetIn["P"] = np.sqrt( pow(df_Coll_01_DetIn["Px"],2) + pow(df_Coll_01_DetIn["Py"],2) + pow(df_Coll_01_DetIn["Pz"],2) )
     df_Coll_01_DetOut["P"] = np.sqrt( pow(df_Coll_01_DetOut["Px"],2) + pow(df_Coll_01_DetOut["Py"],2) + pow(df_Coll_01_DetOut["Pz"],2) )
+    df_Coll_01_DetOut_piminus["P"] = np.sqrt( pow(df_Coll_01_DetOut_piminus["Px"],2) + pow(df_Coll_01_DetOut_piminus["Py"],2) + pow(df_Coll_01_DetOut_piminus["Pz"],2) )
     # df_Coll_05_DetOut["P"] = np.sqrt( pow(df_Coll_05_DetOut["Px"],2) + pow(df_Coll_05_DetOut["Py"],2) + pow(df_Coll_05_DetOut["Pz"],2) )
     df_prestop["P"] = np.sqrt( pow(df_prestop["Px"],2) + pow(df_prestop["Py"],2) + pow(df_prestop["Pz"],2) )
 
@@ -182,7 +185,9 @@ def RunMuonFlux(config):
     ut.Plot1D(df_prestop["P"], 150, 0, 150, r"$\mu^{-}$ entering stopping target" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_prestop_"+particle+"_"+config+".png", "upper right", errors=True) 
     ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_stoppedMuons_"+particle+"_"+config+".png", "upper right", errors=True) 
     # ut.Plot1DOverlay([mom_Coll_01_DetIn, mom_Coll_05_DetOut, mom_prestop, mom_stoppedMuons], 300, 0, 300, config, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_verboseOverlay_"+config+".pdf", ["$\mu^{-}$ before TS", "$\mu^{-}$ after TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best", 100)
+    ut.Plot1DOverlay([df_Z["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wZ1850_"+particle+"_"+config+".png", ["$\mu^{-}$ exiting PT", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
     ut.Plot1DOverlay([df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+particle+"_"+config+".png", ["$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
+    ut.Plot1DOverlay([df_Coll_01_DetOut_piminus["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wpi-_"+particle+"_"+config+".png", ["$\pi^{-}$ entering TS", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
 
     df_prestop["P"] = np.sqrt( pow(df_prestop["Px"],2) + pow(df_prestop["Py"],2) + pow(df_prestop["Pz"],2) )
 
