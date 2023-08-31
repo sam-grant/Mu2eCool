@@ -1,11 +1,35 @@
 # A wedge, max thickness 10 cm thick cylinder in the PS
 
 param -unset ZPOSITION=1965
-param -unset THICKNESS=55
 
-for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
-    tubs Target outerRadius=200-$i*10 innerRadius=190-$i*10 length=$THICKNESS-$i*($THICKNESS-1)/19 \
-	material=Be maxStep=50.e-3 color=0,1,1  # material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0
+# length = 25 mm at iteration 20
+# length = thickness - $i * a
+# i=20, length=25
+# 25 = thickness - 20 * a
+# a = (thickness-25)/20
+
+param -unset THICKNESS=90
+
+# INNER RADIUS 100 mm:
+# 110 = 200 - 20*x
+# 100 = 190 - 20*x
+# 20*x = 200-110 = 90
+# 20*x = 190-100 = 90
+# x = 4.5
+
+# INNER RADIUS 85 mm:
+# 95 = 200 - 20*x
+# 85 = 190 - 20*x
+# 20*x = 200-95 = 105
+# 20*x = 190-85 = 105
+# x = 5.25
+
+# param x=4.5
+param x=5.25
+
+for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+    tubs Target outerRadius=200-$i*$x innerRadius=190-$i*$x length=$THICKNESS-$i*($THICKNESS-25)/20 \ 
+	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0
 	place Target x=0. z=$ZPOSITION rename=Target:$i 
 endfor
 

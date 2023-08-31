@@ -3,11 +3,9 @@
 # Set z-position
 
 param -unset ZPOSITION=1965
-param -unset THICKNESS=50
+param -unset THICKNESS=55
 
 # The absorber is a beryllium cylinder 200 mm radius and XX mm thick
-
-# Orignally 100 mm thick, 20 mm looks about right
 
 cylinder Absorber radius=200 length=$THICKNESS material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
 # Place it at 0 in front of the muon beam 

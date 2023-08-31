@@ -154,7 +154,7 @@ def RunMuonFlux(config):
                     "Stopped", "Stopped (<50 MeV)",
                     "---", "Entering <50 MeV / Entering",
                     "Stopped / POT", "Stopped / All at Z",
-                    "Stopped / Entering", "Stopped / Entering (>50 Mev)"
+                    "Stopped / Entering", "Stopped / Entering (<50 Mev)"
                 ],
             "Count": [
                     everythingAtZ, df_Z.shape[0],
@@ -171,11 +171,48 @@ def RunMuonFlux(config):
     }
 
     df_flux = pd.DataFrame(fluxDict)
-    print("---> Flux summary:\n", df_flux)
+    # print("---> Flux summary:\n", df_flux)
 
     # Write the df to csv
     csvName = "../txt/"+g4blVer+"/g4beamline_"+particle+"_flux_"+config+".csv" 
     df_flux.to_csv(csvName, index=False) 
+    print("\n---> Written csv to", csvName)
+
+    # Simplifed version
+
+    fluxDictSimple = {
+        "Info": [
+                    "Total events (POT)", 
+                    "mu- entering ST",
+                    "mu- entering ST (<50 MeV)",
+                    "Stopped mu-",
+                    "Stopped mu- (<50 MeV)",
+                    "---",
+                    "Entering (<50 MeV) / entering",
+                    "Entering / POT",
+                    "Stopped / POT",
+                    "Stopped / entering"
+                ],
+        "Count": [
+                    1e7,
+                    df_prestop.shape[0],
+                    df_prestop[df_prestop["P"] < 50].shape[0],
+                    df_stoppedMuons.shape[0],
+                    df_stoppedMuons[df_stoppedMuons["P"] < 50].shape[0],
+                    "---",
+                    df_prestop[df_prestop["P"] < 50].shape[0] / df_prestop.shape[0],
+                    df_prestop.shape[0] / 1e7, 
+                    df_stoppedMuons.shape[0] / 1e7,
+                    df_stoppedMuons.shape[0] / df_prestop.shape[0],  
+                ]
+    }
+
+    df_fluxSimple = pd.DataFrame(fluxDictSimple)
+    print("---> Flux summary:\n", df_fluxSimple)
+
+    # Write the df to csv
+    csvName = "../txt/"+g4blVer+"/g4beamline_"+particle+"_fluxSimple_"+config+".csv" 
+    df_fluxSimple.to_csv(csvName, index=False) 
     print("\n---> Written csv to", csvName)
 
     # Momentum plots
@@ -196,7 +233,7 @@ def RunMuonFlux(config):
 def main():
 
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
-    RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
+    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
 
     # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel") 
@@ -217,6 +254,18 @@ def main():
     # RunMuonFlux("Mu2E_1e7events_Absorber1_30mm_fromZ1850_parallel_noColl03") 
     # RunMuonFlux("Mu2E_1e7events_Absorber2_30mm_fromZ1850_parallel_noColl03") 
     # RunMuonFlux("Mu2E_1e7events_Absorber3_30mm_fromZ1850_parallel_noColl03") 
+
+    # RunMuonFlux("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_55mm_fromZ1850_parallel") 
+
+    # RunMuonFlux("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03") 
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03") 
+    RunMuonFlux("Mu2E_1e7events_Absorber4_l55mm_r85mm_fromZ1850_parallel_noColl03")
 
 if __name__ == "__main__":
     main()

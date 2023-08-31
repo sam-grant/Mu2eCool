@@ -13,22 +13,25 @@ from scipy.optimize import curve_fit
 
 def Round(value, sf):
 
-    if value == 0.0:
+    if value == 0.00:
         return "0"
+    elif math.isnan(value):
+        return "NaN"
+    else:
 
-    # Determine the order of magnitude
-    magnitude = math.floor(math.log10(abs(value))) + 1
+        # Determine the order of magnitude
+        magnitude = math.floor(math.log10(abs(value))) + 1
 
-    # Calculate the scale factor
-    scale_factor = sf - magnitude
+        # Calculate the scale factor
+        scale_factor = sf - magnitude
 
-    # Truncate the float to the desired number of significant figures
-    truncated_value = math.trunc(value * 10 ** scale_factor) / 10 ** scale_factor
+        # Truncate the float to the desired number of significant figures
+        truncated_value = math.trunc(value * 10 ** scale_factor) / 10 ** scale_factor
 
-    # Convert the truncated value to a string
-    truncated_str = str(truncated_value).rstrip('0').rstrip('.')
+        # Convert the truncated value to a string
+        truncated_str = str(truncated_value).rstrip('0').rstrip('.')
 
-    return truncated_str
+        return truncated_str
 
 # Stats for histograms tends to assume a normal distribution
 # ROOT does the same thing with TH1
@@ -332,6 +335,7 @@ def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel
     plt.clf()
     plt.close()
 
+# Under development!
 def Plot1DWithGaussFit(data, nBins=100, xmin=-1.0, xmax=1.0, norm=1.0, mu=0.0, sigma=1.0, fitMin=-1.0, fitMax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", stats=True, peak=False, underOver=False, errors=False, NDPI=300):
     
     # Create figure and axes
@@ -546,7 +550,7 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
     # Clear memory
     plt.close()
 
-def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300, includeBlack=False, peak=False):
+def Plot1DOverlayWithStats(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="best", errors=True, NDPI=300, includeBlack=False, peak=False):
 
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -583,10 +587,10 @@ def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xl
         # Create legend text
         legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
         if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
-        if peak and not errors: legend_text += f"\nPeak: {Round(GetMode(hist, nBins / (xmax - xmin))[0], 3)}"
-        if peak and errors: legend_text += f"\nPeak: {Round(GetMode(hist, nBins / (xmax - xmin))[0], 3)}$\pm${Round(GetMode(hist, nBins / (xmax - xmin))[1], 1)}"
+        if peak and not errors: legend_text += f"\nPeak: {Round(GetMode(hist, nbins / (xmax - xmin))[0], 3)}"
+        if peak and errors: legend_text += f"\nPeak: {Round(GetMode(hist, nbins / (xmax - xmin))[0], 3)}$\pm${Round(GetMode(hist, nbins / (xmax - xmin))[1], 1)}"
         # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
-        counts, bin_edges, _ = ax.hist(hist, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=r"$\bf{"+labels[i]+"}$"+"\n"+legend_text)
+        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=r"$\bf{"+labels[i]+"}$"+"\n"+legend_text)
 
     # Set x-axis limits
     ax.set_xlim(xmin, xmax)

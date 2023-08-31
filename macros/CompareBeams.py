@@ -48,7 +48,7 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     return
 
-def RunBeamCooling(config_, label_, name, absorber=False):
+def RunCompareBeams(config_, label_, name, absorber=False):
 
     # Setup input 
     finName_ = []
@@ -105,7 +105,7 @@ def RunBeamCooling(config_, label_, name, absorber=False):
 
     # ------ Overlay the momentum distributions at each VD for particular particle species ------
 
-    particle_ = ["All", "proton", "pi+", "pi-", "mu+", "mu-"]
+    particle_ = ["mu-" ] # ["All", "proton", "pi+", "pi-", "mu+", "mu-"]
 
     i_xmax = 0 
     xmax_ = [1350, 725, 725, 725, 725, 150, 150, 150, 150, 150, 150] 
@@ -122,7 +122,9 @@ def RunBeamCooling(config_, label_, name, absorber=False):
             title = key.split("/")[1] 
 
             # Could extend this to 3+ entries easily enough
-            ut.Plot1DOverlay([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=int(xmax_[i_xmax]), xmin=0, xmax=xmax_[i_xmax], title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/BeamCooling/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png")
+            ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=int(xmax_[i_xmax]), xmin=0, xmax=xmax_[i_xmax], title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", peak=True)
+            ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png", peak=False)
+
 
         i_xmax += 1
 
@@ -133,7 +135,12 @@ def main():
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
 
     # Compare beamline with/without collimator
-    RunBeamCooling(["Mu2E_1e7events_fromZ1850_parallel", "Mu2E_1e7events_fromZ1850_parallel_noColl03"], ["With Coll_03", "Without Coll_03"], "Mu2E_1e7events_fromZ1850_parallel_WithVsWoutColl03")
+    # RunBeamCooling(["Mu2E_1e7events_fromZ1850_parallel", "Mu2E_1e7events_fromZ1850_parallel_noColl03"], ["With Coll_03", "Without Coll_03"], "Mu2E_1e7events_fromZ1850_parallel_WithVsWoutColl03")
+
+    # Compare Absorbers to control
+    # RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 1"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber1_noColl03", absorber=True)
+    # RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 3"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber3_noColl03", absorber=True)
+    RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 4"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber4_noColl03", absorber=True)
 
     # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel") 

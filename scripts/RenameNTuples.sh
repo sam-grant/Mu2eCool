@@ -1,32 +1,39 @@
 #!/bin/zsh
 
 # Define the directory containing the files
-dir="../ntuples/v3.06/"  
+ntupleDir="../ntuples/v3.06/"  
+logDir="../logs/v3.06/"  
 
-# Loop through the files with the pattern
-# for filepath in "$dir/"*Absorber*".root"; do
-#     filename=$(basename "$filepath")
-#     prefix="${filename%%_fromZ*}"
-#     z_value="${filename#*_fromZ}"
-#     z_value="${z_value%_parallel.root}"
+for dir in $ntupleDir $logDir; do 
+    for i in 0 1 2 3; do 
 
-#     new_filename="${prefix}_20mm_fromZ${z_value}_parallel.root"
-#     new_filepath="${directory}/${new_filename}"
+        suffix=""
+        if [ $dir == $ntupleDir ]; then
+            suffix=".root"
+        elif [ $dir == $logDir ]; then
+            suffix=".log"
+        fi
 
-#     # mv "$filepath" "$new_filepath"
-#     echo "Renamed: $filename -> $new_filename"
-# done
+        filepath="${dir}g4beamline_Mu2E_1e7events_Absorber${i}_55mm_fromZ1850_parallel" # "$dir/"*Absorber*".root"; do
+        filename=$(basename "$filepath")
+        prefix="${filename%%_fromZ*}"
+        z_value="${filename#*_fromZ}"
+        z_value="${z_value%_parallel.root}"
 
-for i in 0 1 2 3; do 
-    filepath="${dir}/g4beamline_Mu2E_1e7events_Absorber${i}_fromZ1850_parallel_noColl03.root" # "$dir/"*Absorber*".root"; do
-    filename=$(basename "$filepath")
-    prefix="${filename%%_fromZ*}"
-    z_value="${filename#*_fromZ}"
-    z_value="${z_value%_parallel.root}"
+        new_filename="${prefix}_fromZ${z_value}"
+        # replace thickness
+        # new_filename="${new_filename//30mm/55mm}"
+        new_filename="${new_filename//55mm/l55mm_r100mm}"
 
-    new_filename="${prefix}_20mm_fromZ${z_value}_parallel_noColl03.root"
-    new_filepath="${dir}${new_filename}"
+        new_filepath="${dir}${new_filename}"
 
-    mv "$filepath" "$new_filepath"
-    echo "Renamed: $filepath -> $new_filepath"
+        # if [ $dir == $ntupleDir ]; then
+        #     new_filepath="${dir}${new_filename}.root"
+        # elif [ $dir == $logDir ]; then
+        #     new_filepath="${dir}${new_filename}.log"
+        # fi
+
+        mv "$filepath$suffix" "$new_filepath$suffix"
+        echo "Renamed: $filepath$suffix -> $new_filepath$suffix"
+    done
 done

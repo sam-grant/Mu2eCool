@@ -231,7 +231,9 @@ def main():
 	# ---> pion: 182.31958
 	# ---> muon: 82.702324
 
-	RunCoolingScanSingle(10000, "pi-", 150, thickness_) 
+	# RunCoolingScanSingle(10000, "pi-", 125, thickness_) 
+	RunCoolingScanSingle(10000, "pi-", 100, thickness_)
+	RunCoolingScanSingle(10000, "pi-", 150, thickness_)  
 	# RunCoolingScanSingle(10000, "pi-", 100, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # , 60, 70, 80, 90, 100])
 	# RunCoolingScanSingle(10000, "mu-", 100, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100])
 	# RunCoolingScanPionsAndMuonsOverlay(10000, ["pi-", "mu-"], 150, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # , 60, 70, 80, 90, 100]) )

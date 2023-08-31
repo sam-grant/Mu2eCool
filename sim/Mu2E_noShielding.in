@@ -622,8 +622,8 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
-include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
 
 # param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
 # include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
@@ -631,8 +631,8 @@ include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt
 # param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
 # include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
+param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
 
 # ****************************************************************************
 #                                Proton Beam

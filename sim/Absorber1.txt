@@ -6,11 +6,11 @@
 # zntuple is at 2264.5
 
 param -unset ZPOSITION=1965
-param -unset THICKNESS=50
+param -unset THICKNESS=55
 
 # The absorber is a beryllium cylinder 200 mm radius and 20 mm thick
 
-cylinder Target innerRadius=100 outerRadius=200 length=$THICKNESS material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
+cylinder Target innerRadius=85 outerRadius=200 length=$THICKNESS material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
 # Place it at 0 in front of the muon beam 
 place Target z=$ZPOSITION
 
