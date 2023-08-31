@@ -46,6 +46,34 @@ def GetBasicStats(data, xmin, xmax):
 
     return N, mean, meanErr, stdDev, stdDevErr, underflows, overflows
 
+def bin(data, bin_width = 1.0): 
+
+    # Bin the data
+    bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)
+    bin_indices = np.digitize(data, bin_edges)
+    bin_counts = np.bincount(bin_indices)
+
+    return bin_edges, bin_indices, bin_counts
+
+# Calculates the mode for binned data
+def GetMode(data, bin_width = 1.0):
+
+    # Bin
+    bin_edges, bin_indices, bin_counts = bin(data, bin_width)
+    # Get mode index
+    mode_bin_index = np.argmax(bin_counts)
+    # Get mode count
+    mode_count = bin_counts[mode_bin_index]
+    # Get bin width
+    # bin_width = bin_edges[mode_bin_index] - bin_edges[mode_bin_index + 1]
+    # Calculate the bin center corresponding to the mode
+    mode_bin_center = (bin_edges[mode_bin_index] + bin_edges[mode_bin_index + 1]) / 2
+    # Mode uncertainty 
+    N = len(data)
+    mode_bin_center_err = np.sqrt(N / (N - mode_count)) * bin_width
+
+    return mode_bin_center, abs(mode_bin_center_err)
+
 # --------------------
 # Fit function
 # --------------------
@@ -518,7 +546,7 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
     # Clear memory
     plt.close()
 
-def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300, includeBlack=False):
+def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", errors=True, NDPI=300, includeBlack=False, peak=False):
 
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -555,6 +583,9 @@ def Plot1DOverlayWithStats(hists, nBins=100, xmin=-1.0, xmax=1.0, title=None, xl
         # Create legend text
         legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
         if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
+        if peak and not errors: legend_text += f"\nPeak: {Round(GetMode(hist, nBins / (xmax - xmin))[0], 3)}"
+        if peak and errors: legend_text += f"\nPeak: {Round(GetMode(hist, nBins / (xmax - xmin))[0], 3)}$\pm${Round(GetMode(hist, nBins / (xmax - xmin))[1], 1)}"
+        # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
         counts, bin_edges, _ = ax.hist(hist, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=r"$\bf{"+labels[i]+"}$"+"\n"+legend_text)
 
     # Set x-axis limits
