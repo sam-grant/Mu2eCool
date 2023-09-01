@@ -149,7 +149,9 @@ def main():
     # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03", "L = 55 mm, $R_{i}$ = 85 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03", "L = 55 mm")
-    RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 85 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 85 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03", "L = 90-25 mm, $R_{i}$ = 85 mm")
+    RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "L = 90 mm, $R_{i}$ = 85 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel")
 

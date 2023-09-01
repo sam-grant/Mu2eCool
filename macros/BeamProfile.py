@@ -335,7 +335,11 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-    RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "no_proton", 300)
+# g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
+    
+    RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "NTuple/Z1", "pi-", 600)
+
+    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "no_proton", 300)
     # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "pi+-", 300)
     # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "mu+-", 300)
 

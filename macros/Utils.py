@@ -665,7 +665,7 @@ def PlotGraphOverlay(graph_dict, title=None, xlabel=None, ylabel=None, fout="sca
 
             print("\n", label, graph)
 
-            x = graph['x']
+            x = graph["x"]
             y = graph['y']
             xerr = graph['xerr'] 
             yerr = graph['yerr']

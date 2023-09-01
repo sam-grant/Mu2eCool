@@ -494,6 +494,8 @@ endif
 
 param -unset No_Collimator_03=0
 
+param -unset No_PS_Pbar_Window=1
+
 # ****************************************************************************
 #                                Transport Solenoid 
 #                                Collimators
