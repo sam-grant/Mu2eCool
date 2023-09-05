@@ -280,10 +280,13 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
 
     ut.Plot1D(df["R"], 500, 0, 500, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+    ut.Plot1D(df[df["P"] < 50]["R"], 220, 0, 220, title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
 
     # Tranvserse position
     # ut.Plot2D(df["x"], df["y"], 400, -200, 200, 400, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
     ut.Plot2D(df["x"], df["y"], 40, -200, 200, 40, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
+    ut.Plot2D(df[df["P"] < 50]["x"], df[df["P"] < 50]["y"], 40, -200, 200, 40, -200, 200, title+", <50 MeV", "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png") 
+
 
     # Make 2D dispersion plots
     ut.Plot2D(df["P"], df["x"], 250, 0, 250, 440, -220, 220, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png") 
@@ -296,6 +299,7 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     ut.Plot2D(df["Pz"], df["y"], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_YvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png")
 
     ut.Plot2D(df["P"], df["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_"+ntupleName+"_"+particle+"_"+config+".png")
+    ut.Plot2D(df["PT"], df["R"], 200, 0, 200, 210, 0, 210, title, "Tranverse momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMomT_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # ---- Special plots for illustration ----
 
@@ -335,9 +339,13 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-# g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
+    # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
     
-    RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "NTuple/Z1", "pi-", 600)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetOut", "pi-", 600)
+    # RunBeamProfile("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetIn", "pi-", 600)
+
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "NTuple/Z3550", "pi-", 600)
+    RunBeamProfile("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03_noPbarWindow", "NTuple/Z3250", "pi-", 600)
 
     # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "no_proton", 300)
     # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "pi+-", 300)

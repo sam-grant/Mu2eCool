@@ -265,7 +265,9 @@ def main():
     # RunMuonFlux("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03") 
     # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03") 
     # RunMuonFlux("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03")
-    RunMuonFlux("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03")
+    
+    RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03_noPbarWindow")
+    RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl03_noPbarWindow")
 
 if __name__ == "__main__":
     main()

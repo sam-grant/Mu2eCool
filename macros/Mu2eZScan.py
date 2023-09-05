@@ -367,9 +367,10 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 			particleN[particleName] = df[df['PDGid'] == PDGid].shape[0]
 
 			# Include some beam profile plots 
-			#if particleName == "pi-":
-				#ut.Plot1D(df['P'], 50, 0, 50, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_"+ntupleName+"_"+particleName+"_"+config+".png") 
-				#ut.Plot1D(df['R'], 200, 0, 200, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_"+ntupleName+"_"+particleName+"_"+config+".png") 
+			# Something is wrong here, I don't think it's filtering correctly
+			# if particleName == "pi-":
+				# ut.Plot1D(df['P'], 50, 0, 50, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_"+ntupleName+"_"+particleName+"_"+config+".png") 
+				# ut.Plot1D(df[df["P"] < 50]['R'], 200, 0, 200, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_"+ntupleName+"_"+particleName+"_"+config+".png") 
 				# ut.Plot2D(df['x'], df['y'], 400, -200, 200, 400, -200, 200, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/Mu2eZScan/h2_XY_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
 				# ut.Plot3D(df['x'], df['y'], df['P'], 80, -200, 200, 80, -200, 200, 50, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/Mu2eZScan/h3_XYMom_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
 				# ut.Plot2D(df['P'], df['R'], 50, 0, 50, 200, 0, 200, "Z = "+str(i_z)+" mm, "+particleName+", "+title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/Mu2eZScan/h2_RVsMom_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
