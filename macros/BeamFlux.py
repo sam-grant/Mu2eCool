@@ -28,7 +28,8 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     ut.Plot1DOverlay([df["P"], df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["All", "$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=True)
 
-    # print("Mean momentum [MeV]:")
+    # print(len(df["P"]),",",len(df_proton["P"]),",",len(df_pi_plus["P"]),",",len(df_pi_minus["P"]),",",len(df_mu_plus["P"]),",",len(df_mu_minus["P"]))
+
     # print("---> all:", np.mean(df["P"]))
     # print("---> proton:", np.mean(df_proton["P"])) 
     # print("---> pion:", np.mean(df_pion["P"]))
@@ -266,8 +267,17 @@ def main():
     # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03") 
     # RunMuonFlux("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03")
     
-    RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03_noPbarWindow")
-    RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl03_noPbarWindow")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03_noPbarWindow")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_withColl_withPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl_noPbar")
+
+    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_check")
+    RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_doubleCheck")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl_noPbar")
 
 if __name__ == "__main__":
     main()

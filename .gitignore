@@ -5,6 +5,7 @@
 *.h5
 *.log
 *.csv
+*.gdml
 run-3.08/
 run-3.06/
 logs/
@@ -14,3 +15,4 @@ txt/
 beamFiles/
 gif/
 BK/
+g4files/

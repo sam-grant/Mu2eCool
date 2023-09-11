@@ -12,8 +12,11 @@ param P=sqrt(($M+$KE)*($M+$KE)-$M*$M)
 # Zero-emittance beam. It emanates from z=0.
 beam gaussian meanMomentum=$P nEvents=$NEVENTS particle=pi-
 
-# The target is a beryllium slab 2000 mm x 2000 mm x 500 mm; make it blue.
-box Target width=2000 height=2000 length=500 material=Be color=0,0,1 maxStep=50.e-3
+# Kill neutrons and gammas
+trackcuts kill=neutron,gamma
+
+# The target is a beryllium slab 2000 mm x 2000 mm x 100 mm; make it blue.
+box Target width=2000 height=2000 length=100 material=Be color=0,0,1 maxStep=50.e-3
 # Place it 1000 mm away from beam origin
 place Target z=1000
 

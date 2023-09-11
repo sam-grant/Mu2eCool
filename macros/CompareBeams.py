@@ -125,6 +125,7 @@ def RunCompareBeams(config_, label_, name, absorber=False):
             ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=int(xmax_[i_xmax]), xmin=0, xmax=xmax_[i_xmax], title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", peak=True)
             ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png", peak=False)
 
+            # TODO: add ratio plot here
 
         i_xmax += 1
 

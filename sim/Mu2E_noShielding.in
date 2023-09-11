@@ -489,12 +489,34 @@ else
 endif
 
 # ****************************************************************************
-#                      No_Collimator_03 
+#                      TS collimator and pbar window removal
 # ****************************************************************************
 
-param -unset No_Collimator_03=0
+param -unset No_Coll=0
+param -unset No_Pbar_Window=0
 
-param -unset No_PS_Pbar_Window=1
+param -unset No_PS_Pbar_Window=0
+param -unset No_TS_Pbar_Window=0
+param -unset No_TS_Pbar_Wedge=0
+param -unset No_Coll_01=0
+param -unset No_Coll_03=0
+param -unset No_Coll_05=0
+
+if $No_Coll==1
+
+    param No_Coll_01=1
+    param No_Coll_03=1
+    param No_Coll_05=1
+
+endif
+
+if $No_Pbar_Window==1
+
+    param No_PS_Pbar_Window=1
+    param No_TS_Pbar_Window=1
+    param No_TS_Pbar_Wedge=1
+
+endif
 
 # ****************************************************************************
 #                                Transport Solenoid 

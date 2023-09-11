@@ -10,7 +10,7 @@ G4PIIDATA=/Users/sgrant/Geant4Data/G4PII1.3
 G4LEVELGAMMADATA=/Users/sgrant/Geant4Data/PhotonEvaporation5.7
 G4RADIOACTIVEDATA=/Users/sgrant/Geant4Data/RadioactiveDecay5.6
 G4SAIDXSDATA=/Users/sgrant/Geant4Data/G4SAIDDATA2.0
-G4beamline Process ID 83636
+G4beamline Process ID 148
 
 *************************************************************
  g4beamline version: 3.08                        (Oct  8 2022)
@@ -6361,7 +6361,7 @@ Testing geometry for children of box 'SchooPWC':
 Testing geometry for children of box 'PWCGasVol':
 Testing geometry for children of box 'SchooPWC':
 Testing geometry for children of box 'PWCGasVol':
-Total geometry errors = 84  1 seconds
+Total geometry errors = 84  0 seconds
 
 ================== Prepare Visualization ==================
 Stochastic processes are enabled.
@@ -6452,53 +6452,6 @@ BLVisManager init: /vis/viewer/set/hiddenMarker true
 WARNING: No extent set for user vis action "DrawMarkers".
 WARNING: User Vis Action "DrawMarkers" extent is null.
  Changing export format to "jpg"
-fieldVoxels: nx=51 ny=24 nz=220, 269280 voxels, 6 fields
-fieldVoxels: max field count is 2 fields, # voxels >5: 0, >10: 0, >20: 0
-35 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-35 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-100 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-500 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-250 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
-300 events have been kept for refreshing and/or reviewing.
-  "/vis/reviewKeptEvents" to review them one by one.
-  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
 
 Graphics systems deleted.
 Visualization Manager deleting...
