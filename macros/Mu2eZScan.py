@@ -348,9 +348,6 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 		# Load TTree into DataFrame
 		df = ut.TTreeToDataFrame(finName, "NTuple/"+ntupleName, ut.branchNames) 
 
-		# Filter high momentum particles 
-		df["P"] = np.sqrt( pow(df["Px"], 2) + pow(df["Py"], 2) + pow(df["Pz"], 2) )
-		df["R"] = np.sqrt( pow(df["x"], 2) + pow(df["y"], 2) ) 
 
 		# df = df[df["P"] < 50]
 
@@ -369,23 +366,26 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 
 			# Include some beam profile plots 
 			# Something is wrong here, I don't think it's filtering correctly
-
-
-			if particleName == "mu-": # pi-":
-
-
-				ut.Plot1D(df[df['PDGid'] == PDGid]['P'], 300, 0, 300, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_"+ntupleName+"_"+particleName+"_"+config+".png")
-				ut.Plot1D(df[(df['PDGid'] == PDGid) & (df["P"] < 50)]['P'], 300, 0, 300, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title+", <50 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_below50MeV_"+ntupleName+"_"+particleName+"_"+config+".png")
-				ut.Plot1D(df[df['PDGid'] == PDGid]['R'], 250, 0, 250, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_"+ntupleName+"_"+particleName+"_"+config+".png") 
-				ut.Plot1D(df[(df['PDGid'] == PDGid) & (df["P"] < 50)]['R'], 250, 0, 250, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_below50MeV_"+ntupleName+"_"+particleName+"_"+config+".png")  
-				# ut.Plot2D(df['x'], df['y'], 400, -200, 200, 400, -200, 200, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/Mu2eZScan/h2_XY_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
-				# ut.Plot3D(df['x'], df['y'], df['P'], 80, -200, 200, 80, -200, 200, 50, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/Mu2eZScan/h3_XYMom_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
-				# ut.Plot2D(df['P'], df['R'], 50, 0, 50, 200, 0, 200, "Z = "+str(i_z)+" mm, "+ut.GetLatexParticleName(particleName)+", "+title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/Mu2eZScan/h2_RVsMom_"+ntupleName+"_"+particleName+"_"+config+".png", cb=False)
+			# I thought I fixed this... 
 
 			# if particleName == "pi-":
-				# print(i_z, particleN[particleName])
 
 		particleNZ[i_z] = particleN
+
+		# Look at cold pions
+		df = ut.FilterParticles(df, "pi-")
+
+		# Momentum and radius 
+		df["P"] = np.sqrt( pow(df["Px"], 2) + pow(df["Py"], 2) + pow(df["Pz"], 2) )
+		df["R"] = np.sqrt( pow(df["x"], 2) + pow(df["y"], 2) ) 
+
+		ut.GetLatexParticleName("pi-")+", "+"Z = "+str(i_z)+" mm"+", "+title
+
+		ut.Plot1D(df["P"], 300, 0, 300, ut.GetLatexParticleName("pi-")+", "+"Z = "+str(i_z)+" mm"+", "+title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_"+ntupleName+"_"+particleName+"_"+config+".png")
+		ut.Plot1D(df[df["P"] < 50]["P"], 300, 0, 300, ut.GetLatexParticleName("pi-")+", "+"Z = "+str(i_z)+" mm"+", "+title+", <50 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/Mu2eZScan/h1_Mom_below50MeV_"+ntupleName+"_"+particleName+"_"+config+".png")
+		ut.Plot1D(df["R"], 250, 0, 250, ut.GetLatexParticleName("pi-")+", "+"Z = "+str(i_z)+" mm"+", "+title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_"+ntupleName+"_"+particleName+"_"+config+".png") 
+		ut.Plot1D(df[df["P"] < 50]["R"], 250, 0, 250, ut.GetLatexParticleName("pi-")+", "+"Z = "+str(i_z)+" mm"+", "+title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/Mu2eZScan/h1_R_below50MeV_"+ntupleName+"_"+particleName+"_"+config+".png")  
+		
 
 	# Plot particle population as a function of z
 	PlotGraphOverlayPS(particleNZ, title=title, xlabel="z [mm]", ylabel="N / 100 mm", fout="../img/"+g4blVer+"/Mu2eZScan/gr_NvsZ_below50MeV_"+config+"_PS.png") 
@@ -408,7 +408,8 @@ def main():
  	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
 	#" Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03
  	# RunMu2eZScanPS("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
- 	RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
 
 if __name__ == "__main__":
 	main()

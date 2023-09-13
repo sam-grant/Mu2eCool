@@ -221,11 +221,13 @@ def Plot3DCustomCircle(x, y, z, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymi
 
 # ---- End of plotting functions ----  
 
+import math
+
 def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
     # Setup input 
     finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
-    df = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNames)  
+    df = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNamesExtended)  
 
     # Titles and names
     ntupleName = ntupleName.split("/")[1] 
@@ -275,11 +277,50 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     # Tranvserse momentum 
     df["PT"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
 
+    # Radial postion of helical axis 
+
+    # Radius of curvature in the field: R = p/qBsin(theta) * gamma. 
+
+    # p is lab frame tranverse momentum, if it's relativistic then there's a factor of gamma.
+    # B is the longitundinal magnetic field 
+    # q = e = +-1
+    # E_k=E-E_0=(gamma-1)*m_0*c^2 --> gamma - 1 = E_k / m_0 * c^2 --> gamma = E_k/m_0*c^2 + 1 --> gamma = E_k/m_0 + 1 (NL)
+    # E_k = E - E_0 = sqrt(p^2 + m_0^2) - m_0
+
+    # m_0 = 139.570 # pi+- rest mass in MeV/c^2
+    # e = 1.602e-19 # C
+    # c = 299792458 # m/s
+
+    # # Longi magnetic field
+    # # df["B"] = np.sqrt( pow(df["Bx"],2) + pow(df["By"],2) + pow(df["Bz"],2) ) 
+
+    # # Transverse kinetic energy 
+    # df["EkT"] = np.sqrt(pow(df["PT"], 2) + pow(m_0, 2)) - m_0
+
+    # # Gamma
+    # df["gamma"] = df["EkT"]/m_0 + 1 
+
+    # # Dot product of B and PT (it's zero)
+    # df["BdotP"] = 0 * df["Px"] + 0 * df["Py"] + df["Bz"] * 0
+    # # Calculate magnitudes of P and B vectors
+    # df["PTmag"] = np.linalg.norm(df[["Px", "Py"]], axis=1)
+    # df["Bzmag"] = np.linalg.norm(df[["Bz"]], axis=1)
+    # df["Theta"] = np.arccos(df["BdotP"] / (df["PTmag"] * df["Bzmag"])) # 
+
+    # # Get the charge sign
+    # df["Sign"] = df["PDGid"].apply(lambda x: math.copysign(1, x))
+
+    # df["R_helix"] = ( df["PT"] * df["gamma"] ) / ( df["Sign"] * e * df["Bz"] * np.sin(df["Theta"]) ) * (1e6 * e / c) * 1e3 
+
+    # df["R_helix"] = df["R_helix"]
+
+    # print(df["R_helix"])
+
     # Momentum and radial distributions
     ut.Plot1D(df["P"], 500, 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
     # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
 
-    ut.Plot1D(df["R"], 500, 0, 500, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+    ut.Plot1D(df["R"], 500, 0, 500, title, "Radial position [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
     ut.Plot1D(df[df["P"] < 50]["R"], 250, 0, 250, title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
 
     # Tranvserse position
@@ -343,7 +384,7 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-    RunBeamProfile("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", "NTuple/Z1950", "pi-", 600)
+    RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
     # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
     
     # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetOut", "pi-", 600)
