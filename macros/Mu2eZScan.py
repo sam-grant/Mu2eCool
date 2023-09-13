@@ -238,7 +238,7 @@ def PlotGraphOverlayPS(allData, title=None, xlabel=None, ylabel=None, fout="scat
 	ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
 	ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
 
-	ax.set_ylim(0.0, 2.5e4)
+	# ax.set_ylim(0.0, 2.5e4)
 
 	# Scientific notation
 	if ax.get_xlim()[1] > 999:
@@ -348,7 +348,6 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 		# Load TTree into DataFrame
 		df = ut.TTreeToDataFrame(finName, "NTuple/"+ntupleName, ut.branchNames) 
 
-
 		# df = df[df["P"] < 50]
 
 		# Filter PDGids
@@ -362,6 +361,7 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 
 			# Count the occurrences of pdg_id in the DataFrame and add the count to particleN dictionary
 			if not proton and particleName=="proton": continue
+
 			particleN[particleName] = df[df['PDGid'] == PDGid].shape[0]
 
 			# Include some beam profile plots 
@@ -408,8 +408,10 @@ def main():
  	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
 	#" Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03
  	# RunMu2eZScanPS("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
- 	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
- 	RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
+ 	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
+ 	# RunMu2eZScan("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	RunMu2eZScan("Mu2E_1e7events_Absorber3_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
 
 if __name__ == "__main__":
 	main()

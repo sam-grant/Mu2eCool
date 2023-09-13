@@ -22,7 +22,7 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     df_proton = ut.FilterParticles(df, "proton") 
     df_pi_plus = ut.FilterParticles(df, "pi+") 
-    df_pi_minus = ut.FilterParticles(df, "pi-") 
+    df_pi_minus = ut.FilterParticles(df, "mu-") 
     df_mu_plus = ut.FilterParticles(df, "mu+") 
     df_mu_minus = ut.FilterParticles(df, "mu-")  
 
@@ -57,7 +57,7 @@ def RunMuonFlux(config):
  
     # Read in TTrees
     # TODO: store this all in a dictionary
-    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z1850", ut.branchNames)
+    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z2265", ut.branchNames)
     df_Coll_01_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetIn", ut.branchNames)
     df_Coll_01_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetOut", ut.branchNames)
     df_Coll_03_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetIn", ut.branchNames)
@@ -95,8 +95,8 @@ def RunMuonFlux(config):
     ParticleMomentumOverlay(df_prestop, "df_prestop", "Entering ST", config, 150)
     ParticleMomentumOverlay(df_poststop, "df_poststop", "Exiting ST", config, 150)
 
-    # Store pi- entering the TS, for a plot...
-    df_Coll_01_DetOut_piminus = ut.FilterParticles(df_Coll_01_DetOut, "pi-")
+    # Store mu- entering the TS, for a plot...
+    df_Coll_01_DetOut_piminus = ut.FilterParticles(df_Coll_01_DetOut, "mu-")
 
     # ------ Muon flux ------
     print("\n---> Muon flux:")
@@ -141,9 +141,10 @@ def RunMuonFlux(config):
                     particle+" at ST", particle+" at ST", 
                     particle+" at ST", particle+" at ST", 
                     particle+" at ST", particle+" at ST",
-                    "---", particle+" at ST",
+                    "---"
+                    , particle+" at ST",
                     particle+" at ST", particle+" at ST",
-                    particle+" at ST", particle+" at ST",
+                    particle+" at ST", particle+" at ST"
                 ],
             "Info": [
                     "At", "At",
@@ -153,7 +154,8 @@ def RunMuonFlux(config):
                     "Entering", "Entering (<50 MeV)", 
                     "Exiting", "Lost", 
                     "Stopped", "Stopped (<50 MeV)",
-                    "---", "Entering <50 MeV / Entering",
+                    "---"
+                    , "Entering <50 MeV / Entering",
                     "Stopped / POT", "Stopped / All at Z",
                     "Stopped / Entering", "Stopped / Entering (<50 Mev)"
                 ],
@@ -165,7 +167,8 @@ def RunMuonFlux(config):
                     df_prestop.shape[0],  df_prestop[df_prestop["P"] < 50].shape[0],
                     df_poststop.shape[0], df_LostInTarget.shape[0], 
                     df_stoppedMuons.shape[0], df_stoppedMuons[df_stoppedMuons["P"] < 50].shape[0],
-                    "---", df_prestop[df_prestop["P"] < 50].shape[0] / df_prestop.shape[0],
+                    "---"
+                    , df_prestop[df_prestop["P"] < 50].shape[0] / df_prestop.shape[0],
                     df_stoppedMuons.shape[0] / 1e7, df_stoppedMuons.shape[0] / everythingAtZ, 
                     df_stoppedMuons.shape[0] / df_prestop.shape[0], df_stoppedMuons.shape[0] / df_prestop[df_prestop["P"] < 50].shape[0]
                 ]
@@ -184,11 +187,12 @@ def RunMuonFlux(config):
     fluxDictSimple = {
         "Info": [
                     "Total events (POT)", 
-                    "mu- entering ST",
-                    "mu- entering ST (<50 MeV)",
-                    "Stopped mu-",
-                    "Stopped mu- (<50 MeV)",
-                    "---",
+                    particle+" entering ST",
+                    particle+" entering ST (<50 MeV)",
+                    "Stopped "+particle,
+                    "Stopped "+particle+" (<50 MeV)",
+                    "---"
+                    ,
                     "Entering (<50 MeV) / entering",
                     "Stopped / entering",
                     "Stopped / POT",
@@ -200,7 +204,8 @@ def RunMuonFlux(config):
                     df_prestop[df_prestop["P"] < 50].shape[0],
                     df_stoppedMuons.shape[0],
                     df_stoppedMuons[df_stoppedMuons["P"] < 50].shape[0],
-                    "---",
+                    "---"
+                    ,
                     df_prestop[df_prestop["P"] < 50].shape[0] / df_prestop.shape[0],
                     df_stoppedMuons.shape[0] / df_prestop.shape[0], 
                     df_stoppedMuons.shape[0] / 1e7
@@ -224,7 +229,7 @@ def RunMuonFlux(config):
     # ut.Plot1DOverlay([mom_Coll_01_DetIn, mom_Coll_05_DetOut, mom_prestop, mom_stoppedMuons], 300, 0, 300, config, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_verboseOverlay_"+config+".pdf", ["$\mu^{-}$ before TS", "$\mu^{-}$ after TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best", 100)
     ut.Plot1DOverlay([df_Z["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wZ1850_"+particle+"_"+config+".png", ["$\mu^{-}$ exiting PT", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
     ut.Plot1DOverlay([df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+particle+"_"+config+".png", ["$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
-    ut.Plot1DOverlay([df_Coll_01_DetOut_piminus["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wpi-_"+particle+"_"+config+".png", ["$\pi^{-}$ entering TS", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
+    ut.Plot1DOverlay([df_Coll_01_DetOut_piminus["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wmu-_"+particle+"_"+config+".png", ["$\pi^{-}$ entering TS", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
 
     df_prestop["P"] = np.sqrt( pow(df_prestop["Px"],2) + pow(df_prestop["Py"],2) + pow(df_prestop["Pz"],2) )
 
@@ -232,6 +237,7 @@ def RunMuonFlux(config):
 
 def main():
 
+    RunMuonFlux("Mu2E_1e6events")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
 
@@ -273,7 +279,14 @@ def main():
     # RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl_noPbar")
 
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_check")
-    RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_rseedEventNumber_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_rseedEventNumber_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_doubleCheck")
     # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar")
     # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")

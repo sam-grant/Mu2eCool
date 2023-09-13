@@ -141,7 +141,12 @@ def PlotRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, yl
 #     group['Weight'] = range(1, len(group) + 1)
 #     return group
 
-def GetLorentzRadius(df):
+
+import math 
+
+def GetHelix(df):
+
+	# Transverse radius of curvature in the B field
 
 	# R = p/qBsin(theta) * gamma
 	# E_k_T = E_T - E_0 = sqrt(p_T^2 + m_0^2) - m_0
@@ -156,19 +161,66 @@ def GetLorentzRadius(df):
 
 	# Constants
 	m_0 = 139.570 # pi+- rest mass in MeV/c^2
-	# since we filter pi-, just set sign to -1 
-	# df["Sign"] = df["PDGid"].apply(lambda x: math.copysign(1, x))
-	sign = -1 
 	e = 1.602e-19 # C
 	c = 299792458 # m/s
 
+	# Sign of charge 
+	df["Sign"] = df["PDGid"].apply(lambda x: math.copysign(1, x))
+
+	# Tranverse momentum, kinetic energy, and gamma
 	df["PT"] = np.sqrt( pow(df["Px"], 2) + pow(df["Py"], 2) ) 
 	df["EkT"] = np.sqrt(pow(df["PT"], 2) + pow(m_0, 2)) - m_0
 	df["gammaT"] = df["EkT"]/m_0 + 1 
 
-	df["R_h"] = df["gammaT"] *  (df["PT"] * 1e6 * e) / (e * df["Bz"]) 
+	df["LorentzRadius"] = df["gammaT"] *  (df["PT"] / (df["Sign"] * e * df["Bz"]) ) * (1e6 * e / c) * 1e3 # MeV/c -> J and m -> mm
+
+	# Calculate the helical center 
+	# We a looking into the helix, it spirals towards us
+	# This bit came from ChatGPT, I need to think about it more but it seems to work when testing against the GUI...
+	# In particular, I don't understand the signs. 
+	# You adjust the x, y coordinates based on the radius of curvature, scaled according to the contribution of Px, Py to the total transverse momentum.
+	df["HelixX"] = df["x"] + df["LorentzRadius"] * df["Px"] / df["PT"] # adjust x 
+	df["HelixY"] = df["y"] - df["LorentzRadius"] * df["Py"] / df["PT"] # adjust y 
+	df["HelixZ"] = df["z"]  # Assuming the magnetic field is along the z-axis
+
+	df["HelixR"] = np.sqrt( pow(df["HelixX"], 2) + pow(df["HelixY"], 2) )
 
 	return df
+
+# Function to increment duplicates
+# ChatGPT...
+# def increment_duplicates(df, column_name):
+#     duplicates = df[df.duplicated(subset=column_name, keep="first")]
+    
+#     # Dictionary to store mapping of original IDs to new IDs
+#     id_mapping = {}
+    
+#     for index, row in duplicates.iterrows():
+#         original_id = row[column_name]
+#         new_id = original_id
+#         while new_id in df[column_name].tolist():
+#             new_id += 1
+#         id_mapping[original_id] = new_id
+
+#     df[column_name] = df[column_name].replace(id_mapping)
+#     return df
+
+# Function to increment duplicates
+def increment_duplicates(df, column_name):
+	
+    ids = df[column_name].values
+    unique_ids, counts = np.unique(ids, return_counts=True)
+
+    duplicate_indices = np.where(counts > 1)[0]
+    
+    for index in duplicate_indices:
+        duplicate_id = unique_ids[index]
+        mask = (ids == duplicate_id)
+        ids[mask] = np.arange(mask.sum()) + duplicate_id + 1
+
+    df[column_name] = ids
+    return df
+
 
 def RunColdPions(config):
 
@@ -181,9 +233,12 @@ def RunColdPions(config):
 	df_in = ut.TTreeToDataFrame(finName, "VirtualDetector/BeAbsorber_DetIn", ut.branchNamesExtended)
 	df_out = ut.TTreeToDataFrame(finName, "VirtualDetector/BeAbsorber_DetOut", ut.branchNamesExtended)
 
+	df_in["UniqueID"] = 1e10*df_in["EventID"] + 1e7*df_in["TrackID"] + 1e4*df_in["ParentID"] + df_in["Weight"] 
+	df_out["UniqueID"] = 1e10*df_out["EventID"] + 1e7*df_out["TrackID"] + 1e4*df_out["ParentID"] + df_in["Weight"] 
+
 	# Just take the first 10 events for debugging 
-	df_in = df_in # [:1000]
-	df_out = df_out # 	[:1000]
+	# df_in = df_in # [:1000]
+	# df_out = df_out # 	[:1000]
 
 	# Add momentum column
 	df_in["P"] = np.sqrt( pow(df_in["Px"], 2) + pow(df_in["Py"], 2) + pow(df_in["Pz"], 2) ) 
@@ -193,8 +248,10 @@ def RunColdPions(config):
 	df_in["R"] = np.sqrt( pow(df_in["x"], 2) + pow(df_in["y"], 2) ) 
 	df_out["R"] = np.sqrt( pow(df_out["x"], 2) + pow(df_out["y"], 2) ) 
 
-	GetLorentzRadius(df_in)
-	GetLorentzRadius(df_out)
+	GetHelix(df_in)
+	GetHelix(df_out)
+
+	# print(df_out["LorentzRadius"])
 
 	df_in = ut.FilterParticles(df_in, "pi-")
 	df_out = ut.FilterParticles(df_out, "pi-")
@@ -203,13 +260,15 @@ def RunColdPions(config):
 	df_in = df_in[df_in["P"] <= 100]
 	df_out = df_out[df_out["P"] <= 100]
 
-	df_in["UniqueID"] = 1e10*df_in["EventID"] + 1e7*df_in["TrackID"] + 1e4*df_in["ParentID"] + df_in["Weight"] 
-	df_out["UniqueID"] = 1e10*df_out["EventID"] + 1e7*df_out["TrackID"] + 1e4*df_out["ParentID"] + df_in["Weight"] 
-
 	# Remove rows with duplicate UniqueID values
 	# This is a bug in G4beamline as far as I can tell...
 	# df_in = df_in.drop_duplicates(subset="UniqueID", keep="first")
 	# df_out = df_out.drop_duplicates(subset="UniqueID", keep="first")
+
+	df_in = increment_duplicates(df_in, "UniqueID")
+	df_out = increment_duplicates(df_out, "UniqueID")
+
+	print(df_in)
 
 	# Handle duplicate events 
 	# Group by "UniqueID" and increment each duplicate 
@@ -238,11 +297,11 @@ def RunColdPions(config):
 	    (~df_out['UniqueID'].isin(df_lostPions['UniqueID']))
 	]
 
-	print(df_in[:5])
-	print(df_out[:5])
-	print(df_oldPions[:5])
-	print(df_lostPions[:5])
-	print(df_newPions[:5])
+	# print(df_in[:5])
+	# print(df_out[:5])
+	# print(df_oldPions[:5])
+	# print(df_lostPions[:5])
+	# print(df_newPions[:5])
 
 	print("in =", df_in.shape[0])
 	print("out =", df_out.shape[0])
@@ -250,6 +309,7 @@ def RunColdPions(config):
 	print("old =", df_oldPions.shape[0])
 	print("lost =", df_lostPions.shape[0])
 	print("new =", df_newPions.shape[0])
+	print("new - lost =", df_newPions.shape[0] - df_lostPions.shape[0])
 
 	# This should equal out-in? right?
 	print("---> these should all be zero...")
@@ -288,8 +348,10 @@ def RunColdPions(config):
 	ut.Plot1D(df_newPions["P"], 100, 0, 100, "New", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdPions/h1_Mom_new_pi-_"+config+".png")
 
 	ut.Plot1DOverlay([df_oldPions["P"], df_lostPions["P"], df_newPions["P"]], nbins=100, xmin=0, xmax=100, title = r"$\pi^{-}$, "+absorberName+", <100 MeV", xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["Old", "Lost", "New"], fout = "../img/"+g4blVer+"/ColdPions/h1_mom_oldLostNewPi-_"+config+".png", legPos="best") # , includeBlack=False)
+	
+	ut.Plot1DOverlay([df_oldPions["R"], df_lostPions["R"], df_newPions["R"]], nbins=220, xmin=0, xmax=220, title = r"$\pi^{-}$, "+absorberName+", <100 MeV", xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = ["Old", "Lost", "New"], fout = "../img/"+g4blVer+"/ColdPions/h1_rad_oldLostNewPi-_"+config+".png", legPos="best") # , includeBlack=False)
 
-	ut.Plot1DOverlay([df_oldPions["R"], df_lostPions["R"], df_newPions["R"]], nbins=220, xmin=0, xmax=220, title = r"$\pi^{-}$, "+absorberName+", <100 MeV", xlabel = "Radius [mm]", ylabel = "Counts / mm", labels = ["Old", "Lost", "New"], fout = "../img/"+g4blVer+"/ColdPions/h1_rad_oldLostNewPi-_"+config+".png", legPos="best") # , includeBlack=False)
+	ut.Plot1DOverlay([df_oldPions["HelixR"], df_lostPions["HelixR"], df_newPions["HelixR"]], nbins=220, xmin=0, xmax=220, title = r"$\pi^{-}$, "+absorberName+", <100 MeV", xlabel = "Radial position of the helical centre [mm]", ylabel = "Counts / mm", labels = ["Old", "Lost", "New"], fout = "../img/"+g4blVer+"/ColdPions/h1_HelixR_oldLostNewPi-_"+config+".png", legPos="best") # , includeBlack=False)
 
 
 	return
@@ -297,7 +359,7 @@ def RunColdPions(config):
 def main():
 
     # RunColdPions("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel") 
-    RunColdPions("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel_noColl03") 
+    RunColdPions("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03") 
 
 if __name__ == "__main__":
     main()

@@ -39,9 +39,9 @@ endfor
 # direction; same dimensions in x-y as the target; make it green
 virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
 # Place it flush with the front face of the target
-place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1
+place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
 
 # This virtualdetector catches everything exiting the target; make it red
 virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
 # Place it flush with the back face of the target
-place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1
+place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 

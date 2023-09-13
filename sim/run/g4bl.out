@@ -10,7 +10,7 @@ G4PIIDATA=/Users/sgrant/Geant4Data/G4PII1.3
 G4LEVELGAMMADATA=/Users/sgrant/Geant4Data/PhotonEvaporation5.7
 G4RADIOACTIVEDATA=/Users/sgrant/Geant4Data/RadioactiveDecay5.6
 G4SAIDXSDATA=/Users/sgrant/Geant4Data/G4SAIDDATA2.0
-G4beamline Process ID 148
+G4beamline Process ID 7156
 
 *************************************************************
  g4beamline version: 3.08                        (Oct  8 2022)
@@ -2722,13 +2722,30 @@ place   HRS_Water_out_pipe copies=1 x=0.0 y=0.0 z=-1139.0
                 kill=0
 param        PSentry_Pipe  0
 param        Use_Scin_Det  0
-param        No_Collimator_03 0
-param        No_PS_Pbar_Window 1
+param        No_Coll       0
+param        No_Pbar_Window 0
+param        No_PS_Pbar_Window 0
+param        No_TS_Pbar_Window 0
+param        No_TS_Pbar_Wedge 0
+param        No_Coll_01    0
+param        No_Coll_03    0
+param        No_Coll_05    0
 param        Coll_pbarU_Rout 158.75
 param        Coll_pbarU_length .25
 param        Coll_pbarU_Rin 0.0
 param        Coll_pbarU_x  0.0
 param        Coll_pbarU_z  3784.98
+tubs         Coll_pbarU    innerRadius=0 outerRadius=158.8 initialPhi=0
+                           finalPhi=360 length=0.25 maxStep=0.05 material=Al
+                           color=1,1,0 kill=0 radius=158.8
+place   Coll_pbarU copies=1 x=0.0 y=0.0 z=3785.0 rename='Coll_pbarU_a'
+tubs         Coll_pbarU_SS innerRadius=158.8 outerRadius=174.6 initialPhi=0
+                           finalPhi=360 length=6.35 maxStep=10
+                           material=Stainless304 color=0,0,1 kill=0
+                           radius=174.6
+place   Coll_pbarU_SS copies=1 x=0.0 y=0.0 z=3781.7 rename='Coll_pbarU_SSa'
+place   Coll_pbarU_SS copies=1 x=0.0 y=0.0 z=3788.3 rename='Coll_pbarU_SSb'
+place   Coll_pbarU_SS copies=1 x=0.0 y=0.0 z=3794.6 rename='Coll_pbarU_SSc'
 param        Coll_01_Rout  240.0
 param        Coll_01_Rin_1 150.0
 param        Coll_01_Rin_2 160.0
@@ -2806,11 +2823,11 @@ tubs         Coll_05_a     innerRadius=128 outerRadius=240 initialPhi=90
                            finalPhi=270 length=1000 maxStep=10
                            material=POLYETHYLENE color=0.72,0.45,0.2 kill=1
                            radius=240
-place   Coll_05_a copies=1 x=-7808.0 y=0.0 z=11359.0 
 tubs         Coll_05_b     innerRadius=128 outerRadius=240 initialPhi=-90
                            finalPhi=90 length=1000 maxStep=10
                            material=POLYETHYLENE color=invisible kill=1
                            radius=240
+place   Coll_05_a copies=1 x=-7808.0 y=0.0 z=11359.0 
 place   Coll_05_b copies=1 x=-7808.0 y=0.0 z=11359.0 
 param        Use_Stopping_Target 1
 param        Aluminum      0.66,0.67,0.71  (already defined)
@@ -3238,128 +3255,6 @@ param        TZstart       -6086.8763
 param        TXend         3884.6463
 param        TYend         0
 param        TZend         -6242.1237
-param        Absorber_File /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt
-param        ZPOSITION     1965
-param        THICKNESS     90
-param        x             5.25
-for i='0' '1' '2' '3' '4' '5' '6' '7' '8' '9' '10' '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' 
-(for i='0')
-tubs         Target        innerRadius=190 outerRadius=200 initialPhi=0
-                           finalPhi=360 length=90 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=200
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:0'
-(for i='1')
-tubs         Target        innerRadius=184.8 outerRadius=194.8 initialPhi=0
-                           finalPhi=360 length=85.55 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=194.8
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:1'
-(for i='2')
-tubs         Target        innerRadius=179.5 outerRadius=189.5 initialPhi=0
-                           finalPhi=360 length=81.1 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=189.5
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:2'
-(for i='3')
-tubs         Target        innerRadius=174.2 outerRadius=184.2 initialPhi=0
-                           finalPhi=360 length=76.65 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=184.2
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:3'
-(for i='4')
-tubs         Target        innerRadius=169 outerRadius=179 initialPhi=0
-                           finalPhi=360 length=72.2 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=179
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:4'
-(for i='5')
-tubs         Target        innerRadius=163.8 outerRadius=173.8 initialPhi=0
-                           finalPhi=360 length=67.75 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=173.8
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:5'
-(for i='6')
-tubs         Target        innerRadius=158.5 outerRadius=168.5 initialPhi=0
-                           finalPhi=360 length=63.3 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=168.5
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:6'
-(for i='7')
-tubs         Target        innerRadius=153.2 outerRadius=163.2 initialPhi=0
-                           finalPhi=360 length=58.85 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=163.2
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:7'
-(for i='8')
-tubs         Target        innerRadius=148 outerRadius=158 initialPhi=0
-                           finalPhi=360 length=54.4 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=158
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:8'
-(for i='9')
-tubs         Target        innerRadius=142.8 outerRadius=152.8 initialPhi=0
-                           finalPhi=360 length=49.95 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=152.8
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:9'
-(for i='10')
-tubs         Target        innerRadius=137.5 outerRadius=147.5 initialPhi=0
-                           finalPhi=360 length=45.5 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=147.5
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:10'
-(for i='11')
-tubs         Target        innerRadius=132.2 outerRadius=142.2 initialPhi=0
-                           finalPhi=360 length=41.05 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=142.2
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:11'
-(for i='12')
-tubs         Target        innerRadius=127 outerRadius=137 initialPhi=0
-                           finalPhi=360 length=36.6 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=137
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:12'
-(for i='13')
-tubs         Target        innerRadius=121.8 outerRadius=131.8 initialPhi=0
-                           finalPhi=360 length=32.15 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=131.8
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:13'
-(for i='14')
-tubs         Target        innerRadius=116.5 outerRadius=126.5 initialPhi=0
-                           finalPhi=360 length=27.7 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=126.5
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:14'
-(for i='15')
-tubs         Target        innerRadius=111.2 outerRadius=121.2 initialPhi=0
-                           finalPhi=360 length=23.25 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=121.2
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:15'
-(for i='16')
-tubs         Target        innerRadius=106 outerRadius=116 initialPhi=0
-                           finalPhi=360 length=18.8 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=116
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:16'
-(for i='17')
-tubs         Target        innerRadius=100.8 outerRadius=110.8 initialPhi=0
-                           finalPhi=360 length=14.35 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=110.8
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:17'
-(for i='18')
-tubs         Target        innerRadius=95.5 outerRadius=105.5 initialPhi=0
-                           finalPhi=360 length=9.9 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=105.5
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:18'
-(for i='19')
-tubs         Target        innerRadius=90.25 outerRadius=100.2 initialPhi=0
-                           finalPhi=360 length=5.45 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=100.2
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:19'
-(for i='20')
-tubs         Target        innerRadius=85 outerRadius=95 initialPhi=0
-                           finalPhi=360 length=1 maxStep=10 material=Be
-                           color=0,1,1 kill=0 radius=95
-place   Target  copies=1 x=0.0 y=0.0 z=1965.0 rename='Target:20'
-endfor
-virtualdetector BeAbsorber_DetIn radius=200 innerRadius=0 height=400 width=400
-                           length=1 maxStep=10 material= color=0,1,0,0.3
-                           noSingles=0 format= filename= file= require=
-                           referenceParticle=0 coordinates=Centerline kill=0
-place   BeAbsorber_DetIn copies=1 x=0.0 y=0.0 z=1919.0 
-virtualdetector BeAbsorber_DetOut radius=200 innerRadius=0 height=400
-                           width=400 length=1 maxStep=10 material=
-                           color=1,0,1,0.3 noSingles=0 format= filename= file=
-                           require= referenceParticle=0 coordinates=Centerline
-                           kill=0
-place   BeAbsorber_DetOut copies=1 x=0.0 y=0.0 z=2011.0 
 param        BoosterKE     8000.0
 param        ProtonMass    938.27231
 param        ProtonMomentum 8888.8895
@@ -3377,9 +3272,9 @@ param        StartBeamZ    9529.553
 param        READ_Beam_File 3
 param        Use_Basic_Det 1
 param        Make_ZNtuple  1
-param        Beam_File     /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt
+param        Beam_File     /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_test_pion.txt
 beam    ASCII   nEvents=99999999 firstEvent=-1 lastEvent=2147483647 beamZ=-3700000000000000000000.0 maxR=1000000.0 renumber=0 weight=1.000000 
-		filename=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt format=BLTrackFile 
+		filename=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_test_pion.txt format=BLTrackFile 
 		
 virtualdetector Coll_01_Det radius=249.3 innerRadius=0 height=498.6
                            width=498.6 length=0.3 maxStep=10 material=
@@ -3505,14 +3400,13 @@ place   SchooPWC copies=1 x=-1862.9 y=289.5 z=-5841.0 rename='beamScan_downstrea
 World size (before incrementing by 201.357 mm): 13091.1 H  37808.0 W  115858.0 L
 
 PARAMETERS:
-  Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt
        Aluminum=0.66,0.67,0.71
          ArMass=39.95
      ArMassFrac=0.78406359
       ArVolFrac=0.8
         BXangle=-0
         BYangle=194
-      Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt
+      Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_test_pion.txt
           Black=0,0,0
            Blue=0,0,1
       BoosterKE=8000.0
@@ -3787,8 +3681,14 @@ Invisible_Walls=1
          Mu2E_y=0
          Mu2E_z=7929
  Muon_Dump_kill=1
-No_Collimator_03=0
-No_PS_Pbar_Window=1
+        No_Coll=0
+     No_Coll_01=0
+     No_Coll_03=0
+     No_Coll_05=0
+No_PS_Pbar_Window=0
+ No_Pbar_Window=0
+No_TS_Pbar_Wedge=0
+No_TS_Pbar_Window=0
      Num_Events=1000
   OrPSentrypipe=63.5
          Orange=1,0.5,0
@@ -3967,7 +3867,6 @@ Proton_Dump_kill=1
      StartBeamZ=9529.553
      SteelColor=0.5,0.5,0.5
 Stop_Target_Color=0.5,0,0.5
-      THICKNESS=90
   TS1_C1_length=172.55
   TS1_C1_rinner=405.00
      TS1_C1_rot=0.0
@@ -4364,7 +4263,6 @@ XrotPSentrypipe=2.6124902
          Yellow=1,1,0
 YrotPSentrypipe=-13.701554
              Z0=1210.0
-      ZPOSITION=1965
    ZPSentrypipe=4787.7292
             Zcl=-5797.14
             Zx1=2410.0
@@ -4410,7 +4308,7 @@ deltaIntersection=0.1
       filt_Kill=0
       histoFile=g4beamline
     histoUpdate=0
-              i=20
+              i=2
            inch=25.4
              ir=946.15
               j=5
@@ -4474,7 +4372,7 @@ totalMolDensity=4.5e-05
          viewer=best,1
  wallClockLimit=-1
   worldMaterial=Vacuum
-              x=5.25
+              x=0
              x1=3291.8
              x2=-202.26
              x3=-2956.6
@@ -5695,6 +5593,18 @@ BLCMDpolycone::Construct HRS_Water_out parent= relZ=-1139.0 globZ=-1139.0
 Checking overlaps for volume HRS_Water_out_pipe:0 (G4SubtractionSolid) ... OK! 
 BLCMDboolean::Construct HRS_Water_out_pipe parent= relZ=-1139.0 globZ=-1139.0
 	zmin=-6139.0 zmax=3861.0
+Checking overlaps for volume Coll_pbarU_a:0 (G4Tubs) ... OK! 
+BLCMDtubs::Construct Coll_pbarU_a parent= relZ=3785.0 globZ=3785.0
+	zmin=3784.9 zmax=3785.1 kill=0
+Checking overlaps for volume Coll_pbarU_SSa:0 (G4Tubs) ... OK! 
+BLCMDtubs::Construct Coll_pbarU_SSa parent= relZ=3781.7 globZ=3781.7
+	zmin=3778.5 zmax=3784.9 kill=0
+Checking overlaps for volume Coll_pbarU_SSb:0 (G4Tubs) ... OK! 
+BLCMDtubs::Construct Coll_pbarU_SSb parent= relZ=3788.3 globZ=3788.3
+	zmin=3785.1 zmax=3791.5 kill=0
+Checking overlaps for volume Coll_pbarU_SSc:0 (G4Tubs) ... OK! 
+BLCMDtubs::Construct Coll_pbarU_SSc parent= relZ=3794.6 globZ=3794.6
+	zmin=3791.5 zmax=3797.8 kill=0
 Checking overlaps for volume Coll_01_a_pbar:0 (G4Tubs) ... OK! 
 BLCMDtubs::Construct Coll_01_a_pbar parent= relZ=4785.0 globZ=4785.0
 	zmin=4685.0 zmax=4885.0 kill=1
@@ -5995,145 +5905,6 @@ BLCMDtubs::Construct rod2 parent= relZ=1803.7 globZ=1803.7
 Checking overlaps for volume rod2:0 (G4Tubs) ... OK! 
 BLCMDtubs::Construct rod2 parent= relZ=1725.3 globZ=1725.3
 	zmin=1615.4 zmax=1835.2 kill=0
-Checking overlaps for volume Target:0:0 (G4Tubs) ... OK! 
-BLCMDtubs::Construct Target:0 parent= relZ=1965.0 globZ=1965.0
-	zmin=1920.0 zmax=2010.0 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:1:0 (G4Tubs) with Target:0:0 (G4Tubs)
-          overlap at local point (-147.475,127.195,39.5204) by 4.75 mm  (max of 478 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:1 parent= relZ=1965.0 globZ=1965.0
-	zmin=1922.2 zmax=2007.8 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:2:0 (G4Tubs) with Target:1:0 (G4Tubs)
-          overlap at local point (-47.4937,-183.452,-1.77804) by 4.75 mm  (max of 498 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:2 parent= relZ=1965.0 globZ=1965.0
-	zmin=1924.5 zmax=2005.5 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:3:0 (G4Tubs) with Target:2:0 (G4Tubs)
-          overlap at local point (179.056,-43.4414,-22.7323) by 4.75 mm  (max of 538 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:3 parent= relZ=1965.0 globZ=1965.0
-	zmin=1926.7 zmax=2003.3 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:4:0 (G4Tubs) with Target:3:0 (G4Tubs)
-          overlap at local point (49.5838,-171.995,-6.97657) by 4.75 mm  (max of 494 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:4 parent= relZ=1965.0 globZ=1965.0
-	zmin=1928.9 zmax=2001.1 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:5:0 (G4Tubs) with Target:4:0 (G4Tubs)
-          overlap at local point (113.051,131.941,3.80736) by 4.75 mm  (max of 502 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:5 parent= relZ=1965.0 globZ=1965.0
-	zmin=1931.1 zmax=1998.9 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:6:0 (G4Tubs) with Target:5:0 (G4Tubs)
-          overlap at local point (69.106,153.677,-19.8057) by 4.75 mm  (max of 514 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:6 parent= relZ=1965.0 globZ=1965.0
-	zmin=1933.3 zmax=1996.7 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:7:0 (G4Tubs) with Target:6:0 (G4Tubs)
-          overlap at local point (-118.886,-111.878,-6.2579) by 4.75 mm  (max of 513 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:7 parent= relZ=1965.0 globZ=1965.0
-	zmin=1935.6 zmax=1994.4 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:8:0 (G4Tubs) with Target:7:0 (G4Tubs)
-          overlap at local point (37.3565,153.52,-6.36622) by 4.75 mm  (max of 531 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-**************************************************************************
-BLCMDtubs::Construct Target:8 parent= relZ=1965.0 globZ=1965.0
-	zmin=1937.8 zmax=1992.2 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:9:0 (G4Tubs) with Target:8:0 (G4Tubs)
-          overlap at local point (59.9204,140.507,-1.47276) by 4.75 mm  (max of 476 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-***    printing: every 10-th occurrence
-**************************************************************************
-BLCMDtubs::Construct Target:9 parent= relZ=1965.0 globZ=1965.0
-	zmin=1940.0 zmax=1990.0 kill=0
-BLCMDtubs::Construct Target:10 parent= relZ=1965.0 globZ=1965.0
-	zmin=1942.2 zmax=1987.8 kill=0
-BLCMDtubs::Construct Target:11 parent= relZ=1965.0 globZ=1965.0
-	zmin=1944.5 zmax=1985.5 kill=0
-BLCMDtubs::Construct Target:12 parent= relZ=1965.0 globZ=1965.0
-	zmin=1946.7 zmax=1983.3 kill=0
-BLCMDtubs::Construct Target:13 parent= relZ=1965.0 globZ=1965.0
-	zmin=1948.9 zmax=1981.1 kill=0
-BLCMDtubs::Construct Target:14 parent= relZ=1965.0 globZ=1965.0
-	zmin=1951.2 zmax=1978.8 kill=0
-BLCMDtubs::Construct Target:15 parent= relZ=1965.0 globZ=1965.0
-	zmin=1953.4 zmax=1976.6 kill=0
-BLCMDtubs::Construct Target:16 parent= relZ=1965.0 globZ=1965.0
-	zmin=1955.6 zmax=1974.4 kill=0
-BLCMDtubs::Construct Target:17 parent= relZ=1965.0 globZ=1965.0
-	zmin=1957.8 zmax=1972.2 kill=0
-BLCMDtubs::Construct Target:18 parent= relZ=1965.0 globZ=1965.0
-	zmin=1960.0 zmax=1970.0 kill=0
-**************************************************************************
-*** G4Exception: GeomVol1002
-***    severity: Warning
-***   issued by: G4PVPlacement::CheckOverlaps()
-*** description: Overlap with volume already placed !
-          Overlap is detected for volume Target:19:0 (G4Tubs) with Target:18:0 (G4Tubs)
-          overlap at local point (99.1663,-14.7005,-0.125074) by 4.75 mm  (max of 493 cases)
-NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
-***    printing: every 10-th occurrence
-**************************************************************************
-BLCMDtubs::Construct Target:19 parent= relZ=1965.0 globZ=1965.0
-	zmin=1962.3 zmax=1967.7 kill=0
-BLCMDtubs::Construct Target:20 parent= relZ=1965.0 globZ=1965.0
-	zmin=1964.5 zmax=1965.5 kill=0
-Checking overlaps for volume Target:1:0 (G4Tubs) ... Checking overlaps for volume Target:2:0 (G4Tubs) ... Checking overlaps for volume Target:3:0 (G4Tubs) ... Checking overlaps for volume Target:4:0 (G4Tubs) ... Checking overlaps for volume Target:5:0 (G4Tubs) ... Checking overlaps for volume Target:6:0 (G4Tubs) ... Checking overlaps for volume Target:7:0 (G4Tubs) ... Checking overlaps for volume Target:8:0 (G4Tubs) ... Checking overlaps for volume Target:9:0 (G4Tubs) ... Checking overlaps for volume Target:10:0 (G4Tubs) ... Checking overlaps for volume Target:11:0 (G4Tubs) ... Checking overlaps for volume Target:12:0 (G4Tubs) ... Checking overlaps for volume Target:13:0 (G4Tubs) ... Checking overlaps for volume Target:14:0 (G4Tubs) ... Checking overlaps for volume Target:15:0 (G4Tubs) ... Checking overlaps for volume Target:16:0 (G4Tubs) ... Checking overlaps for volume Target:17:0 (G4Tubs) ... Checking overlaps for volume Target:18:0 (G4Tubs) ... Checking overlaps for volume Target:19:0 (G4Tubs) ... Checking overlaps for volume Target:20:0 (G4Tubs) ... Checking overlaps for volume BeAbsorber_DetIn:0 (G4Tubs) ... OK! 
-BLCMDvirtualdetector::Construct BeAbsorber_DetIn parent= relZ=1919.0 globZ=1919.0
-Checking overlaps for volume BeAbsorber_DetOut:0 (G4Tubs) ... OK! 
-BLCMDvirtualdetector::Construct BeAbsorber_DetOut parent= relZ=2011.0 globZ=2011.0
 Checking overlaps for volume Coll_01_DetIn:0 (G4Tubs) ... OK! 
 BLCMDvirtualdetector::Construct Coll_01_DetIn parent= relZ=3884.7 globZ=3884.7
 Checking overlaps for volume Coll_01_DetOut:0 (G4Tubs) ... OK! 
@@ -6160,6 +5931,15 @@ Checking overlaps for volume Calorimeter_DetIn:0 (G4Tubs) ... OK!
 BLCMDvirtualdetector::Construct Calorimeter_DetIn parent= relZ=19668.7 globZ=19668.7
 Checking overlaps for volume Calorimeter_DetOut:0 (G4Tubs) ... OK! 
 BLCMDvirtualdetector::Construct Calorimeter_DetOut parent= relZ=21119.3 globZ=21119.3
+**************************************************************************
+*** G4Exception: GeomVol1002
+***    severity: Warning
+***   issued by: G4PVPlacement::CheckOverlaps()
+*** description: Overlap with volume already placed !
+          Overlap is detected for volume beamScan_downstream_1_PWC:0 (G4Box) with AirGap:0 (G4ExtrudedSolid)
+          overlap at local point (-1524.9,-4879.36,121.433) by 2.08525 m   (max of 1000 cases)
+NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
+**************************************************************************
 Checking overlaps for volume beamScan_downstream_1_PWC:0 (G4Box) ... Checking overlaps for volume beamScan_downstream_1_PWCPWCGasVol:0 (G4Box) ... OK! 
 Checking overlaps for volume beamScan_downstream_1_PWCPWCGasVolCenterPlane:0 (G4Box) ... OK! 
 BLCMDvirtualdetector::Construct beamScan_downstream_1_PWCPWCGasVolCenterPlane parent=beamScan_downstream_1_PWCPWCGasVol relZ=0.0 globZ=-4867.4
@@ -6189,6 +5969,15 @@ BLCMDbox::Construct beamScan_downstream_1_PWCframeLeft parent=beamScan_downstrea
 	zmin=-4866.6 zmax=-4833.4
 BLCMDbox::Construct beamScan_downstream_1_PWC parent= relZ=-4867.4 globZ=-4867.4
 	zmin=-4884.4 zmax=-4850.3
+**************************************************************************
+*** G4Exception: GeomVol1002
+***    severity: Warning
+***   issued by: G4PVPlacement::CheckOverlaps()
+*** description: Overlap with volume already placed !
+          Overlap is detected for volume beamScan_downstream_2_PWC:0 (G4Box) with AirGap:0 (G4ExtrudedSolid)
+          overlap at local point (-1876.16,-5816.39,-109.231) by 1.20331 m   (max of 1000 cases)
+NOTE: Reached maximum fixed number -1- of overlaps reports for this volume !
+**************************************************************************
 Checking overlaps for volume beamScan_downstream_2_PWC:0 (G4Box) ... Checking overlaps for volume beamScan_downstream_2_PWCPWCGasVol:0 (G4Box) ... OK! 
 Checking overlaps for volume beamScan_downstream_2_PWCPWCGasVolCenterPlane:0 (G4Box) ... OK! 
 BLCMDvirtualdetector::Construct beamScan_downstream_2_PWCPWCGasVolCenterPlane parent=beamScan_downstream_2_PWCPWCGasVol relZ=0.0 globZ=-5841.0
@@ -6257,6 +6046,12 @@ Testing geometry for children of group 'World':
 *** G4Exception: Geometry Error
 ***    severity: Warning
 ***   issued by: geometry
+*** description: boolean 'TSu_6_pipe' intersects boolean 'TSu_9_pipe'
+**************************************************************************
+**************************************************************************
+*** G4Exception: Geometry Error
+***    severity: Warning
+***   issued by: geometry
 *** description: tubs 'TSu_7' intersects boolean 'TSu_6_pipe'
 **************************************************************************
 **************************************************************************
@@ -6282,12 +6077,6 @@ Testing geometry for children of group 'World':
 ***    severity: Warning
 ***   issued by: geometry
 *** description: tubs 'TSring' intersects boolean 'TSu_6_pipe'
-**************************************************************************
-**************************************************************************
-*** G4Exception: Geometry Error
-***    severity: Warning
-***   issued by: geometry
-*** description: tubs 'TSringO' intersects boolean 'TSringE1_pipe'
 ***    printing: every 10-th occurrence
 **************************************************************************
 **************************************************************************
@@ -6304,40 +6093,12 @@ Testing geometry for children of group 'World':
 *** description: tubs 'Target_Hold' intersects boolean 'HRS_St_S_pipe'
 ***    printing: every 10-th occurrence
 **************************************************************************
-**************************************************************************
-*** G4Exception: Geometry Error
-***    severity: Warning
-***   issued by: geometry
-*** description: tubs 'Target:4' intersects tubs 'Target:5'
-***    printing: every 10-th occurrence
-**************************************************************************
-**************************************************************************
-*** G4Exception: Geometry Error
-***    severity: Warning
-***   issued by: geometry
-*** description: tubs 'Target:9' intersects tubs 'Target:10'
-***    printing: every 10-th occurrence
-**************************************************************************
-**************************************************************************
-*** G4Exception: Geometry Error
-***    severity: Warning
-***   issued by: geometry
-*** description: tubs 'Target:14' intersects tubs 'Target:15'
-***    printing: every 10-th occurrence
-**************************************************************************
-**************************************************************************
-*** G4Exception: Geometry Error
-***    severity: Warning
-***   issued by: geometry
-*** description: tubs 'Target:19' intersects tubs 'Target:20'
-***    printing: every 10-th occurrence
-**************************************************************************
 Testing geometry for children of box 'PBSenc':
 **************************************************************************
 *** G4Exception: Geometry Error
 ***    severity: Warning
 ***   issued by: geometry
-*** description: extrusion 'PBScoreI' intersects boolean 'PBSbodyIb'
+*** description: extrusion 'PBSbodyV' intersects boolean 'PBSbodyIb'
 ***    printing: every 10-th occurrence
 **************************************************************************
 Testing geometry for children of extrusion 'AirGap':
@@ -6361,7 +6122,7 @@ Testing geometry for children of box 'SchooPWC':
 Testing geometry for children of box 'PWCGasVol':
 Testing geometry for children of box 'SchooPWC':
 Testing geometry for children of box 'PWCGasVol':
-Total geometry errors = 84  0 seconds
+Total geometry errors = 41  0 seconds
 
 ================== Prepare Visualization ==================
 Stochastic processes are enabled.
@@ -6452,13 +6213,18 @@ BLVisManager init: /vis/viewer/set/hiddenMarker true
 WARNING: No extent set for user vis action "DrawMarkers".
 WARNING: User Vis Action "DrawMarkers" extent is null.
  Changing export format to "jpg"
+fieldVoxels: nx=51 ny=24 nz=220, 269280 voxels, 6 fields
+fieldVoxels: max field count is 2 fields, # voxels >5: 0, >10: 0, >20: 0
+1 event has been kept for refreshing and/or reviewing.
+  "/vis/reviewKeptEvents" to review them one by one.
+  "/vis/enable", then "/vis/viewer/flush" or "/vis/viewer/rebuild" to see them accumulated.
 
 Graphics systems deleted.
 Visualization Manager deleting...
 
-Exceptions: 0 Fatal, 0 Events Aborted, 0 Stuck Tracks (stopped), 114 Warnings
+Exceptions: 0 Fatal, 0 Events Aborted, 0 Stuck Tracks (stopped), 51 Warnings
       6 times: GeomSolids1001
-     23 times: GeomVol1002
-     84 times: Geometry Error
+      3 times: GeomVol1002
+     41 times: Geometry Error
       1 times: Run0111
 g4beamline: simulation complete
