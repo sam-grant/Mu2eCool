@@ -85,19 +85,23 @@ def Run():
         # Store these variables used more than once in the loop
         EventID = int(trk.EventID)
         TrackID = int(trk.TrackID)
+        Px = trk.Px
+        Py = trk.Py
         Pz = trk.Pz
+        PDGid = int(trk.PDGid)
 
-        # Force all tracks to be primaries, otherwise g4bl will complain about large TrackIDs
+        # Set ParentID to one, g4bl treats all source particles as primaries 
+        ParentID = 1
+        # Force all tracks to be primaries, otherwise g4bl will complain
         if TrackID > 1000:
             TrackID = TrackID - 1000
 
-        # Skip duplicates...
-        # You could move the EventID to overflows, but they really are the same event (just tracked twice with a different seed), so probably best not to
-        # No need for anything fancy, EventIDs iterate in-order 
+        # Handle duplicate events 
+        # No need for anything fancy, EventIDs proceed in-order so just keep iterating the TrackID
         if lastEventID == EventID and lastTrackID == TrackID:
+            # Iterate TrackID 
+            TrackID += 1 # Could also just skip
             nDuplicates += 1
-            # We could iterate the EventID instead
-            # EventID += totEvents
             continue
 
         # Filter upstream particles 
@@ -107,6 +111,14 @@ def Run():
             lastTrackID = TrackID
             continue
 
+        # Remove exotic particles. g4bl can't handle them as the source
+        if PDGid > 1000000:
+            continue
+
+       # Drop soft e+- in beam source
+        if fabs(PDGid) == 11 and np.sqrt( pow(Px,2) + pow(Py,2) + pow(Pz,2) )<10.0: 
+            continue
+
         # Add more filters here as needed
 
         # Determine the output file index, based on the event ID
@@ -114,7 +126,7 @@ def Run():
         fout = fout_[fout_i]
 
         # Write event
-        fout.write("{:<13.3f} {:<12.3f} {:<12.3f} {:<10.3f} {:<10.3f} {:<10.3f} {:<12.3f} {:<7} {:<10} {:<10} {:<7} {:<7}\n".format(trk.x, trk.y, trk.z, trk.Px, trk.Py, Pz, trk.t, int(trk.PDGid), int(trk.EventID), TrackID, 1, int(trk.Weight)))
+        fout.write("{:<13.3f} {:<12.3f} {:<12.3f} {:<10.3f} {:<10.3f} {:<10.3f} {:<12.3f} {:<7} {:<10} {:<10} {:<7} {:<7}\n".format(trk.x, trk.y, trk.z, Px, Py, Pz, trk.t, PDGid, EventID, TrackID, ParentID, int(trk.Weight)))
 
         # Print status
         perc = 100 * (i + 1) / nEvents  # Use 'idx' for loop index
