@@ -186,6 +186,7 @@ def BeamPath(df):
 
 	return df
 
+
 def RunStoppedMuons(config, ntupleName): 
 
     # Setup input 
@@ -193,28 +194,48 @@ def RunStoppedMuons(config, ntupleName):
 
     df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNamesExtended)
     df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNamesExtended)
+    df_ntuple = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNamesExtended)
+
+    # Add momentum column, best to do this first
+    ut.GetTotalMomentum(df_prestop)
+    ut.GetTotalMomentum(df_LostInTarget)
+    ut.GetTotalMomentum(df_ntuple)
+
+    # Add radial position column 
+    # ut.GetRadialPosition(df_prestop)
+    # ut.GetRadialPosition(df_LostInTarget)
+    ut.GetRadialPosition(df_ntuple)
+
+    # For some reason if you chose not to filter muons first, you get a slight decrease in stops. 
+    # This is how I do it in beam flux, so... I tend not to believe anything that gives you extra particles.
+    # df_prestop = ut.FilterParticles(df_prestop, "mu-")
+    # df_LostInTarget = ut.FilterParticles(df_LostInTarget, "mu-")
+
+    # This is cleaner way of selecting stopped muons using Pandas
+    df_stops = df_prestop.merge(df_LostInTarget, on=["EventID", "TrackID", "ParentID"], suffixes=("", "_lost"))
+    # Select only the columns from df_prestop
+    df_stops = df_stops[df_prestop.columns]
+
+    print(df_stops[:10])
+
+    df_stoppedMuons = ut.FilterParticles(df_stops, "mu-")
+    print(df_stoppedMuons.shape[0])
+
+    ut.Plot1D(df_stops["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuons_"+config+".png", "best", errors=True, peak=True) 
+
+    return
 
     # Stopped muons: muons which are present in prestop and LostInTarget
     # Add the "UniqueID" column sto df_prestop and df_LostInTarget, get the common tracks
-    df_prestop['UniqueID'] = 1e6*df_prestop['EventID'] + 1e3*df_prestop['TrackID'] + df_prestop['ParentID'] 
-    df_LostInTarget['UniqueID'] = 1e6*df_LostInTarget['EventID'] + 1e3*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
+    df_prestop['UniqueID'] = 1e7*df_prestop['EventID'] + 1e4*df_prestop['TrackID'] + df_prestop['ParentID'] 
+    df_LostInTarget['UniqueID'] = 1e7*df_LostInTarget['EventID'] + 1e4*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
     df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
-
-    df_stoppedMuons = ut.FilterParticles(df_stoppedMuons, "mu-")
-    df_prestopMuons = ut.FilterParticles(df_prestop, "mu-")
 
     # Get position coordinates in beam reference frame
     df_stoppedMuons = BeamPath(df_stoppedMuons)
-    df_prestopMuons = BeamPath(df_prestopMuons)
+    df_prestop = BeamPath(df_prestop)
 
-    # Momentum
-    df_stoppedMuons["P"] = np.sqrt( pow(df_stoppedMuons["Px"],2) + pow(df_stoppedMuons["Py"],2) + pow(df_stoppedMuons["Pz"],2) ) 
-    df_prestopMuons["P"] = np.sqrt( pow(df_prestopMuons["Px"],2) + pow(df_prestopMuons["Py"],2) + pow(df_prestopMuons["Pz"],2) ) 
-
-    # Initial radius
-    # df_stoppedMuons["InitR"] = np.sqrt( pow(df_stoppedMuons["InitX"],2) + pow(df_stoppedMuons["InitY"],2) ) # + pow(df_stoppedMuons["Pz"],2) ) 
-
-    ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuons_"+config+".png", "best", errors=False) 
+    ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuons_"+config+".png", "best", errors=True, peak=True) 
     # ut.Plot2D(df_stoppedMuons["InitZ"], df_stoppedMuons["Theta"], 143, 0, 14300, int(np.pi), -np.pi/2, np.pi/2, r"Stopped $\mu^{-}$" , "Initial z [mm]", "Theta [rad]", "../img/"+g4blVer+"/StoppedMuons/h2_InitZvsTheta_stoppedMuons_"+config+".png") 
     # ut.Plot1D(df_prestopMuons["P"], 100, 0, 100, r"$\mu^{-}$ entering ST" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_prestopMuons_"+config+".png", "upper right", errors=False) 
     # ut.Plot1D(df_stoppedMuons["InitZ"], 143, 0, 14300, r"Stopped $\mu^{-}$" , "Initial z [mm]", "Counts / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitZ_stoppedMuons_"+config+".png", "upper right", errors=False) 
@@ -224,41 +245,71 @@ def RunStoppedMuons(config, ntupleName):
 
     # Annotated
     Plot1DAnnotated(df_stoppedMuons["InitL"], 143, 0, 14300, "", "Initial position [mm]", "Counts / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitL_annotated_stoppedMuons_"+config+".png", "upper right", stats=False, errors=False) 
-    Plot1DAnnotated(df_prestopMuons["InitL"], 143, 0, 14300, "", "Initial position [mm]", "Counts / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitL_annotated_prestopMuons_"+config+".png", "upper right", stats=False, errors=False) 
-    
-    # What about my cold pions? 
+    Plot1DAnnotated(df_prestop["InitL"], 143, 0, 14300, "", "Initial position [mm]", "Counts / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitL_annotated_prestopMuons_"+config+".png", "upper right", stats=False, errors=False) 
 
 	# Find pion parents for stopped muons, these should all be produced at the PT
-    df_ntuple = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNamesExtended)
-
     # Titles and names
     ntupleName = ntupleName.split("/")[1] 
     ntupleTitle = ", "+ntupleName
     if ntupleName[0] == "Z": ntupleTitle = ", Z = "+ntupleName[1:]+" mm"
 
-    # Merge dataframes
-    # look for rows in df_"+ntupleName+" that have the same EventID as df_stoppedMuons, and also have a TrackID which is equal to ParentID in df_stoppedMuons.
-    df_stoppedMuonParents = df_ntuple.merge(df_stoppedMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_stoppedMuons"))
+
+    # Filter particles of parents
+
+    # Something is deeply broken here. Yes, my understanding.
+
+    # It claims that I have 268 muon par
+
+	# Stopped muon children and pion parents: look for rows in df_ntuple that have the same EventID as df_stoppedMuons, and also have a TrackID which is equal to ParentID in df_stoppedMuons.
+    df_children_and_parents = df_ntuple.merge(df_stoppedMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("_parent", "_child"))
+    # Orphaned stopped muons which are produced Z < 1850 mm
+    df_orphans = df_ntuple.merge(df_stoppedMuons, ["EventID", "TrackID"]) # , right_on=["EventID", "TrackID"], suffixes=("_start", "_stop"))
     
-    # Filter particles of "parents" (some of them are really the same muons)
-    df_stoppedMuonParentMuons = ut.FilterParticles(df_stoppedMuonParents, "mu-")
-    df_stoppedMuonParentPions = ut.FilterParticles(df_stoppedMuonParents, "pi-")
+    # df_children_and_parents = df_stoppedMuons.merge(df_ntuple, left_on=["EventID", "ParentID"], right_on=["EventID", "TrackID"], suffixes=("_child", "_parent"))
+
+    # Write the df to csv for debugging
+    # print(df_children_and_parents[:10])
+    csvName = "../txt/"+g4blVer+"/g4beamline_StoppedMuons_parents_and_children.csv" 
+    df_children_and_parents[:10].to_csv(csvName, index=False) 
+    csvName = "../txt/"+g4blVer+"/g4beamline_StoppedMuons_orphans.csv" 
+    df_orphans[:10].to_csv(csvName, index=False) 
+
+    print("\n---> Written csv to", csvName)
+
+    # print(df_children_and_parents["PDGid_parent"])
+    print(df_stoppedMuons.shape[0])
+    print(df_children_and_parents.shape[0])
+    print(df_orphans.shape[0])
+    # print(df_children_and_parents["PDGid_parent"])
+    # print(df_children_and_parents["PDGid_child"])
+
+    return
+
+    # It does make sense that they would all come from pions, with a couple of exotic decays
+    # , no this doesn't make any sense. why would they have a parent ID equal to the track ID. ParentId would equal parent ID and trackID trackID (some of them are really the same muons)
+    # Do you really need this? Seems a bit messy
+    # 
+    df_stoppedMuonParentMuons = ut.FilterParticles(df_children_and_parents, "mu-")
+    df_stoppedMuonParentPions = ut.FilterParticles(df_children_and_parents, "pi-")
+
+    print(df_stoppedMuonParentMuons)
+    # print(df_stoppedMuonParentPions.shape[0])
 
     # Filter muons and pions at this detector
     df_allMuons = ut.FilterParticles(df_ntuple, "mu-")
     df_allPions = ut.FilterParticles(df_ntuple, "pi-")
 
     # Total momentum
-    df_allMuons["P"] = np.sqrt( pow(df_allMuons["Px"],2) + pow(df_allMuons["Py"],2) + pow(df_allMuons["Pz"],2) ) 
-    df_allPions["P"] = np.sqrt( pow(df_allPions["Px"],2) + pow(df_allPions["Py"],2) + pow(df_allPions["Pz"],2) ) 
-    df_stoppedMuonParentMuons["P"] = np.sqrt( pow(df_stoppedMuonParentMuons["Px"],2) + pow(df_stoppedMuonParentMuons["Py"],2) + pow(df_stoppedMuonParentMuons["Pz"],2) ) 
-    df_stoppedMuonParentPions["P"] = np.sqrt( pow(df_stoppedMuonParentPions["Px"],2) + pow(df_stoppedMuonParentPions["Py"],2) + pow(df_stoppedMuonParentPions["Pz"],2) ) 
+    # df_allMuons["P"] = np.sqrt( pow(df_allMuons["Px"],2) + pow(df_allMuons["Py"],2) + pow(df_allMuons["Pz"],2) ) 
+    # df_allPions["P"] = np.sqrt( pow(df_allPions["Px"],2) + pow(df_allPions["Py"],2) + pow(df_allPions["Pz"],2) ) 
+    # df_stoppedMuonParentMuons["P"] = np.sqrt( pow(df_stoppedMuonParentMuons["Px"],2) + pow(df_stoppedMuonParentMuons["Py"],2) + pow(df_stoppedMuonParentMuons["Pz"],2) ) 
+    # df_stoppedMuonParentPions["P"] = np.sqrt( pow(df_stoppedMuonParentPions["Px"],2) + pow(df_stoppedMuonParentPions["Py"],2) + pow(df_stoppedMuonParentPions["Pz"],2) ) 
 
     # Radius
-    df_allMuons["R"] = np.sqrt( pow(df_allMuons["x"],2) + pow(df_allMuons["y"],2) ) 
-    df_allPions["R"] = np.sqrt( pow(df_allPions["x"],2) + pow(df_allPions["y"],2) ) 
-    df_stoppedMuonParentMuons["R"] = np.sqrt( pow(df_stoppedMuonParentMuons["x"],2) + pow(df_stoppedMuonParentMuons["y"],2) ) 
-    df_stoppedMuonParentPions["R"] = np.sqrt( pow(df_stoppedMuonParentPions["x"],2) + pow(df_stoppedMuonParentPions["y"],2) ) 
+    # df_allMuons["R"] = np.sqrt( pow(df_allMuons["x"],2) + pow(df_allMuons["y"],2) ) 
+    # df_allPions["R"] = np.sqrt( pow(df_allPions["x"],2) + pow(df_allPions["y"],2) ) 
+    # df_stoppedMuonParentMuons["R"] = np.sqrt( pow(df_stoppedMuonParentMuons["x"],2) + pow(df_stoppedMuonParentMuons["y"],2) ) 
+    # df_stoppedMuonParentPions["R"] = np.sqrt( pow(df_stoppedMuonParentPions["x"],2) + pow(df_stoppedMuonParentPions["y"],2) ) 
 
     # Compare muons with stopped muons at this detector
 
@@ -292,9 +343,14 @@ def RunStoppedMuons(config, ntupleName):
 
 def main():
 
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber", "NTuple/Z1850")
+	RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850")
+
     # RunStoppedMuons("Mu2E_1e7events")
     # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetIn")
-    RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel_noColl03", "NTuple/Z1850")
+    # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850")
+    # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel", "NTuple/LostInTarget_Ntuple")
+    # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/prestop")
     # RunStoppedMuons("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "NTuple/Z1850")
     # RunStoppedMuons("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "VirtualDetector/BeAbsorber_DetIn")
 	# RunStoppedMuons("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "VirtualDetector/BeAbsorber_DetOut")
