@@ -1,4 +1,4 @@
-# A wedge, max thickness 10 cm thick cylinder in the PS
+# A circular wedge, max thickness 55 cm, inner radius 85 mm, front face at Z = 1965 + 55/2
 
 param -unset ZPOSITION=1965
 

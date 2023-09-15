@@ -1,5 +1,4 @@
-# A place a 10 cm thick cylinder in the PS, 1 m away from TS collimator 1
-# Forms a ring with an inner radius of 100 mm.
+# Forms a ring with an inner radius of 85 mm and a thickness of 55 mm, front face at Z = 1965 + 55/2
 
 # Set z-position
 
@@ -7,8 +6,6 @@
 
 param -unset ZPOSITION=1965
 param -unset THICKNESS=55
-
-# The absorber is a beryllium cylinder 200 mm radius and 20 mm thick
 
 cylinder Target innerRadius=85 outerRadius=200 length=$THICKNESS material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
 # Place it at 0 in front of the muon beam 
@@ -20,9 +17,9 @@ place Target z=$ZPOSITION
 # direction; same dimensions in x-y as the target; make it green
 virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
 # Place it flush with the front face of the target
-place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1
+place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended
 
 # This virtualdetector catches everything exiting the target; make it red
 virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
 # Place it flush with the back face of the target
-place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1
+place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended

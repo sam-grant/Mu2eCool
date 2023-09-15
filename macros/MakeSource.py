@@ -29,7 +29,7 @@ def Run():
 
     # Assuming the directory structure is "../ntuples/v3.06/g4beamline_Mu2E_1e5events.root"
     # Replace "ntuples" with "beamFiles" in the path
-    foutName = finName.replace("/ntuples/", "/beamFiles/").replace("_Z1850", "").replace(".root", "") + "_" +ZNtuple+ "_bm"
+    foutName = finName.replace("/ntuples/", "/beamFiles/").replace("_Z1850", "").replace(".root", "") + "_" +ZNtuple+ "_noDupes_bm"
 
     # Handle file splitting
     match = re.search(r'_(\d+)e(\d+)events', finName)
@@ -93,8 +93,12 @@ def Run():
         # Set ParentID to one, g4bl treats all source particles as primaries 
         ParentID = 1
         # Force all tracks to be primaries, otherwise g4bl will complain
-        if TrackID > 1000:
+        while TrackID > 1000: # Keep doing this until it behaves
             TrackID = TrackID - 1000
+
+        # if TrackID > 1000:
+        #     TrackID = TrackID - 1000
+        #     if TrackID > 1000:
 
         # Handle duplicate events 
         # No need for anything fancy, EventIDs proceed in-order so just keep iterating the TrackID

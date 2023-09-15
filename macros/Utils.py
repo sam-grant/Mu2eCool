@@ -176,6 +176,15 @@ def TTreeToDataFrame(finName, treeName, branchNames):
     # Return the DataFrame
     return df
 
+def GetTotalMomentum(df):
+    df["P"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) + pow(df["Pz"],2) ) 
+    return df
+
+def GetRadialPosition(df):
+    df["R"] = np.sqrt( pow(df["x"],2) + pow(df["y"],2) )
+    return df
+
+
 # ---------------------------------
 # PDGid wrangling
 # ---------------------------------
@@ -185,9 +194,17 @@ particleDict = {
     211: 'pi+',
     -211: 'pi-',
     -13: 'mu+',
-    13: 'mu-'
+    13: 'mu-',
+    -11: 'e+',
+    11: 'e-',
+    321: "kaon+",
+    -321: "kaon-",
+    311: "kaon0",
+    130: "kaon0L",
+    310: "kaon0S"
     # Add more particle entries as needed
     }
+
 
 def FilterParticles(df, particle): 
 
@@ -220,11 +237,23 @@ def GetLatexParticleName(particle):
     elif particle == "mu+-": return "$\mu^{\pm}$"
     elif particle == "mu+": return "$\mu^{+}$"
     elif particle == "mu-": return "$\mu^{-}$"
+    elif particle == "e+": return "$e^{+}$"
+    elif particle == "e-": return "$e^{-}$"
+    elif particle == "kaon+": return "$K^{+}$"
+    elif particle == "kaon-": return "$K^{-}$"
+    elif particle == "kaon0": return "$K^{0}$"
+    elif particle == "kaon0L": return "$K^{0}_{L}$"
+    elif particle == "kaon0S": return "$K^{0}_{S}$"
     elif particle == "no_proton": return "No protons"
     elif particle == "pi-_and_mu-": return "$\pi^{-}$ & $\mu^{-}$"
     elif particle == "pi+_and_mu+": return "$\pi^{+}$ & $\mu^{+}$"
     # Add more as required
     else: return particle
+
+# get the latex names of the particles in the particle dictionary 
+latexParticleDict = {}
+for key, value in  particleDict.items():
+    latexParticleDict[key] = GetLatexParticleName(value)
 
 # --------------------
 # Plotting
@@ -291,8 +320,9 @@ def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel
     # Create legend text
     legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
     # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
-    if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 4)}$\pm${Round(stdDevErr, 1)}"
-    # if peak: legend_text += f"\nPeak: {Round(peak, 4)}$\pm${Round(peakErr, 1)}"
+    if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
+    if peak and not errors: legend_text += f"\nPeak: {Round(GetMode(data, nBins / (xmax - xmin))[0], 3)}"
+    if peak and errors: legend_text += f"\nPeak: {Round(GetMode(data, nBins / (xmax - xmin))[0], 3)}$\pm${Round(GetMode(data, nBins / (xmax - xmin))[1], 1)}"
     if underOver: legend_text += f"\nUnderflows: {underflows}\nOverflows: {overflows}"
 
     # legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDev, 1)}"
@@ -886,10 +916,14 @@ from matplotlib.ticker import ScalarFormatter
 
 def BarChart(data, label_dict, title=None, xlabel=None, ylabel=None, fout="bar_chart.png", percentage=False, bar_alpha=1.0, bar_color='black', NDPI=300):
     
+    # This came from ChatGPT
+    # it matches the key of the dict with row in the data array and returns the element as the label
     labels = [label_dict.get(p, 'other') for p in data]
 
     # Count occurrences of each label
     unique_labels, label_counts = np.unique(labels, return_counts=True)
+
+    # Only works for particles 
 
     # Sort labels and counts in descending order
     sorted_indices = np.argsort(label_counts)[::-1]
@@ -902,17 +936,29 @@ def BarChart(data, label_dict, title=None, xlabel=None, ylabel=None, fout="bar_c
     # Create figure and axes
     fig, ax = plt.subplots()
 
+    # print(unique_labels)
+
     # Plot the bar chart
     indices = np.arange(len(unique_labels))
-    
+
+    # print(indices)
+    # for i, index in enumerate(indices):
+    #     indices[i] = GetLatexParticleName(index)
+
+    # TODO: handle this better
     n_bars = len(indices)
     bar_width = 3.0 / n_bars
+    if(n_bars == 3.0): 
+        bar_width = 2.0 / n_bars
+    elif(n_bars == 2.0):
+        bar_width = 1.0 / n_bars
+
 
     ax.bar(indices, label_counts, align='center', alpha=bar_alpha, color=bar_color, width=bar_width, fill=False, hatch='/', linewidth=1, edgecolor='black')
 
     # Set x-axis labels
     ax.set_xticks(indices)
-    ax.set_xticklabels(unique_labels, rotation=45)
+    ax.set_xticklabels(unique_labels, rotation=0) # 45)
 
     # Set labels for the chart
     ax.set_title(title, fontsize=16, pad=10)

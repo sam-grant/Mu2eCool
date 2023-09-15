@@ -22,13 +22,16 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     df_proton = ut.FilterParticles(df, "proton") 
     df_pi_plus = ut.FilterParticles(df, "pi+") 
-    df_pi_minus = ut.FilterParticles(df, "mu-") 
+    df_pi_minus = ut.FilterParticles(df, "pi-") 
     df_mu_plus = ut.FilterParticles(df, "mu+") 
     df_mu_minus = ut.FilterParticles(df, "mu-")  
+    df_e_plus = ut.FilterParticles(df, "e+") 
+    df_e_minus = ut.FilterParticles(df, "e-") 
 
-    ut.Plot1DOverlay([df["P"], df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["All", "$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=True)
+    # ut.Plot1DOverlay([df["P"], df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"], df_e_plus["P"], df_e_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["All", "$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$", "$e^{+}$", "$e^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=True)
+    ut.Plot1DOverlay([df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=False)
 
-    # print(len(df["P"]),",",len(df_proton["P"]),",",len(df_pi_plus["P"]),",",len(df_pi_minus["P"]),",",len(df_mu_plus["P"]),",",len(df_mu_minus["P"]))
+    print(len(df["P"]),",",len(df_proton["P"]),",",len(df_pi_plus["P"]),",",len(df_pi_minus["P"]),",",len(df_mu_plus["P"]),",",len(df_mu_minus["P"]))
 
     # print("---> all:", np.mean(df["P"]))
     # print("---> proton:", np.mean(df_proton["P"])) 
@@ -57,7 +60,7 @@ def RunMuonFlux(config):
  
     # Read in TTrees
     # TODO: store this all in a dictionary
-    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z2265", ut.branchNames)
+    df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z1850", ut.branchNames)
     df_Coll_01_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetIn", ut.branchNames)
     df_Coll_01_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetOut", ut.branchNames)
     df_Coll_03_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetIn", ut.branchNames)
@@ -115,8 +118,12 @@ def RunMuonFlux(config):
 
     # Stopped muons: muons which are present in prestop and LostInTarget
     # Add the "UniqueID" column sto df_prestop and df_LostInTarget, get the common tracks
-    df_prestop['UniqueID'] = 1e6*df_prestop['EventID'] + 1e3*df_prestop['TrackID'] + df_prestop['ParentID'] 
-    df_LostInTarget['UniqueID'] = 1e6*df_LostInTarget['EventID'] + 1e3*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
+    # df_prestop['UniqueID'] = 1e6*df_prestop['EventID'] + 1e3*df_prestop['TrackID'] + df_prestop['ParentID'] 
+    # df_LostInTarget['UniqueID'] = 1e6*df_LostInTarget['EventID'] + 1e3*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
+    # df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
+
+    df_prestop['UniqueID'] = 1e7*df_prestop['EventID'] + 1e4*df_prestop['TrackID'] + df_prestop['ParentID'] 
+    df_LostInTarget['UniqueID'] = 1e7*df_LostInTarget['EventID'] + 1e4*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
     df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
 
     # Momentum 
@@ -225,7 +232,7 @@ def RunMuonFlux(config):
     ut.Plot1D(df_Coll_01_DetOut["P"], 750, 0, 750, r"$\mu^{-}$ entering TS collimator 1" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Coll_01_DetOut_"+particle+"_"+config+".png", "upper right", errors=True) 
     # ut.Plot1D(mom_Coll_05_DetOut, 500, 0, 500, r""+g4blVer+", $\mu^{-}$ out of TS collimator 5" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_Coll_05_DetOut_"+config+particle+"_"+nEvents+"events.pdf", "upper right") 
     ut.Plot1D(df_prestop["P"], 150, 0, 150, r"$\mu^{-}$ entering stopping target" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_prestop_"+particle+"_"+config+".png", "upper right", errors=True) 
-    ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_stoppedMuons_"+particle+"_"+config+".png", "upper right", errors=True) 
+    ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_stoppedMuons_"+particle+"_"+config+".png", "upper right", errors=True, peak=True) 
     # ut.Plot1DOverlay([mom_Coll_01_DetIn, mom_Coll_05_DetOut, mom_prestop, mom_stoppedMuons], 300, 0, 300, config, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_verboseOverlay_"+config+".pdf", ["$\mu^{-}$ before TS", "$\mu^{-}$ after TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best", 100)
     ut.Plot1DOverlay([df_Z["P"], df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_wZ1850_"+particle+"_"+config+".png", ["$\mu^{-}$ exiting PT", "$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
     ut.Plot1DOverlay([df_Coll_01_DetOut["P"], df_prestop["P"], df_stoppedMuons["P"]], 250, 0, 250, "", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamFlux/h1_mom_TS_ST_overlay_"+particle+"_"+config+".png", ["$\mu^{-}$ entering TS", "$\mu^{-}$ reaching ST", "Stopped $\mu^{-}$"], "best")
@@ -237,7 +244,14 @@ def RunMuonFlux(config):
 
 def main():
 
-    RunMuonFlux("Mu2E_1e6events")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber")
+    RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
+
+
+    ####################
+
+    # RunMuonFlux("Mu2E_1e6events")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
 

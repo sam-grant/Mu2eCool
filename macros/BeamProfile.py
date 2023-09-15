@@ -384,7 +384,9 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-    RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
+    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "mu+", 600)
+
+    # RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
     # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
     
     # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetOut", "pi-", 600)
