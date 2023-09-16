@@ -320,7 +320,7 @@ def Plot1D(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel
     # Create legend text
     legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}\nStd Dev: {Round(stdDev, 3)}"
     # if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
-    if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 4)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
+    if errors: legend_text = f"Entries: {N}\nMean: {Round(mean, 3)}$\pm${Round(meanErr, 1)}\nStd Dev: {Round(stdDev, 3)}$\pm${Round(stdDevErr, 1)}"
     if peak and not errors: legend_text += f"\nPeak: {Round(GetMode(data, nBins / (xmax - xmin))[0], 3)}"
     if peak and errors: legend_text += f"\nPeak: {Round(GetMode(data, nBins / (xmax - xmin))[0], 3)}$\pm${Round(GetMode(data, nBins / (xmax - xmin))[1], 1)}"
     if underOver: legend_text += f"\nUnderflows: {underflows}\nOverflows: {overflows}"
