@@ -15,14 +15,19 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # Globals
 g4blVer="v3.06"
 
-def Plot1DAnnotated(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", stats=True, peak=False, underOver=False, errors=False, NDPI=300):
+def Plot1DAnnotated(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", legPos="best", stats=True, peak=False, underOver=False, errors=False, norm=False, NDPI=300):
     
 	# Create figure and axes
 	fig, ax = plt.subplots()
 
-	# Plot the histogram with outline
-	counts, bin_edges, _ = ax.hist(data, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor='black', linewidth=1.0, fill=False, density=False)
+	density = False
+	if norm: density=True
 
+	# Plot the histogram with outline
+	counts, bin_edges, _ = ax.hist(data, bins=nBins, range=(xmin, xmax), histtype='step', edgecolor='black', linewidth=1.0, fill=False, density=density)
+
+	if norm:
+		counts 
 	# Set x-axis limits
 	ax.set_xlim(xmin, xmax)
 
@@ -143,15 +148,34 @@ def Plot1DAnnotated(data, nBins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=Non
 	plt.clf()
 	plt.close()
 
+
+# Some things to consider:
+# 1) Sometimes tracks can pass through the same plane multiple times;
+# 2) g4beamline treats a particle resulting from a a scatter or an ionisation as child particle, so you can have a parent and a child arriving at the same plane;
+# 3) Either the parent or the child can stop, or both.
+# 4) Sometimes both the child and parent originate downstream of the plane of interest.
+
 def RunStoppedMuons(config, ntupleName): 
 
 	# Setup input 
 	finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
 
 	# df_Coll_05_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_05_DetOut", ut.branchNamesExtended)
-	df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNamesExtended)
-	df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNamesExtended)
-	df_ntuple = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNamesExtended)
+	df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNamesExtended)#[:1000]
+	df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNamesExtended)#[:1000]
+	df_poststop = ut.TTreeToDataFrame(finName, "VirtualDetector/poststop", ut.branchNamesExtended)#[:1000]
+	df_ntuple = ut.TTreeToDataFrame(finName, ntupleName, ut.branchNamesExtended)#[:1000]
+
+	# Drop any duplicates
+	df_prestop = df_prestop.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	df_LostInTarget = df_LostInTarget.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	df_poststop = df_poststop.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	df_ntuple = df_ntuple.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+
+	# Select forward-going particles 
+	df_prestop = df_prestop[df_prestop["Pz"] > 0]
+	df_poststop = df_poststop[df_poststop["Pz"] > 0]
+	df_ntuple = df_ntuple[df_ntuple["Pz"] > 0]
 
 	# Title and name of df_ntuple
 	ntupleName = ntupleName.split("/")[1] 
@@ -165,88 +189,222 @@ def RunStoppedMuons(config, ntupleName):
 	# Add radial position column 
 	ut.GetRadialPosition(df_ntuple)
 
+	# ----------- Stops ----------- 
+
 	# This is cleaner way of selecting stopped muons using Pandas
 	df_stops = df_prestop.merge(df_LostInTarget, on=["EventID", "TrackID", "ParentID"], suffixes=("", "_lost"), how="inner")
+	# Drop any duplicates
+	df_stops = df_stops.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+
 	# Drop the "lost" columns
 	df_stops = df_stops[df_prestop.columns]
 
-	# df_stops = df_stops.drop_duplicates(subset=["EventID", "TrackID", "ParentID"])
-	df_stoppedMuons = ut.FilterParticles(df_stops, "mu-")
+	# ----------- Stopped muons ----------- 
 
-	# Orphaned stops and stopped muons, those without parents at the plane of interest
+	# Select stopped muons using Pandas
+	df_stoppedMuons = ut.FilterParticles(df_prestop, "mu-").merge(ut.FilterParticles(df_LostInTarget, "mu-"), on=["EventID", "TrackID", "ParentID"], suffixes=("", "_lost"), how="inner")
+	# Drop any duplicates
+	df_stoppedMuons = df_stoppedMuons.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	# Drop the "lost" columns
+	df_stoppedMuons = df_stoppedMuons[df_prestop.columns]
+
+	# ----------- Non-stops ----------- 
+
+	# Select non-stops using a left join
+	df_nonStops = df_prestop.merge(df_stops, on=["EventID", "TrackID", "ParentID"], suffixes=("", "_stopped"), how="left")
+	# Select null stopped muons
+	df_nonStops = df_nonStops[df_nonStops["x_stopped"].isnull()] 
+	# Drop the "stopped" columns
+	df_nonStops = df_nonStops[df_nonStops.columns]
+	# Drop any duplicates
+	df_nonStops = df_nonStops.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+
+	# ----------- Non-stopped muons ----------- 
+
+	# Select non-stops using a left join
+	df_nonStoppedMuons = ut.FilterParticles(df_prestop, "mu-").merge(ut.FilterParticles(df_stops, "mu-"), on=["EventID", "TrackID", "ParentID"], suffixes=("", "_stopped"), how="left")
+	# Select null stopped muons
+	df_nonStoppedMuons = df_nonStoppedMuons[df_nonStoppedMuons["x_stopped"].isnull()] 
+	# Drop the "stopped" columns
+	df_nonStoppedMuons = df_nonStoppedMuons[df_nonStoppedMuons.columns]
+	# Drop any duplicates
+	df_nonStoppedMuons = df_nonStoppedMuons.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+
+	# ----------- Extrapolate stops to plane of interest -----------
+
+	# Orphaned stops, those without parents at the plane of interest
 	df_orphanStops = df_ntuple.merge(df_stops, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
-	# df_orphanStops = df_orphanStops.drop_duplicates(subset=["EventID", "TrackID", "ParentID"])
+	# Drop duplicates 
+	df_orphanStops = df_orphanStops.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
 	# Drop the ST columns
-	df_orphanStops = df_orphanStops[df_ntuple.columns]
-	df_orphanStoppedMuons = df_orphanStops[df_orphanStops["PDGid"]==13] # df_ntuple.merge(df_stops, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	df_orphanStops = df_orphanStops[df_ntuple.columns] 
 
-	# Find stopped muon parents, pi- produced at the PT. Possibly kaons as well but it's rather unlikely. 
-	# Stopped muon children and pion parents: look for rows in df_ntuple that have the same EventID as df_stoppedMuons, and also have a TrackID which is equal to ParentID in df_stoppedMuons.
-	df_stopsAndTheirParents = df_ntuple.merge(df_stops, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
-	df_stopMuonsAndTheirParents = df_ntuple.merge(df_stoppedMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	# Orpaned stopped muons
+	df_orphanStoppedMuons = ut.FilterParticles(df_ntuple, "mu-").merge(df_stoppedMuons, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	# Drop duplicates whenever you merge
+	df_orphanStoppedMuons = df_orphanStoppedMuons.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	# Drop the ST columns
+	df_orphanStoppedMuons = df_orphanStoppedMuons[df_ntuple.columns] 
 
-	# Technically you don't need these, you can use df_stopsAndTheirParents and df_stopMuonsAndTheirParents directly
-	df_stopsParents = df_stopsAndTheirParents[df_ntuple.columns]
-	df_stoppedMuonParents = df_stopMuonsAndTheirParents[df_ntuple.columns]
+	# Find stopped particle parents
+	df_stopsParents = df_ntuple.merge(df_stops, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	df_stoppedMuonParents = df_ntuple.merge(df_stoppedMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	# Drop duplicates whenever you merge
+	df_stopsParents = df_stopsParents.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	df_stoppedMuonParents = df_stoppedMuonParents.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
 
-	df_stoppedMuonParentPions = df_stoppedMuonParents[df_stoppedMuonParents["PDGid"]==-211]
+	# Sometimes you get both the parent and the child arriving at the ST. This could be due to ionisation or scattering. 
+	# We only really care about parents which decay before the ST, so cut out parents with the same PDGid as the child. 
+	# Not 100% needed really 
+	# df_stopsParents = df_stopsParents[df_stopsParents["PDGid"] != df_stopsParents["PDGid_child"]]
+	# df_stoppedMuonParents = df_stoppedMuonParents[df_stoppedMuonParents["PDGid"] != df_stoppedMuonParents["PDGid_child"]]
 
-	print("\n---> All stops:", df_stops.shape[0])
-	print("---> Orphan stops at", ntupleName, ":", df_orphanStops.shape[0])
-	print("---> Stops with parents at", ntupleName, ":", df_stopsParents.shape[0]) 
+	# Drop the ST columns
+	df_stopsParents = df_stopsParents[df_ntuple.columns]
+	df_stoppedMuonParents = df_stoppedMuonParents[df_ntuple.columns]
 
-	print("---> Stopped muons:", df_stoppedMuons.shape[0])
-	print("---> Orphan stopped muons at", ntupleName, ":", df_orphanStoppedMuons.shape[0])
-	print("---> Stopped muon parents at", ntupleName, ":", df_stoppedMuonParents.shape[0]) 
+	# Pion parents
+	df_stoppedMuonParentPions = ut.FilterParticles(df_stoppedMuonParents, "pi-") 	
 
-	print("---> Stopped muon orphans + parents ", df_orphanStoppedMuons.shape[0]+df_stoppedMuonParents.shape[0])
+	# ----------- Extrapolate non-stops to plane of interest -----------
 
-	# How is this possible? 
-	print("---> Odd extra muon orphans + parents? Some of it is due to duplicates at zntuple but not all:", df_orphanStoppedMuons.shape[0]+df_stoppedMuonParents.shape[0]-df_stoppedMuons.shape[0])
+	# Orphaned stops, those without parents at the plane of interest
+	df_orphanNonStops = df_ntuple.merge(df_nonStops, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	# Drop duplicates 
+	df_orphanNonStops = df_orphanNonStops.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	# Drop the ST columns
+	df_orphanNonStops = df_orphanNonStops[df_ntuple.columns] 
 
-	# Filter muons and pions at this detector
+	# Orpaned stopped muons
+	df_orphanNonStoppedMuons = ut.FilterParticles(df_ntuple, "mu-").merge(df_nonStoppedMuons, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	# Drop duplicates whenever you merge
+	df_orphanNonStoppedMuons = df_orphanNonStoppedMuons.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	# Drop the ST columns
+	df_orphanNonStoppedMuons = df_orphanNonStoppedMuons[df_ntuple.columns] 
+
+	# Find stopped particle parents
+	df_nonStopsParents = df_ntuple.merge(df_nonStops, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	df_nonStoppedMuonParents = df_ntuple.merge(df_nonStoppedMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	# Drop duplicates whenever you merge
+	df_nonStopsParents = df_nonStopsParents.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+	df_nonStoppedMuonParents = df_nonStoppedMuonParents.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+
+	# Sometimes you get both the parent and the child arriving at the ST. This could be due to ionisation or scattering. 
+	# We only really care about parents which decay before the ST, so cut out parents with the same PDGid as the child. 
+	# Not 100% needed really 
+	# df_nonStopsParents = df_nonStopsParents[df_nonStopsParents["PDGid"] != df_nonStopsParents["PDGid_child"]]
+	# df_nonStoppedMuonParents = df_nonStoppedMuonParents[df_nonStoppedMuonParents["PDGid"] != df_nonStoppedMuonParents["PDGid_child"]]
+
+	# Drop the ST columns
+	df_nonStopsParents = df_nonStopsParents[df_ntuple.columns]
+	df_nonStoppedMuonParents = df_nonStoppedMuonParents[df_ntuple.columns]
+
+	# Pion parents
+	df_nonStoppedMuonParentPions = ut.FilterParticles(df_nonStoppedMuonParents, "pi-") 
+
+	# -----------  Identify erroneous rows / double counting -----------
+
+	df_orphanAndParentStops = df_orphanStops[df_orphanStops.isin(df_stopsParents)].dropna()
+	df_erroneousOrphanStops = df_orphanStops[~df_orphanStops.isin(df_stops)].dropna()
+	df_erroneousStopParents = df_stopsParents[~df_stopsParents.isin(df_stops)].dropna()
+	df_orphanAndParentStoppedMuons = df_orphanStoppedMuons[df_orphanStoppedMuons.isin(df_stoppedMuonParents)].dropna()
+	df_erroneousOrphanStoppedMuons = df_orphanStoppedMuons[~df_orphanStoppedMuons.isin(df_stoppedMuons)].dropna()
+	df_erroneousStoppedMuonParents = df_stoppedMuonParents[~df_stoppedMuonParents.isin(df_stoppedMuons)].dropna()
+
+	if (df_orphanAndParentStops.shape[0] != 0):
+		print("!!! WARNING: double counting parents and orphans !!!")
+	elif (df_erroneousOrphanStops.shape[0] != 0):
+		print("!!! WARNING: orphans counted that do not stop !!!")
+	elif (df_erroneousStopParents.shape[0] != 0):
+		print("!!! WARNING: parents counted that do not produce a stop !!!")
+	elif (df_orphanAndParentStoppedMuons.shape[0] != 0):
+		print("!!! WARNING: double counting parents and orphans for stopped muons !!!")
+	elif (df_erroneousOrphanStoppedMuons.shape[0] != 0):
+		print("!!! WARNING: stopped muon orphans counted that do not stop !!!")
+	elif (df_erroneousStoppedMuonParents.shape[0] != 0):
+		print("!!! WARNING: stopped muon parents counted that do not produce a stop !!!")
+
+	# Store info 
+	stoppingDict = {
+
+					"Info at "+ntupleName : [
+						"Entering ST",
+						"All stops", 
+						"Non-stops",
+						"Orphan stops",
+						"Parents of stops",
+						"---",
+						"Muons entering ST",
+						"Stopped muons", 
+						"Non-stopped muons", 
+						"Orphaned stopped muons",
+						"Stopped muon parents",
+						"Fraction of stopped muons"
+					], 
+
+					"Count" : [
+						df_prestop.shape[0],
+						df_stops.shape[0],
+						df_nonStops.shape[0],
+						df_orphanStops.shape[0],
+						df_stopsParents.shape[0],
+						"---",
+						ut.FilterParticles(df_prestop, "mu-").shape[0], 
+						df_stoppedMuons.shape[0],
+						df_nonStoppedMuons.shape[0],
+						df_orphanStoppedMuons.shape[0],
+						df_stoppedMuonParents.shape[0],
+						df_stoppedMuonParents.shape[0]/df_stoppedMuons.shape[0]
+					]
+				}
+
+
+	stoppingDict = pd.DataFrame(stoppingDict)
+	print(stoppingDict)
+
+	# ----------- All pions and muons at plane of interest ----------- 
+
 	df_allMuons = ut.FilterParticles(df_ntuple, "mu-")
 	df_allPions = ut.FilterParticles(df_ntuple, "pi-")
 
-	# Muons that do not stop?
-	# df_allMuons not in df_allMuons
-	# df_allPions not in df_stoppedMuonParentPions
-
-	# More interesting to look at the ones that reach the stopping target and do not stop!!!
-
-	# Use a left join
-	df_muonsThatDoNotStop = df_allMuons.merge(df_orphanStoppedMuons, on=["EventID", "TrackID"], suffixes=("", "_stopped"), how="left")
-	# Filter rows where columns from df_orphanStoppedMuons are null
-	df_muonsThatDoNotStop = df_muonsThatDoNotStop[df_muonsThatDoNotStop["x_stopped"].isnull()] 
-
-	# Use a left join
-	df_pionParentsThatDoNotProduceAStop = df_allPions.merge(df_stoppedMuonParentPions, on=["EventID", "TrackID"], suffixes=("", "_stopped"), how="left")
-	# Filter rows where columns from df_orphanStoppedMuons are null
-	df_pionParentsThatDoNotProduceAStop = df_pionParentsThatDoNotProduceAStop[df_pionParentsThatDoNotProduceAStop["x_stopped"].isnull()] 
+	# ----------- Bar charts for populations -----------
 
 	ut.BarChart(df_stops["PDGid"], ut.latexParticleDict, "All stops", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_Stops_"+config+".png", percentage=True)
 	ut.BarChart(df_stopsParents["PDGid"], ut.latexParticleDict, "Stopped particle parents", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StopParents_"+config+".png", percentage=True)
-	ut.BarChart(df_stoppedMuons["PDGid"], ut.latexParticleDict, r"Stopped $\mu^{-}$", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StoppedMuons_"+config+".png", percentage=True)
+	# ut.BarChart(df_stoppedMuons["PDGid"], ut.latexParticleDict, r"Stopped $\mu^{-}$", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StoppedMuons_"+config+".png", percentage=True)
 	ut.BarChart(df_orphanStoppedMuons["PDGid"], ut.latexParticleDict, r"Orphan stopped $\mu^{-}$", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_OrphanStoppedMuons_"+config+".png", percentage=True)
 	ut.BarChart(df_stoppedMuonParents["PDGid"], ut.latexParticleDict, r"Stopped $\mu^{-}$ parents", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StoppedMuonParents_"+config+".png", percentage=True)
 
-	# Annotated initial z-position for stopped muons 
-	Plot1DAnnotated(df_stoppedMuons["InitZ"]/1e3, 143, 0, 14.3, "", "Initial z-position [m]", r"Stopped $\mu^{-}$ / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitZ_annotated_stoppedMuons_"+config+".png", "upper right", stats=False, errors=False) 
+	# Annotated initial z-position for stopped muons
+	Plot1DAnnotated(df_stoppedMuons["InitZ"]/1e3, 143, 0, 14.3, "", "Initial z-position [m]", r"Stopped $\mu^{-}$ (normalised) / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitZ_annotated_stoppedMuons_"+config+".png", "upper right", stats=False, errors=False, norm=True) 
+	# Plot1DAnnotated(df_stoppedMuons["InitZ"], 14300, 0, 14300, "", "Initial z-position [m]", r"Stopped $\mu^{-}$ (normalised) / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitZ_annotated_stoppedMuons_"+config+".png", "upper right", stats=False, errors=False, norm=True) 
 
-	# Stopped muon momentum distribution at the target
-	ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuons_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	# ----------- Momentum distributions  ----------- 
+
 	# All muons at plane of interest
 	ut.Plot1D(df_allMuons["P"], 700, 0, 700, r"$\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_mu-_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 	# All pions at plane of interest
 	ut.Plot1D(df_allPions["P"], 1400, 0, 1400, r"$\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_pi-_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+
+	# Stopped muon momentum distribution at the target
+	ut.Plot1D(df_stoppedMuons["P"], 100, 0, 100, r"Stopped $\mu^{-}$" , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuons_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 	# Stopped muon momentum distribution at the plane of interest
 	ut.Plot1D(df_orphanStoppedMuons["P"], 105, 0, 105, r"Stopped $\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 	# Stopped muon parent momentum distribution
-	# ut.Plot1D(df_stoppedMuonParents["P"], 300, 0, 300, r"Stopped $\mu^{-}$ parents at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsParentsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False)  
+	ut.Plot1D(df_stoppedMuonParents["P"], 300, 0, 300, r"Stopped $\mu^{-}$ parents at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsParentsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False)  
 	# Stopped muon parent pion momentum distribution
-	ut.Plot1D(df_stoppedMuonParentPions["P"], 250, 0, 250, r"Stopped $\mu^{-}$ parent $\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsParentPionsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	ut.Plot1D(df_orphanStoppedMuons["P"], 250, 0, 250, r"Stopped $\mu^{-}$ parent $\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsParentPionsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	# Non-stopped muon momentum distribution at plane of interest
+	ut.Plot1D(df_orphanNonStoppedMuons["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+	# Non-stopped muon parent distribution at plane of interest
+	ut.Plot1D(df_nonStoppedMuonParents["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ parents at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+	# Non-stopped muon parent pion distribution at plane of interest
+	ut.Plot1D(df_nonStoppedMuonParentPions["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ parents $\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentPionsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+
+	return
+
 	# Muons that do not stop
-	ut.Plot1D(df_muonsThatDoNotStop["P"], 250, 0, 250, r"$\mu^{-}$ that do not stop at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_muonsThatDoNotStopAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	ut.Plot1D(df_nonStoppedMuons["P"], 250, 0, 250, r"$\mu^{-}$ that do not stop at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_muonsThatDoNotStopAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 	# Pion parents that do not produce a stop 
 	ut.Plot1D(df_pionParentsThatDoNotProduceAStop["P"], 250, 0, 250, r"Parent $\pi^{-}$ that do not produce a stop at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_pionParentsThatDoNotProduceAStopAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 
@@ -277,6 +435,147 @@ def RunStoppedMuons(config, ntupleName):
 
 	ut.Plot1DOverlay([df_allMuons["R"], df_orphanStoppedMuons["R"]], 250, 0, 250, title = r"$\mu^{-}$ at "+ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = ["All $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_mu-OverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 	ut.Plot1DOverlay([df_allPions["R"], df_stoppedMuonParentPions["R"]], 250, 0, 250, title = r"$\pi^{-}$ at "+ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = ["All $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$  "], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_pi-OverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
+
+
+	return
+
+	# # Get stopped muons
+	# df_orphanStoppedMuons = ut.FilterParticles(df_orphanStops, "mu-") 
+
+	# Identify rows in df_orphanStops that are not in df_stops
+	# df_erroneousOrphanStops = df_orphanStops[~df_orphanStops.isin(df_stops)].dropna()
+
+	# ----------- Non-stopped muons -----------
+
+	df_poststopMuons = ut.FilterParticles(df_poststop, "mu-") # Muons that exit the ST
+
+	# ----------- Extrapolate non-stops to plane of interest -----------
+
+	# Orphaned non-stopping muons
+	df_orphanNonStops = df_ntuple.merge(df_poststop, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	df_orphanNonStops = df_orphanNonStops[df_ntuple.columns]
+	df_orphanNonStoppedMuons = ut.FilterParticles(df_orphanNonStops, "mu-")
+
+	# Find non-stopped particle parents
+	df_nonStopsAndTheirParents = df_ntuple.merge(df_poststop, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	df_nonStoppedMuonsAndTheirParents = df_ntuple.merge(df_poststopMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	
+	# Technically you don't need these, but it makes it a bit easier
+	df_nonStopsParents = df_nonStopsAndTheirParents[df_ntuple.columns]
+	df_nonStoppedMuonParents = df_nonStoppedMuonsAndTheirParents[df_ntuple.columns]
+	df_nonStoppedMuonParentPions = ut.FilterParticles(df_nonStoppedMuonParents, "pi-") 
+
+	# Store info 
+	stoppingDict = {
+
+					"Info" : [
+						"All stops", 
+						"Orphan stops at "+ntupleName,
+						"Parents of stops at "+ntupleName,
+						"Stops - (Orphans + Parents) at "+ntupleName,
+						"---",
+						"Stopped muons", 
+						"Orphaned stopped muons at "+ntupleName,
+						"Stopped muon parents at "+ntupleName,
+						"Stops - (Orphans + Parents) at "+ntupleName
+					], 
+
+					"Count" : [
+						df_stops.shape[0],
+						df_orphanStops.shape[0],
+						df_stopsParents.shape[0],
+						df_stops.shape[0] - (df_orphanStops.shape[0]+df_stopsParents.shape[0]),
+						"---",
+						df_stoppedMuons.shape[0],
+						df_orphanStoppedMuons.shape[0],
+						df_stoppedMuonParentPions.shape[0],
+						df_stoppedMuons.shape[0] - (df_orphanStoppedMuons.shape[0]+df_stoppedMuonParents.shape[0])
+					]
+				}
+
+	# print(df_orphanStoppedMuons)
+
+	stoppingDict = pd.DataFrame(stoppingDict)
+
+	print(stoppingDict)
+
+	# print("\n---> All stops:", df_stops.shape[0])
+	# print("---> Orphan stops at", ntupleName, ":", df_orphanStops.shape[0])
+	# print("---> Stops with parents at", ntupleName, ":", df_stopsParents.shape[0]) 
+
+	# print("---> Stopped muons:", df_stoppedMuons.shape[0])
+	# print("---> Orphan stopped muons at", ntupleName, ":", df_orphanStoppedMuons.shape[0])
+	# print("---> Stopped muon parents at", ntupleName, ":", df_stoppedMuonParents.shape[0]) 
+
+	# print("---> Stopped muon orphans + parents ", df_orphanStoppedMuons.shape[0]+df_stoppedMuonParents.shape[0])
+
+	# # How is this possible? 
+	# print("---> Odd extra muon orphans + parents? Some of it is due to duplicates at zntuple but not all:", df_orphanStoppedMuons.shape[0]+df_stoppedMuonParents.shape[0]-df_stoppedMuons.shape[0])
+
+	return
+	
+	# Filter muons and pions at this detector
+	df_allMuons = ut.FilterParticles(df_ntuple, "mu-")
+	df_allPions = ut.FilterParticles(df_ntuple, "pi-")
+
+	# Muons that do not stop?
+	# df_allMuons not in df_allMuons
+	# df_allPions not in df_stoppedMuonParentPions
+
+	# More interesting to look at the ones that reach the stopping target and do not stop!!!
+
+	# Use a left join
+	# df_muonsThatDoNotStop = df_allMuons.merge(df_orphanStoppedMuons, on=["EventID", "TrackID"], suffixes=("", "_stopped"), how="left")
+	# Filter rows where columns from df_orphanStoppedMuons are null
+	# df_muonsThatDoNotStop = df_muonsThatDoNotStop[df_muonsThatDoNotStop["x_stopped"].isnull()] 
+
+	# Muons that exit the ST
+	df_poststopMuons = ut.FilterParticles(df_poststop, "mu-")
+
+	# Orphaned non-stopping muons
+	df_orphanNonStops = df_ntuple.merge(df_poststop, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_atST"), how="inner") 
+	df_orphanNonStops = df_orphanNonStops[df_ntuple.columns]
+	df_orphanNonStoppedMuon = ut.FilterParticles(df_orphanNonStops, "mu-")
+
+	# Non-stop parents
+	df_nonStopsAndTheirParents = df_ntuple.merge(df_poststop, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	df_nonStopsAndTheirParents = df_nonStopsAndTheirParents[df_ntuple.columns]
+
+	# Non-stopped muon parents
+	df_nonStoppedMuonsAndTheirParents = df_ntuple.merge(df_poststopMuons, left_on=["EventID", "TrackID"], right_on=["EventID", "ParentID"], suffixes=("", "_child"), how="inner")
+	df_nonStoppedMuonParents = df_nonStopsAndTheirParents[df_ntuple.columns]
+
+	# Non-stop parent pions
+	df_nonStoppedMuonParentPions = ut.FilterParticles(df_nonStoppedMuonParents, "pi-")
+
+	# Particles from plane that exit the ST 
+	# df_nonStoppedMuons = ut.FilterParticles(df_nonStopsAndTheirParents, "mu-")
+	# df_nonStoppedParentPions = ut.FilterParticles(df_nonStopsAndTheirParents, "mu-")
+
+	# df_nonStops = df_ntuple.merge(df_poststop, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("", "_poststop"), how="inner") 
+	# df_nonStops = df_nonStops(df_ntuple.columns)
+
+	# Muons from plane that exit the ST 
+	# df_nonStoppedMuons = ut.FilterParticles(df_nonStops, "mu-")
+	# Pions from plane that exit the ST
+	# df_nonStoppedParentPions = ut.FilterParticles(df_nonStops, "mu-")
+
+	# # Use a left join
+	# df_pionParentsThatDoNotProduceAStop = df_allPions.merge(df_stoppedMuonParentPions, on=["EventID", "TrackID"], suffixes=("", "_stopped"), how="left")
+	# # Filter rows where columns from df_orphanStoppedMuons are null
+	# df_pionParentsThatDoNotProduceAStop = df_pionParentsThatDoNotProduceAStop[df_pionParentsThatDoNotProduceAStop["x_stopped"].isnull()] 
+
+	ut.BarChart(df_stops["PDGid"], ut.latexParticleDict, "All stops", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_Stops_"+config+".png", percentage=True)
+	ut.BarChart(df_stopsParents["PDGid"], ut.latexParticleDict, "Stopped particle parents", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StopParents_"+config+".png", percentage=True)
+	ut.BarChart(df_stoppedMuons["PDGid"], ut.latexParticleDict, r"Stopped $\mu^{-}$", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StoppedMuons_"+config+".png", percentage=True)
+	ut.BarChart(df_orphanStoppedMuons["PDGid"], ut.latexParticleDict, r"Orphan stopped $\mu^{-}$", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_OrphanStoppedMuons_"+config+".png", percentage=True)
+	ut.BarChart(df_stoppedMuonParents["PDGid"], ut.latexParticleDict, r"Stopped $\mu^{-}$ parents", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_StoppedMuonParents_"+config+".png", percentage=True)
+
+	# Annotated initial z-position for stopped muons 
+	Plot1DAnnotated(df_stoppedMuons["InitZ"]/1e3, 143, 0, 14.3, "", "Initial z-position [m]", r"Stopped $\mu^{-}$ / 100 mm", "../img/"+g4blVer+"/StoppedMuons/h1_InitZ_annotated_stoppedMuons_"+config+".png", "upper right", stats=False, errors=False) 
+
+	return
+
 
 
 	return
@@ -387,9 +686,9 @@ def RunStoppedMuons(config, ntupleName):
 
 def main():
 
-	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber", "NTuple/Z1850")
-	RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850")
-	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn")
+	RunStoppedMuons("Mu2E_1e7events_NoAbsorber", "NTuple/Z1850")
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850")
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn")
 	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop")
     # RunStoppedMuons("Mu2E_1e7events")
     # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetIn")
