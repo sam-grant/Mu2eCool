@@ -643,14 +643,17 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber1.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber1.txt
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber2.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber2.txt
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt
+
+param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt
 
 # ****************************************************************************
 #                                Proton Beam
@@ -768,6 +771,11 @@ if $Make_ManyZNTuple==1
     # for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
     #     zntuple BeamFile z=2264.5+$i*500 format=rootExtended
     # endfor
+
+    # This one is for looking at particle populations from PT to TS1 
+    for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+        zntuple BeamFile z=1850+$i*100 format=rootExtended
+    endfor
 
 endif
 

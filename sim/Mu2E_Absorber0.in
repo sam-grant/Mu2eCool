@@ -167,8 +167,8 @@ physics ShieldingM # Recommended by Rob
 # Kill neutral particles, neutrons, gammas, and electrons. Speeds things up by at least 2x. 
 
 # May need to think more carefully about this
-# trackcuts kill=neutron,anti_neutron,gamma,e+,e-
-trackcuts keep=proton,pi-,pi+,mu-,mu+
+trackcuts kill=neutron,anti_neutron,gamma # ,e+,e-
+# trackcuts keep=proton,pi-,pi+,mu-,mu+
 # trackcuts keep=pi-,pi+,mu-,mu+
 # particlecolor pi-=$Blue 
 # particlecolor mu-=$Red
@@ -255,7 +255,7 @@ endif
 
 # EventNumber is the default and permits events to be re-run; None does not re-seed the PRNG at each event, and Time is like None after seeding with the time of day in microseconds; Set (Now) seeds the generator immediately with the value of the second argument (a long), and then acts like None.
 
-param -unset Random_Seed=Time # Time of day in us
+# param -unset Random_Seed=Time # Time of day in us
 
 # Set seed to 12345 for debugging 
 # param -unset Random_Seed=Set 
@@ -263,8 +263,8 @@ param -unset Random_Seed=Time # Time of day in us
 
 # Set seed to EventNumber (default)
 # Keeps things consitent when regenerating from beam file 
-# param -unset Random_Seed=EventNumber
 
+param -unset Random_Seed=EventNumber
 randomseed $Random_Seed
 
 # ****************************************************************************
@@ -515,6 +515,7 @@ if $No_Pbar_Window==1
 
 endif
 
+
 # ****************************************************************************
 #                                Transport Solenoid 
 #                                Collimators
@@ -643,14 +644,20 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber0.txt 
+param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber1.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber1.txt
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/g4bl/sim/Absorber2.txt 
-# include /Users/sgrant/mu2e/g4bl/sim/Absorber2.txt
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt
+
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt
+
+# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt 
+# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt
 
 # ****************************************************************************
 #                                Proton Beam
@@ -687,7 +694,7 @@ endif
 param -unset READ_Beam_File=0
 param -unset Use_Basic_Det=1
 
-param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_bm.txt
+param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm.txt
 # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt  
  
 # TODO: should change this to "Use_Track_Calo" and "Make_Beam_File" for clarity 
@@ -768,6 +775,11 @@ if $Make_ManyZNTuple==1
     # for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
     #     zntuple BeamFile z=2264.5+$i*500 format=rootExtended
     # endfor
+
+    # This one is for looking at particle populations from PT to TS1 
+    for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+        zntuple BeamFile z=1850+$i*100 format=rootExtended
+    endfor
 
 endif
 
