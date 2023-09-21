@@ -283,7 +283,7 @@ def RunColdPions(config):
 	# df_out["UniqueID"] = 1e10*df_out["EventID"] + 1e7*df_out["TrackID"] + 1e4*df_out["ParentID"] + df_in["Weight"] 
 
 
-	# Pions that enter the <100 MeV but do not exit 
+	# Pions that enter the absorber <100 MeV but do not exit 
 	df_lostPions = df_in[~df_in['UniqueID'].isin(df_out['UniqueID'])]
 	# Pions that exit <100 MeV after entering <100 MeV
 	df_oldPions = df_out[df_out['UniqueID'].isin(df_in['UniqueID'])] 

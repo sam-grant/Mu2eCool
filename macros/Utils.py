@@ -515,7 +515,7 @@ def PlotGraph(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scat
     plt.clf()
     plt.close()
 
-def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False):
+def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False, logY=False):
 
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -530,6 +530,71 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
         (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
         (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
         (1.0, 0.4980392156862745, 0.054901960784313725),                # Orange
+        (0.5803921568627451, 0.403921568627451, 0.7411764705882353),    # Purple
+        (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),   # Cyan
+        (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),   # Pink
+        (0.5490196078431373, 0.33725490196078434, 0.29411764705882354), # Brown
+        (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),   # Gray 
+        (0.7372549019607844, 0.7411764705882353, 0.13333333333333333)  # Yellow
+    ]
+
+    # Create the colormap
+    cmap = ListedColormap(colours)
+
+    # cmap = cm.get_cmap('tab10')
+
+    # Iterate over the hists and plot each one
+    for i, hist in enumerate(hists):
+        colour = cmap(i)
+        if not includeBlack: colour = cmap(i+1)
+        counts, bin_edges, _ = ax.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=labels[i], log=logY)
+
+    # Set x-axis limits
+    ax.set_xlim(xmin, xmax)
+
+    ax.set_title(title, fontsize=16, pad=10)
+    ax.set_xlabel(xlabel, fontsize=14, labelpad=10) 
+    ax.set_ylabel(ylabel, fontsize=14, labelpad=10) 
+
+    # Set font size of tick labels on x and y axes
+    ax.tick_params(axis='x', labelsize=14)  # Set x-axis tick label font size
+    ax.tick_params(axis='y', labelsize=14)  # Set y-axis tick label font size
+    
+    # Scientific notation
+    if ax.get_xlim()[1] > 9999:
+        ax.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+        ax.xaxis.offsetText.set_fontsize(14)
+    if ax.get_ylim()[1] > 9999:
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        ax.yaxis.offsetText.set_fontsize(14)
+
+    # Add legend to the plot
+    ax.legend(loc=legPos, frameon=False, fontsize=12)
+
+    # Save the figure
+    plt.savefig(fout, dpi=NDPI, bbox_inches="tight")
+    print("---> Written", fout)
+
+    # Clear memory
+    plt.close()
+
+def Plot1DOverlayNewColours(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False):
+
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # Define a colormap
+    # cmap = cm.get_cmap('tab10') # !!deprecated!!
+
+    # Define the colourmap colours
+    colours = [
+        (0., 0., 0.),                                                   # Black
+        (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),  # Red
+        (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),  # Blue
+        (1.0, 0.4980392156862745, 0.054901960784313725),                # Orange
+        (0.17254901960784313, 0.6274509803921569, 0.17254901960784313), # Green
         (0.5803921568627451, 0.403921568627451, 0.7411764705882353),    # Purple
         (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),   # Cyan
         (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),   # Pink
@@ -987,7 +1052,7 @@ def BarChart(data, label_dict, title=None, xlabel=None, ylabel=None, fout="bar_c
     plt.clf()
     plt.close()
 
-def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="best", stats=False, errors=False, NDPI=300, peak=False):
+def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="best", stats=False, errors=False, NDPI=300, peak=False, invertRatio=False, limitRatio=False, ratioMin=0, ratioMax=1):
     
     if len(hists) > 2: 
         print("!!! ERROR: Plot1DRatio must take two histograms as input !!!")
@@ -1032,6 +1097,13 @@ def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, 
         # Plot the current histogram in the top frame
         counts, bin_edges, _ = ax1.hist(hist, bins=nbins, range=(xmin, xmax), histtype='step', edgecolor=colour, linewidth=1.0, fill=False, density=False, color=colour, label=label) 
 
+        # Plot the current histogram in the top frame with error bars
+        # hist_err = np.sqrt(hist)
+        # bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        # ax1.bar(bin_centers, hist, width=0.1, align='center', alpha=0.7, label=label)
+        # ax1.errorbar(bin_centers, hist, yerr=hist_err, fmt='none', color=colour, capsize=2)
+
+
         counts_.append(counts)
 
     # Calculate the ratio of the histograms with a check for division by zero
@@ -1048,8 +1120,8 @@ def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, 
     # Add line at 1.0 
     ax2.axhline(y=1.0, color='gray', linestyle='--', linewidth=1)
 
-    # Set x-axis limits for the ratio plot to match the top frame
-    ax2.set_xlim(xmin, xmax)
+
+    if invertRatio: ratio = np.divide(1, ratio)
 
     # Plot the ratio in the lower frame with error bars
     ax2.errorbar(bin_edges[:-1], ratio, yerr=ratio_err, color='black', fmt='o', markersize=4, linewidth=1)
@@ -1061,6 +1133,8 @@ def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, 
 
     # Set x-axis limits for the top frame
     ax1.set_xlim(xmin, xmax)
+
+
     # Remove markers for main x-axis
     ax1.set_xticks([])
 
@@ -1074,6 +1148,12 @@ def Plot1DRatio(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, 
     ax2.xaxis.tick_bottom()
     ax2.xaxis.set_tick_params(width=0.5)
     ax2.yaxis.set_tick_params(width=0.5)
+
+    # Set x-axis limits for the ratio plot to match the top frame
+    if limitRatio:
+        ax2.set_ylim(ratioMin, ratioMax)
+
+    ax2.set_xlim(xmin, xmax)
 
     # Set titles and labels for both frames
     ax1.set_title(title, fontsize=16, pad=10)

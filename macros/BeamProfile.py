@@ -318,7 +318,10 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
     # Momentum and radial distributions
     ut.Plot1D(df["P"], 500, 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
+    ut.Plot1D(df[df["R"] > 100]["P"], 500, 0, maxMom, title+", R > 100 mm", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_above100mm_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
     # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
+
+    # return
 
     ut.Plot1D(df["R"], 500, 0, 500, title, "Radial position [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
     ut.Plot1D(df[df["P"] < 50]["R"], 250, 0, 250, title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
@@ -384,7 +387,12 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "mu+", 600)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "mu-", 600)
+
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-")
+    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan", "NTuple/Z1965", "pi-")
 
     # RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
     # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root

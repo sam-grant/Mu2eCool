@@ -8,7 +8,7 @@ param -unset ZPOSITION=1965
 # 1 = thickness - 20 * a
 # a = (thickness-1)/20
 
-param -unset THICKNESS=55
+param -unset THICKNESS=40
 
 # INNER RADIUS 100 mm:
 # 110 = 200 - 20*x
@@ -24,12 +24,12 @@ param -unset THICKNESS=55
 # 20*x = 190-85 = 105
 # x = 5.25
 
-# param x=4.5
-param x=5.25
+param x=4.5
+# param x=5.25
 
 for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
     tubs Target outerRadius=200-$i*$x innerRadius=190-$i*$x length=$THICKNESS-$i*($THICKNESS-1)/20 \ 
-	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0
+	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
 	place Target x=0. z=$ZPOSITION rename=Target:$i 
 endfor
 

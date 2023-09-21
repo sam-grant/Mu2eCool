@@ -52,6 +52,13 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
 
     return
 
+def RunFilter(df):
+    # Drop any duplicates
+    df = df.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"]) 
+    # Filter upstream particles
+    df = df[df["Pz"]>0]
+    return df
+
 # Analyse muon flux through Mu2e, including the stopped muon yield
 def RunMuonFlux(config):
 
@@ -70,6 +77,17 @@ def RunMuonFlux(config):
     df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNames)
     df_poststop = ut.TTreeToDataFrame(finName, "VirtualDetector/poststop", ut.branchNames)
     df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNames)
+
+    # Filtering. Avoid double counting (not LostInTarget)
+    df_Z = RunFilter(df_Z)
+    df_Coll_01_DetIn = RunFilter(df_Coll_01_DetIn)
+    df_Coll_01_DetOut = RunFilter(df_Coll_01_DetOut)
+    df_Coll_03_DetIn = RunFilter(df_Coll_03_DetIn)
+    df_Coll_03_DetOut = RunFilter(df_Coll_03_DetOut)
+    df_Coll_05_DetIn = RunFilter(df_Coll_05_DetIn)
+    df_Coll_05_DetOut = RunFilter(df_Coll_05_DetOut)
+    df_prestop = RunFilter(df_prestop)
+    df_poststop = RunFilter(df_poststop)
 
     # ------ All flux ------
 
@@ -103,8 +121,10 @@ def RunMuonFlux(config):
 
     # ------ Muon flux ------
     print("\n---> Muon flux:")
+
     # Filter muons
     particle = "mu-"
+
     df_Z = ut.FilterParticles(df_Z, particle) 
     df_Coll_01_DetIn = ut.FilterParticles(df_Coll_01_DetIn, particle)
     df_Coll_01_DetOut = ut.FilterParticles(df_Coll_01_DetOut, particle)
@@ -122,9 +142,18 @@ def RunMuonFlux(config):
     # df_LostInTarget['UniqueID'] = 1e6*df_LostInTarget['EventID'] + 1e3*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
     # df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
 
-    df_prestop['UniqueID'] = 1e7*df_prestop['EventID'] + 1e4*df_prestop['TrackID'] + df_prestop['ParentID'] 
-    df_LostInTarget['UniqueID'] = 1e7*df_LostInTarget['EventID'] + 1e4*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
-    df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
+    # df_prestop['UniqueID'] = 1e7*df_prestop['EventID'] + 1e4*df_prestop['TrackID'] + df_prestop['ParentID'] 
+    # df_LostInTarget['UniqueID'] = 1e7*df_LostInTarget['EventID'] + 1e4*df_LostInTarget['TrackID'] + df_LostInTarget['ParentID']
+    # df_stoppedMuons = df_prestop[df_prestop['UniqueID'].isin(df_LostInTarget['UniqueID'])] 
+
+    # TODO: move this method to utils
+
+    # Select stopped muons 
+    df_stoppedMuons = df_prestop.merge(df_LostInTarget, on=["EventID", "TrackID", "ParentID"], suffixes=("", "_lost"), how="inner")
+    # Drop any duplicates
+    df_stoppedMuons = df_stoppedMuons.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"])
+    # Drop the "lost" columns
+    df_stoppedMuons = df_stoppedMuons[df_prestop.columns]
 
     # Momentum 
     df_Z["P"] = np.sqrt( pow(df_Z["Px"],2) + pow(df_Z["Py"],2) + pow(df_Z["Pz"],2) )
@@ -245,7 +274,8 @@ def RunMuonFlux(config):
 def main():
 
     # RunMuonFlux("Mu2E_1e7events_NoAbsorber")
-    RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
+    RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
 
 

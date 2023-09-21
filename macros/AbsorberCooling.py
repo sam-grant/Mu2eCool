@@ -156,13 +156,22 @@ def RunAbsorberCooling(config, dim=""):
     df_BeAbsorber_DetIn["R"] = np.sqrt( pow(df_BeAbsorber_DetIn["x"], 2) + pow(df_BeAbsorber_DetIn["y"], 2) ) 
     df_BeAbsorber_DetOut["R"] = np.sqrt( pow(df_BeAbsorber_DetOut["x"], 2) + pow(df_BeAbsorber_DetOut["y"], 2) ) 
 
+    # # Select forward going particles 
+    # df_BeAbsorber_DetIn = df_BeAbsorber_DetIn[df_BeAbsorber_DetIn["Pz"] > 0]
+    # df_BeAbsorber_DetOut = df_BeAbsorber_DetOut[df_BeAbsorber_DetOut["Pz"] > 0]
+
+    # Drop any duplicates 
+    df_BeAbsorber_DetIn = df_BeAbsorber_DetIn.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"], keep="first")
+    df_BeAbsorber_DetOut = df_BeAbsorber_DetOut.drop_duplicates(["EventID", "TrackID", "ParentID", "PDGid"], keep="first")
+
     # ------ Stats ------
     # meanMom_BeAbsorber_DetIn, meanMomErr_BeAbsorber_DetIn = np.mean(df_BeAbsorber_DetIn["P"]), np.std(df_BeAbsorber_DetOut["P"])/len(df_BeAbsorber_DetOut["P"])
     # meanMom_BeAbsorber_DetOut, meanMomErr_BeAbsorber_DetOut = np.mean(df_BeAbsorber_DetOut["P"]), np.std(df_BeAbsorber_DetOut["P"])/len(df_BeAbsorber_DetOut["P"])
 
     # 
     df_cooling = {
-        "Particle": ["All", "proton", "pi+", "pi-", "mu+", "mu-"],
+        # "Particle": ["All", "proton", "pi+", "pi-", "mu+", "mu-"],
+        "Particle": ["pi-", "mu-"],
         "Entering (mean)": [],
         "Entering (mean err)": [],
         "Exiting (mean)": [],
@@ -181,34 +190,53 @@ def RunAbsorberCooling(config, dim=""):
     # particle_ = ["All", "proton", "pi+", "pi-", "mu+", "mu-"]
 
     i_xmax = 0 
-    xmax_ = [1250, 1250, 750, 750, 275, 275] 
+    # xmax_ = [1250, 1250, 750, 750, 275, 275] 
+    xmax_ = [750, 275] 
 
     for particle in df_cooling["Particle"]: 
 
         print("\n--->",particle)
 
-        title = ut.GetLatexParticleName(particle)+", "+absorberName # +", "+dim
+        title = ut.GetLatexParticleName(particle)+", "+absorberName+", "+dim
 
         in_ = ut.FilterParticles(df_BeAbsorber_DetIn, particle)
         out_ = ut.FilterParticles(df_BeAbsorber_DetOut, particle)
 
+        ut.Plot1D(in_["P"], 750, 0, 750, "pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_In_"+particle+"_"+config+".png")
+
         # Momentum 
         ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], int(xmax_[i_xmax]), 0, xmax_[i_xmax], title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=True)
-        ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 50, 0, 50, title+", <50 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False , legPos="best")
-        ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 100, 0, 100, title+", <100 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
-        ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 125, 0, 125, title+", <125 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax125MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
-  
-        PlotRatio([in_["P"], out_["P"]], 100, 0, 100, title+", <100 MeV", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_Mom_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
+        # ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 50, 0, 50, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False , legPos="best")
+        ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 100, 0, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
+        # ut.Plot1DOverlayWithStats([in_["P"], out_["P"]], 125, 0, 125, title", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_Mom_InOut_xmax125MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
+        # ut.Plot1DRatio([in_["P"], out_["P"]], 50, 0, 50, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_Mom_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=True, ratioMin=0, ratioMax=1.99)
+        ut.Plot1DRatio([in_["P"], out_["P"]], 50, 0, 50, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_Mom_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=True, ratioMin=0, ratioMax=1.99)
+        ut.Plot1DRatio([in_["P"], out_["P"]], 100, 0, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_Mom_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=True, ratioMin=0, ratioMax=1.99)
+        # PlotRatio([in_["P"], out_["P"]], 100, 0, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_Mom_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
 
         # Radius
         ut.Plot1DOverlayWithStats([in_["R"], out_["R"]], 250, 0, 250, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=True)
         ut.Plot1DOverlayWithStats([in_[in_["P"] < 50]["R"], out_[out_["P"] < 50]["R"]], 250, 0, 250, title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
-        ut.Plot1DOverlayWithStats([in_[in_["P"] < 100]["R"], out_[out_["P"] < 100]["R"]], 250, 0, 250, title+", <100 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
-        ut.Plot1DOverlayWithStats([in_[in_["P"] < 125]["R"], out_[out_["P"] < 125]["R"]], 250, 0, 250, title+", <125 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_xmax125MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
+
+        ut.Plot1DRatio([in_["R"], out_["R"]],  200, 0, 200, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_rad_InOut_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=False, ratioMin=0, ratioMax=1.99)
+        ut.Plot1DRatio([in_[in_["P"] < 50]["R"], out_[out_["P"] < 50]["R"]], 200, 0, 200, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_rad_InOut_xmax50MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=False, ratioMin=0, ratioMax=1.99)
+        ut.Plot1DRatio([in_[in_["P"] < 100]["R"], out_[out_["P"] < 100]["R"]], 200, 0, 200, title, "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_ratio_rad_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best", invertRatio=True, stats=True, errors=True, limitRatio=False, ratioMin=0, ratioMax=1.99)
+        # ut.Plot1DOverlayWithStats([in_[in_["P"] < 100]["R"], out_[out_["P"] < 100]["R"]], 250, 0, 250, title+", <100 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_xmax100MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
+        # ut.Plot1DOverlayWithStats([in_[in_["P"] < 125]["R"], out_[out_["P"] < 125]["R"]], 250, 0, 250, title+", <125 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/AbsorberCooling/h1_R_InOut_xmax125MeV_"+particle+"_"+config+".png", ["Entering", "Exiting"], peak=False, legPos="best")
 
         # 2D
         ut.Plot2D(in_["P"], in_["R"], 50, 0, 250, 42, 0, 210, title+", entering", "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/AbsorberCooling/h2_RvsMom_In_"+particle+"_"+config+".png")
         ut.Plot2D(out_["P"], out_["R"], 50, 0, 250, 42, 0, 210, title+", exiting", "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/AbsorberCooling/h2_RvsMom_Out_"+particle+"_"+config+".png")
+
+        # Percentage gain 
+        gain = 0.0
+        # |in-out|/out
+        if particle=="pi-":
+            gain = abs(in_[in_["P"]<100].shape[0] - out_[out_["P"]<100].shape[0]) / out_[out_["P"]<100].shape[0]
+        elif particle=="mu-":
+            gain = abs(in_[in_["P"]<50].shape[0] - out_[out_["P"]<50].shape[0]) / out_[out_["P"]<50].shape[0]
+
+        print(particle,"percentage gain =", gain*100)
 
         in_ = in_["P"]
         out_ = out_["P"]
@@ -252,6 +280,7 @@ def RunAbsorberCooling(config, dim=""):
         i_xmax += 1
 
 
+
     df_cooling = pd.DataFrame(df_cooling)
 
     print("---> Cooling results:\n", df_cooling)
@@ -262,7 +291,6 @@ def main():
 
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
 
-
     # RunAbsorberCooling("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03", "L = 55 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03", "L = 55 mm, $R_{i}$ = 85 mm")
@@ -270,10 +298,29 @@ def main():
     # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03", "L = 55 mm, $R_{i}$ = 85 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03", "L = 55 mm")
-    RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_85mm_fromZ1850_parallel_noColl_noPbar", "$R_{i}$ = 85 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_85mm_fromZ1850_parallel_noColl_noPbar", "$R_{i}$ = 85 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel_noColl_noPbar", "L = 55 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03", "L = 90-25 mm, $R_{i}$ = 85 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "L = 90 mm, $R_{i}$ = 85 mm")
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
+
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel_oldSample", "L = 55 mm, $R_{i}$ = 100 mm")
+
+    # New sample (slightly cooler beam)
+
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 55 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l50mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 50 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l45mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 45 mm, $R_{i}$ = 100 mm")
+    RunAbsorberCooling("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 40 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l35mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 35 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l30mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 30 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l25mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 25 mm, $R_{i}$ = 100 mm")
+    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l20mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 20 mm, $R_{i}$ = 100 mm")
+    
     # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel")
 
     # RunAbsorberCooling("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
