@@ -71,17 +71,17 @@ def RunCompareBeams(config_, label_, name, absorber=False):
     df_poststop_ = [] 
 
     dfDict = {
-        "NTuple/Z1850":  df_Z_,
-        "VirtualDetector/BeAbsorber_DetIn": df_BeAbsorber_DetIn_,
-        "VirtualDetector/BeAbsorber_DetOut": df_BeAbsorber_DetOut_,
-        "VirtualDetector/Coll_01_DetIn": df_Coll_01_DetIn_,
-        "VirtualDetector/Coll_01_DetOut": df_Coll_01_DetOut_,
-        "VirtualDetector/Coll_03_DetIn": df_Coll_03_DetIn_,
-        "VirtualDetector/Coll_03_DetOut": df_Coll_03_DetOut_,
-        "VirtualDetector/Coll_05_DetIn": df_Coll_05_DetIn_,
-        "VirtualDetector/Coll_05_DetOut": df_Coll_05_DetOut_,
-        "VirtualDetector/prestop": df_prestop_, 
-        "VirtualDetector/poststop": df_poststop_
+        # "NTuple/Z1850":  df_Z_,
+        # # "VirtualDetector/BeAbsorber_DetIn": df_BeAbsorber_DetIn_,
+        # # "VirtualDetector/BeAbsorber_DetOut": df_BeAbsorber_DetOut_,
+        # "VirtualDetector/Coll_01_DetIn": df_Coll_01_DetIn_,
+        # "VirtualDetector/Coll_01_DetOut": df_Coll_01_DetOut_,
+        # "VirtualDetector/Coll_03_DetIn": df_Coll_03_DetIn_,
+        # "VirtualDetector/Coll_03_DetOut": df_Coll_03_DetOut_,
+        # "VirtualDetector/Coll_05_DetIn": df_Coll_05_DetIn_,
+        # "VirtualDetector/Coll_05_DetOut": df_Coll_05_DetOut_,
+        "VirtualDetector/prestop": df_prestop_ # , 
+        # "VirtualDetector/poststop": df_poststop_
         }
 
     # Fill the DataFrames
@@ -105,7 +105,7 @@ def RunCompareBeams(config_, label_, name, absorber=False):
 
     # ------ Overlay the momentum distributions at each VD for particular particle species ------
 
-    particle_ = ["mu-"] # ["All", "proton", "pi+", "pi-", "mu+", "mu-"]
+    particle_ =  ["e-"]
 
     i_xmax = 0 
     xmax_ = [1350, 725, 725, 725, 725, 150, 150, 150, 150, 150, 150] 
@@ -122,8 +122,18 @@ def RunCompareBeams(config_, label_, name, absorber=False):
             title = key.split("/")[1] 
 
             # Could extend this to 3+ entries easily enough
-            ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=int(xmax_[i_xmax]), xmin=0, xmax=xmax_[i_xmax], title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", peak=True)
-            ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png", peak=False)
+            # ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=int(xmax_[i_xmax]), xmin=0, xmax=xmax_[i_xmax], title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", peak=True)
+            # ut.Plot1DOverlayWithStats([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png", peak=False)
+            # df0 = ut.FilterParticles(df_[0], particle)
+            # df1 = ut.FilterParticles(df_[1], particle)
+
+            print(ut.FilterParticles(df_[0], particle).shape[0])
+
+            ut.Plot1DRatio([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=75, xmin=0, xmax=75, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", stats=True, errors=False, invertRatio=True) # [ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png")
+            # title = r"$e^{-}$ at ST"
+            title = ut.GetLatexParticleName(particle)+", "+title
+            # ut.Plot1DRatio([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=100, xmin=0, xmax=100, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", stats=True, errors=False, invertRatio=True) # [ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png")
+            # ut.Plot1DRatio([ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_"+particle+"_"+title+"_"+name+".png", stats=True, invertRatio=True) # [ut.FilterParticles(df_[0], particle)["P"], ut.FilterParticles(df_[1], particle)["P"]], nbins=50, xmin=0, xmax=50, title = ut.GetLatexParticleName(particle)+", "+title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = label_, fout = "../img/"+g4blVer+"/CompareBeams/h1_ParticleMomentumOverlay_xmax50MeV_"+particle+"_"+title+"_"+name+".png")
 
             # TODO: add ratio plot here
 
@@ -141,7 +151,15 @@ def main():
     # Compare Absorbers to control
     # RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 1"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber1_noColl03", absorber=True)
     # RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 3"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber3_noColl03", absorber=True)
-    RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 3.1"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber3.1_noColl03", absorber=True)
+    # RunCompareBeams(["Mu2E_1e7events_fromZ1850_parallel_noColl03", "Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03"], [r"No\ absorber", r"Absorber\ 3.1"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorber3.1_noColl03", absorber=True)
+
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm", absorber=True) # , [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True), [r"No\ absorber", r"Absorber\ C"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberC", absorber=True)
+
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "Mu2E_1e7events_AbsorberC_l65mm_r127mm_fromZ1850_parallel"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l65mm_r127mm", absorber=True) # , [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True), [r"No\ absorber", r"Absorber\ C"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberC", absorber=True)
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "Mu2E_1e7events_AbsorberA_l65mm_r100mm_fromZ1850_parallel"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberA_l65mm_r100mm", absorber=True) # , [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True), [r"No\ absorber", r"Absorber\ C"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberC", absorber=True)
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "Mu2E_1e7events_AbsorberB_l65mm_r90mm_fromZ1850_parallel"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberB_l65mm_r90mm", absorber=True) # , [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True), [r"No\ absorber", r"Absorber\ C"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberC", absorber=True)
+    RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "Mu2E_1e7events_AbsorberA_l65mm_r100mm_fromZ1850_parallel"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberA_l65mm_r100mm", absorber=True) # , [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True), [r"No\ absorber", r"Absorber\ C"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberC", absorber=True)
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True)
 
     # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel") 

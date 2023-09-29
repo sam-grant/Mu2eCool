@@ -18,4 +18,8 @@
 
 # echo "../gif/${name}_${particle}_Z265_Z3465_Mu2E_1e6events_ManyZNTuple1.gif"
 
-convert -delay 50 -loop 0 `ls ../img/v3.06/Mu2eZScan/CombinedImgs/combo_XY_Z*_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.png | sort -V` ../gif/combo_XY_Z1850-Z4250_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.gif
+# convert -delay 50 -loop 0 `ls ../img/v3.06/Mu2eZScan/CombinedImgs/combo_XY_Z*_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.png | sort -V` ../gif/combo_XY_Z1850-Z4250_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.gif
+
+convert -delay 45 -loop 0 `ls ../img/v3.06/PSZScan/CombinedImgs/combo_rad_vs_mom_Z*_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.png | sort -V` ../gif/combo_rad_vs_mom_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.gif
+echo "../gif/combo_rad_vs_mom_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.gif"
+# ../img/v3.06/PSZScan/CombinedImgs/combo_rad_vs_mom_Z1865_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.png

@@ -646,8 +646,8 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber0.txt 
+param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/AbsorberD.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/AbsorberD.txt 
 
 # param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
 # include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
@@ -697,7 +697,7 @@ param -unset READ_Beam_File=3
 param -unset Use_Basic_Det=1
 param -unset Make_ZNtuple=1
 
-param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_test_pion.txt
+param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_NoAbsorber_1e7events_Z1850_withSoftElectrons_bm_0.txt # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_NoAbsorber_fromZ1850_parallel_bm_0.txt $ /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt
 
 # beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm_0.txt # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z2265_cutRight_bm_0.txt  # /Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1800_bm_0.txt
 

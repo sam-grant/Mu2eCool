@@ -1,0 +1,28 @@
+# Employ a ring design with inner radius of 100 mm, outer radius of 200 mm (the warm bore of the PS)
+
+# Test 1: Maximum thickness should be 65 mm: the length of Be required to cool pi- from 150 MeV to 100 MeV
+# Test 2: Maximum thickness should be 50 mm: the length of Be required to cool pi- from 140 MeV to 100 MeV
+# Test 3: Maximum thickness should be 30 mm: the length of Be required to cool pi- from 125 MeV to 100 MeV
+
+# Centred on Z=1915 mm
+
+param -unset ZPOSITION=1915
+param -unset THICKNESS=65
+
+# Ring
+tubs Ring outerRadius=200 innerRadius=90 length=$THICKNESS \
+	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+place Ring x=0. z=$ZPOSITION 
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+# virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
+# Place it flush with the front face of the target
+# place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
+
+# This virtualdetector catches everything exiting the target; make it red
+# virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
+# Place it flush with the back face of the target
+# place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 

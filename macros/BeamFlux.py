@@ -28,10 +28,11 @@ def ParticleMomentumOverlay(df, ntupleName, title, config, xmax):
     df_e_plus = ut.FilterParticles(df, "e+") 
     df_e_minus = ut.FilterParticles(df, "e-") 
 
-    # ut.Plot1DOverlay([df["P"], df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"], df_e_plus["P"], df_e_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["All", "$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$", "$e^{+}$", "$e^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=True)
-    ut.Plot1DOverlay([df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=False)
+    ut.Plot1DOverlay([df_proton["P"], df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"], df_e_plus["P"], df_e_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$", "$e^{+}$", "$e^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_we+-_"+ntupleName+"_"+config+".png", includeBlack=False)
+    # ut.Plot1DOverlay([df_pi_plus["P"], df_pi_minus["P"], df_mu_plus["P"], df_mu_minus["P"], df_e_plus["P"], df_e_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["$p$", "$\pi^{+}$", "$\pi^{-}$", "$\mu^{+}$", "$\mu^{-}$", "$e^{+}$", "$e^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_ParticleMomentumOverlay_we+-_"+ntupleName+"_"+config+".png", includeBlack=False)
+    # ut.Plot1DOverlay([df_pi_minus["P"], df_mu_minus["P"]], nbins=int(xmax), xmin=0, xmax=xmax, title = title, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = ["$\pi^{-}$", "$\mu^{-}$"], fout = "../img/"+g4blVer+"/BeamFlux/h1_PiMinusMuMinusMomentumOverlay_"+ntupleName+"_"+config+".png", includeBlack=False)
 
-    print(len(df["P"]),",",len(df_proton["P"]),",",len(df_pi_plus["P"]),",",len(df_pi_minus["P"]),",",len(df_mu_plus["P"]),",",len(df_mu_minus["P"]))
+    # print(len(df["P"]),",",len(df_proton["P"]),",",len(df_pi_plus["P"]),",",len(df_pi_minus["P"]),",",len(df_mu_plus["P"]),",",len(df_mu_minus["P"]))
 
     # print("---> all:", np.mean(df["P"]))
     # print("---> proton:", np.mean(df_proton["P"])) 
@@ -67,8 +68,10 @@ def RunMuonFlux(config):
  
     # Read in TTrees
     # TODO: store this all in a dictionary
+    # df_Z = pd.DataFrame() # 
     df_Z = ut.TTreeToDataFrame(finName, "NTuple/Z1850", ut.branchNames)
     df_Coll_01_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetIn", ut.branchNames)
+    # df_Z = df_Coll_01_DetIn
     df_Coll_01_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_01_DetOut", ut.branchNames)
     df_Coll_03_DetIn = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetIn", ut.branchNames)
     df_Coll_03_DetOut = ut.TTreeToDataFrame(finName, "VirtualDetector/Coll_03_DetOut", ut.branchNames)
@@ -79,7 +82,7 @@ def RunMuonFlux(config):
     df_LostInTarget = ut.TTreeToDataFrame(finName, "NTuple/LostInTarget_Ntuple", ut.branchNames)
 
     # Filtering. Avoid double counting (not LostInTarget)
-    df_Z = RunFilter(df_Z)
+    # df_Z = RunFilter(df_Z)
     df_Coll_01_DetIn = RunFilter(df_Coll_01_DetIn)
     df_Coll_01_DetOut = RunFilter(df_Coll_01_DetOut)
     df_Coll_03_DetIn = RunFilter(df_Coll_03_DetIn)
@@ -105,16 +108,17 @@ def RunMuonFlux(config):
     # ut.BarChart(df_prestop['PDGid'], particle_dict, title="Into stopping target", xlabel="", ylabel="Percentage / PDGid", fout='../img/v3.06/bar_ParticleFraction_prestop.pdf', percentage=True)
 
     # Momentum overlay for particle species in each zntuple/VD, before filtering
-    print("\n---> ParticleMomentumOverlays:")
-    ParticleMomentumOverlay(df_Z, "Z1850", "At Z = 1850 mm", config, 1350)
-    ParticleMomentumOverlay(df_Coll_01_DetIn, "Coll_01_DetIn", "Entering TS collimator 1", config, 725)
-    ParticleMomentumOverlay(df_Coll_01_DetOut, "Coll_01_DetOut", "Exiting TS collimator 1", config, 725)
-    ParticleMomentumOverlay(df_Coll_03_DetIn, "Coll_03_DetIn", "Entering TS collimator 3", config, 150)
-    ParticleMomentumOverlay(df_Coll_03_DetOut, "Coll_03_DetOut", "Exiting TS collimator 3", config, 150)
-    ParticleMomentumOverlay(df_Coll_05_DetIn, "Coll_05_DetIn", "Exiting TS collimator 5", config, 150)
-    ParticleMomentumOverlay(df_Coll_05_DetOut, "Coll_05_DetOut", "Exiting TS collimator 5", config, 150)
-    ParticleMomentumOverlay(df_prestop, "df_prestop", "Entering ST", config, 150)
-    ParticleMomentumOverlay(df_poststop, "df_poststop", "Exiting ST", config, 150)
+    # print("\n---> ParticleMomentumOverlays:")
+    # # ParticleMomentumOverlay(df_Z, "Z1850", "At Z = 1850 mm", config, 1350)
+    # ParticleMomentumOverlay(df_Z, "Z1850", "At Z = 1850 mm", config, 1350)
+    # ParticleMomentumOverlay(df_Coll_01_DetIn, "Coll_01_DetIn", "Entering TS collimator 1", config, 725)
+    # ParticleMomentumOverlay(df_Coll_01_DetOut, "Coll_01_DetOut", "Exiting TS collimator 1", config, 725)
+    # ParticleMomentumOverlay(df_Coll_03_DetIn, "Coll_03_DetIn", "Entering TS collimator 3", config, 150)
+    # ParticleMomentumOverlay(df_Coll_03_DetOut, "Coll_03_DetOut", "Exiting TS collimator 3", config, 150)
+    # ParticleMomentumOverlay(df_Coll_05_DetIn, "Coll_05_DetIn", "Entering TS collimator 5", config, 150)
+    # ParticleMomentumOverlay(df_Coll_05_DetOut, "Coll_05_DetOut", "Exiting TS collimator 5", config, 150)
+    # ParticleMomentumOverlay(df_prestop, "df_prestop", "Entering ST", config, 150)
+    # ParticleMomentumOverlay(df_poststop, "df_poststop", "Exiting ST", config, 150)
 
     # Store mu- entering the TS, for a plot...
     df_Coll_01_DetOut_piminus = ut.FilterParticles(df_Coll_01_DetOut, "mu-")
@@ -273,10 +277,46 @@ def RunMuonFlux(config):
 
 def main():
 
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l25mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l45mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l65mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+
+    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l25mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l45mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l65mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+
+    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l45mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l65mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+
+    RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+
+
+
+
+
     # RunMuonFlux("Mu2E_1e7events_NoAbsorber")
     # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
-    RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_ColdParticles_beamloss")
+
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel_noColl_noPbar")
+
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l25mm_r100mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r85mm_fromZ1850_parallel_noColl03")
+
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03")
+    
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03")
+# ../ntuples/v3.06/g4beamline_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03.root
     # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan")
+    # RunMuonFlux("Mu2E_1e7events_ColdParticles_beamloss")
+
+    # RunMuonFlux("Mu2E_1e7events_Absorber3Vacuum_lmm_r100mm_fromZ1850_parallel")
 
 
     ####################
@@ -284,6 +324,17 @@ def main():
     # RunMuonFlux("Mu2E_1e6events")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
+
+    # RunMuonFlux("Mu2E_1e7events_AbsorberA_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_fromZ1850_parallel")
+
+    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
+    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l45mm_r90mm_fromZ1850_parallel", "L = 45 mm, $R_{i}$ = 90 mm")RunMuonFlux("Mu2E_1e7events_AbsorberB_l50mm_r100mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l20mm_r100mm_fromZ1850_parallel")
+
+    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l25mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
+    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l65mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
 
     # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
     # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel") 
@@ -338,3 +389,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+    

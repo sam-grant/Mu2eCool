@@ -59,18 +59,64 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 			z, N = zip(*data)
 
 			# Update the labels
-			label = ut.GetLatexParticleName(label)
+			latexLabel = ut.GetLatexParticleName(label)
+
+			# if label[0]=="e": 
+			# 	latexLabel += " >10 MeV"
+			# 	print(latexLabel)
+
 
 			colour = cmap(i+1)
 			if includeBlack: colour = cmap(i)
 
-			# Plot
-			ax.scatter(z, N, label=label, marker='o', color=colour, s=4) # , linestyle="-")
-			ax.plot(z, N, label=None, color=colour, linestyle='-')  # Connect points with lines
+
+			non_zero_indices = [i for i, n in enumerate(N) if n > 0]
+
+			if non_zero_indices:  # Check that there are non-zero indices
+
+			    z_non_zero = [z[i] for i in non_zero_indices]
+			    N_non_zero = [N[i] for i in non_zero_indices]
+
+			    # Plot non-zero points
+			    ax.scatter(z_non_zero, N_non_zero, label=latexLabel, marker='o', color=colour, s=4)
+			    ax.plot(z_non_zero, N_non_zero, label=None, color=colour, linestyle='-')
+
+			# i_max = 0
+
+			# for n in N:
+			# 	if n > 0: i_max += 1
+			# 	else: continue
+
+			# # while n in N < 0:
+
+			# # Non-zero points
+			# # z = z[N]
+
+			# z = z[:i_max]
+			# N = N[:i_max]
+
+			# # Plot
+			# # non_zero_indices = N != 0
+			# ax.scatter(z, N, label=label, marker='o', color=colour, s=4) # , linestyle="-")
+			# # non_zero_indices = N != 0
+			# ax.plot(z, N, label=None, color=colour, linestyle='-')  # Connect points with lines
+			# # ax.scatter(z[non_zero_indices], N[non_zero_indices], label=label, marker='o', color=colour, s=4) # , linestyle="-")
+			# # ax.plot(z[non_zero_indices], N[non_zero_indices], label=None, color=colour, linestyle='-')  # Connect points with lines
+
 
 	# Add a legend
-	legend = ax.legend(loc="upper left", frameon=False, fontsize=14, bbox_to_anchor=(0.73, 0.99)) 
+	# legend = ax.legend(loc="upper left", frameon=False, fontsize=14, bbox_to_anchor=(0.73, 0.99)) 
+	# legend = ax.legend(frameon=False, fontsize=14, bbox_to_anchor=(0.73, 0.99)) 
 	# legend.set_bbox_to_anchor(legend.get_bbox_to_anchor().shrunk(0.8, 1))  # Adjust the width by changing the first argument
+	# Place the legend outside of the plot on the right side
+	# legend = ax.legend(loc="upper left", frameon=False, fontsize=14, bbox_to_anchor=(0.0, 1)) # 1.02, 1))
+	# plt.subplots_adjust(left=0.2)  # Adjust the right margin to make space for the legend
+	# # Place the legend outside of the plot on the right side and center it horizontally
+	legend = ax.legend(loc="center left", frameon=False, fontsize=14, bbox_to_anchor=(1, 0.5))
+	plt.subplots_adjust(right=0.8)  # Adjust the right margin to make space for the legend
+
+
+	ax.set_xlim( (1764.5-500)*1e-3, (13800+500)*1e-3)
 
 	# Set title, xlabel, and ylabel
 	ax.set_title(title, fontsize=16, pad=10)
@@ -96,16 +142,16 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 		# ax.yaxis.get_offset_text().set_rotation('vertical')
 
 	# Mark critical geometry 
-	ax.axvline(x=1764.5, color='gray', linestyle='--', linewidth=1) # PT
-	ax.axvline(x=3885, color='gray', linestyle='--', linewidth=1) # TS1
-	ax.axvline(x=7929, color='gray', linestyle='--', linewidth=1) # TS3
-	ax.axvline(x=11359, color='gray', linestyle='--', linewidth=1) # TS5
-	ax.axvline(x=13800, color='gray', linestyle='--', linewidth=1) # ST
+	ax.axvline(x=1764.5*1e-3, color='gray', linestyle='--', linewidth=1) # PT
+	ax.axvline(x=3885*1e-3, color='gray', linestyle='--', linewidth=1) # TS1
+	ax.axvline(x=7929*1e-3, color='gray', linestyle='--', linewidth=1) # TS3
+	ax.axvline(x=11359*1e-3, color='gray', linestyle='--', linewidth=1) # TS5
+	ax.axvline(x=13800*1e-3, color='gray', linestyle='--', linewidth=1) # ST
 	# ax.axvline(x=17964, color='gray', linestyle='--', linewidth=1) # Tracker
 	# ax.axvline(x=20394, color='gray', linestyle='--', linewidth=1) # Calo
 
 	plt.annotate("PT",
-	             xy=(1764.5, plt.ylim()[1]),  # Position of the label
+	             xy=(1764.5*1e-3, plt.ylim()[1]),  # Position of the label
 	             xytext=(10, 10),  # Offset of the label from the point
 	             textcoords='offset points',  # Specify offset in points
 	             va='bottom',  # Vertical alignment of the label
@@ -114,7 +160,7 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 	             fontsize=14,  # Font size of the label text
 	             rotation='vertical')  # Rotate the label
 	plt.annotate("TS1",
-	             xy=(3885, plt.ylim()[1]),  
+	             xy=(3885*1e-3, plt.ylim()[1]),  
 	             xytext=(10, 10),  
 	             textcoords='offset points',  
 	             va='bottom',  
@@ -123,7 +169,7 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 	             fontsize=14,  # Font size of the label text
 	             rotation='vertical')  # Rotate the label
 	plt.annotate("TS3",
-	             xy=(7929, plt.ylim()[1]),  
+	             xy=(7929*1e-3, plt.ylim()[1]),  
 	             xytext=(10, 10),  
 	             textcoords='offset points',  
 	             va='bottom',  
@@ -132,7 +178,7 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 	             fontsize=14,  # Font size of the label text
 	             rotation='vertical')  # Rotate the label
 	plt.annotate("TS5",
-	             xy=(11359, plt.ylim()[1]),  
+	             xy=(11359*1e-3, plt.ylim()[1]),  
 	             xytext=(10, 10),  
 	             textcoords='offset points',  
 	             va='bottom',  
@@ -141,7 +187,7 @@ def PlotGraphOverlay(allData, title=None, xlabel=None, ylabel=None, fout="scatte
 	             fontsize=14,  # Font size of the label text
 	             rotation='vertical')  # Rotate the label
 	plt.annotate("ST",
-	             xy=(13800, plt.ylim()[1]),  
+	             xy=(13800*1e-3, plt.ylim()[1]),  
 	             xytext=(10, 10),  
 	             textcoords='offset points',  
 	             va='bottom',  
@@ -184,6 +230,8 @@ def PlotGraphOverlayPS(allData, title=None, xlabel=None, ylabel=None, fout="scat
 
 	# Create figure and axes
 	fig, ax = plt.subplots()
+
+	print(data_series)
 
 	# Create a dictionary to store data for each particle type
 	data_series = {particleName: [] for particleName in ut.particleDict.values()}
@@ -295,8 +343,8 @@ def RunMu2eZScan(config, proton=True): # , branchNames, particle):
 	particleNZ = {}
 
 	# Loop through zntuples
-	# for i_z in range(2265, 13766, 500):
-	for i_z in range(1850, 13350, 500):
+	for i_z in range(1765+500, 13266, 500):
+	# for i_z in range(1850, 13350, 500):
 
 		# Get ntuple name
 		ntupleName = "Z"+str(i_z)
@@ -318,12 +366,22 @@ def RunMu2eZScan(config, proton=True): # , branchNames, particle):
 		for PDGid, particleName in ut.particleDict.items():
 			# Count the occurrences of pdg_id in the DataFrame and add the count to particleN dictionary
 			if not proton and particleName=="proton": continue
+			if particleName[:4] == "kaon": continue
+			# if particleName[0] == "e":
+			# 	df = df[np.sqrt(pow(df["Px"], 2) + pow(df["Py"], 2) + pow(df["Px"], 2)) > 10]
+				# particleName += " >10 MeV"
+
+			# print(particleName)
+
+			N = df[df['PDGid'] == PDGid].shape[0]
+
+			
 			particleN[particleName] = df[df['PDGid'] == PDGid].shape[0]
 
-		particleNZ[i_z] = particleN
+		particleNZ[i_z*1e-3] = particleN
 
 	# Plot particle population as a function of z
-	PlotGraphOverlay(particleNZ, xlabel="z [mm]", ylabel="N / 500 mm", fout="../img/"+g4blVer+"/Mu2eZScan/gr_NvsZ_"+config+".png")
+	PlotGraphOverlay(particleNZ, xlabel="z-position [m]", ylabel="Counts / 500 mm", fout="../img/"+g4blVer+"/Mu2eZScan/gr_NvsZ_"+config+".png")
 
 	return
 
@@ -361,6 +419,10 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 
 			# Count the occurrences of pdg_id in the DataFrame and add the count to particleN dictionary
 			if not proton and particleName=="proton": continue
+
+			# if particleName[:4] == "kaon": 
+			# 	continue
+				# particleName = "K(PDGid == 321 || PDGid
 
 			particleN[particleName] = df[df['PDGid'] == PDGid].shape[0]
 
@@ -410,7 +472,9 @@ def main():
  	# RunMu2eZScanPS("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
  	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
  	# RunMu2eZScan("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
- 	RunMu2eZScan("Mu2E_1e7events_Absorber3_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	# RunMu2eZScan("Mu2E_1e7events_Absorber3_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
+ 	RunMu2eZScan("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_Mu2eZScan") # , proton=False) 
+ 	# ../ntuples/v3.06/g4beamline_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_Mu2eZScan.root
  	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl_noPbar", proton=False) 
 
 if __name__ == "__main__":

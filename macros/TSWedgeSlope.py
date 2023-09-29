@@ -18,7 +18,6 @@ g4blVer="v3.06"
 def LinearFunction(x, m, c):
     return m*x + c
 
-
 def PlotGraphWithLine(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scatter.png", NDPI=300):
 
    # Create a scatter plot with error bars using NumPy arrays 

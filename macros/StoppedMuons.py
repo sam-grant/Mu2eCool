@@ -179,13 +179,38 @@ def RunStoppedMuons(config, ntupleName):
 
 	# Title and name of df_ntuple
 	ntupleName = ntupleName.split("/")[1] 
-	ntupleTitle = ", "+ntupleName
+	ntupleTitle = ntupleName
 	if ntupleName[0] == "Z": ntupleTitle = "Z = "+ntupleName[1:]+" mm"
+	if ntupleName[6:] == "3_DetIn": ntupleTitle = "Entering TS collimator 3"
+	elif ntupleName[6:] == "3_DetOut": ntupleTitle = "Exiting TS collimator 3"
+	
+	if ntupleName[6:] == "5_DetIn": ntupleTitle = "Entering TS collimator 5"
+	elif ntupleName[6:] == "5_DetOut": ntupleTitle = "Exiting TS collimator 5"
 
 	# Add momentum column to DataFrames
 	ut.GetTotalMomentum(df_prestop)
 	ut.GetTotalMomentum(df_LostInTarget)
 	ut.GetTotalMomentum(df_ntuple)
+
+
+
+	# Need to translate position, based on where we are along the beamline
+	df_trans = df_ntuple 
+
+	if ntupleName[:7] == "Coll_03":
+		# x is now z, shifted by z position of collimator 5
+		# param Coll_03_up_z=$MECO_G4_zTrans
+		# param MECO_G4_zTrans=(5.00+2.929)*1000
+		df_trans["x"] = df_ntuple["z"] - (5.00+2.929)*1000 # 082
+
+
+	if ntupleName[:7] == "Coll_05" or ntupleName == "prestop" or ntupleName == "poststop":
+		# x is still x, but shifted by x position of collimator 5
+		# param MECO_G4_xTrans=-(2.929+1.950/2.0)*1000
+		# param Coll_05_x=-3904+$MECO_G4_xTrans
+		df_trans["x"] = df_ntuple["x"] + 3904 + (2.929+1.950/2.0)*1000
+
+	df_ntuple = df_trans
 
 	# Add radial position column 
 	ut.GetRadialPosition(df_ntuple)
@@ -368,6 +393,13 @@ def RunStoppedMuons(config, ntupleName):
 	df_allMuons = ut.FilterParticles(df_ntuple, "mu-")
 	df_allPions = ut.FilterParticles(df_ntuple, "pi-")
 
+
+	# ut.Plot1D(df_orphanStoppedMuons["R"], 100, 0, 100, r"Stopped $\mu^{-}$ at "+ntupleTitle , "Radial position [mm]", "Counts / mm", "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	# ut.Plot1D(df_orphanStoppedMuons["P"], 105, 0, 105, r"Stopped $\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	# # ut.Plot1D(df_orphanStoppedMuons["R"], 250, 0, 250, r"Stopped $\mu^{-}$ at "+ntupleTitle , "Radial position [mm]", "Counts / mm", "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+
+	# return
+
 	# ----------- Bar charts for populations -----------
 
 	ut.BarChart(df_stops["PDGid"], ut.latexParticleDict, "All stops", "", "Percentage / particle", fout="../img/"+g4blVer+"/StoppedMuons/bar_Stops_"+config+".png", percentage=True)
@@ -399,9 +431,16 @@ def RunStoppedMuons(config, ntupleName):
 	# Stopped muon parent pion momentum distribution
 	ut.Plot1D(df_orphanStoppedMuons["P"], 250, 0, 250, r"Stopped $\mu^{-}$ parent $\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsParentPionsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
 	# Non-stopped muon momentum distribution at plane of interest
+	# ut.Plot1D(df_orphanNonStoppedMuons["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+	# Non-stopped muon momentum distribution at plane of interest, R > 90 mm 
 	ut.Plot1D(df_orphanNonStoppedMuons["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
 	# Non-stopped muon parent distribution at plane of interest
-	ut.Plot1D(df_nonStoppedMuonParents["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ parents at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+	ut.Plot1D(df_nonStoppedMuonParents["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ parents at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=False) 
+	# >90 mm 
+	ut.Plot1D(df_nonStoppedMuonParentPions[(df_nonStoppedMuonParentPions["R"]>90) & (df_nonStoppedMuonParentPions["P"]>100)]["P"], 50, 100, 150, r"Non-stopped $\mu^{-}$ parent $\pi^{-}$, $R>90$ mm, "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentPionsAt"+ntupleName+"_above90mmAnd100MeV_"+config+".png", "best", errors=True, peak=True, underOver=True) 
+
+	return
+
 	# Non-stopped muon parent pion distribution at plane of interest
 	ut.Plot1D(df_nonStoppedMuonParentPions["P"], 250, 0, 250, r"Non-stopped $\mu^{-}$ parents $\pi^{-}$ at "+ntupleTitle , "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/StoppedMuons/h1_mom_nonStoppedMuonParentPionsAt"+ntupleName+"_"+config+".png", "best", errors=True, peak=True, underOver=True) 
 	
@@ -419,14 +458,22 @@ def RunStoppedMuons(config, ntupleName):
 
 	# print(df_orphanNonStoppedMuons["z"])
 	ut.Plot1DOverlay([df_orphanNonStoppedMuons["P"], df_orphanStoppedMuons["P"]], 120, 0, 120, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
-	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["P"], df_stoppedMuonParentPions["P"]], 250, 0, 250, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonParentPionOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
+	
+
+
+	# ut.Plot1DOverlay([df_nonStoppedMuonParentPions["P"], df_stoppedMuonParentPions["P"]], 250, 0, 250, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonParentPionOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
+	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["P"], df_stoppedMuonParentPions["P"]], 200, 0, 200, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonParentPionOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 
 	# ut.Plot1DRatio([df_orphanNonStoppedMuons["P"], df_orphanStoppedMuons["P"]], 120, 0, 120, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonRatioAt"+ntupleName+"_"+config+".png", invertRatio=True)
 	# ut.Plot1DRatio([df_nonStoppedMuonParentPions["P"], df_stoppedMuonParentPions["P"]], 250, 0, 250, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonParentPionRatioAt"+ntupleName+"_"+config+".png", invertRatio=True) # , includeBlack=False)
 
+	ut.Plot1DOverlay([df_stoppedMuonParentPions["P"], df_stoppedMuons["P"]], 250, 0, 250, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonsAndParentPionsAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
+
+
 	# Probably dumb
 	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["P"], df_stoppedMuonParentPions["P"], df_orphanNonStoppedMuons["P"], df_orphanStoppedMuons["P"]], 250, 0, 250, title = ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$", r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppingAndNonStoppingOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 
+	# return
 
 	df_muonsWhichMakeItToPrestop = pd.concat([df_orphanNonStoppedMuons, df_orphanStoppedMuons])
 	df_pionsWhichMakeItToPrestop = pd.concat([df_nonStoppedMuonParentPions, df_stoppedMuonParentPions])
@@ -473,13 +520,15 @@ def RunStoppedMuons(config, ntupleName):
 	ut.Plot1DOverlay([df_orphanNonStoppedMuons["R"], df_orphanStoppedMuons["R"]], 120, 0, 120, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedMuonOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["R"], df_stoppedMuonParentPions["R"]], 200, 0, 200, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedMuonParentPionOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 
-	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["R"], df_stoppedMuonParentPions["R"], df_orphanNonStoppedMuons["R"], df_orphanStoppedMuons["R"]], 200, 0, 200, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$", r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedAndNonStoppedOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
+	ut.Plot1DOverlay([df_nonStoppedMuonParentPions["R"], df_stoppedMuonParentPions["R"], df_orphanNonStoppedMuons["R"], df_orphanStoppedMuons["R"]], 250, 0, 250, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$", r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedAndNonStoppedOverlayAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 
 	# ut.Plot1DOverlay([df_nonStoppedMuonParents[df_nonStoppedMuonParents["R"] > 100]["P"], df_orphanStoppedMuons[df_orphanStoppedMuons["R"] > 100]["P"]], 250, 0, 250, title = "R > 100 mm, "+ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonOverlayAt"+ntupleName+"_highR_"+config+".png") # , includeBlack=False)
 	# ut.Plot1DOverlay([df_nonStoppedMuonParentPions[df_nonStoppedMuonParentPions["R"] > 100]["P"], df_stoppedMuonParentPions[df_stoppedMuonParentPions["R"] > 100]["P"]], 250, 0, 250, title = "R > 100 mm, "+ntupleTitle, xlabel = "Momentum [MeV]", ylabel = "Counts / MeV", labels = [r"Non-stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$ parent $\pi^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_mom_stoppedMuonParentPionOverlayAt"+ntupleName+"_highR_"+config+".png") # , includeBlack=False)
 
 	ut.Plot1DOverlay([df_allPions["R"], df_pionsWhichMakeItToPrestop["R"], df_allMuons["R"], df_muonsWhichMakeItToPrestop["R"]], 500, 0, 500, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"All $\pi^{-}$", r"Parent $\pi^{-}$ of $\mu^{-}$ reaching ST", r"All $\mu^{-}$", r"$\mu^{-}$ reaching ST"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_particlesMakingItToSTOveraly"+ntupleName+"_"+config+".png") # , includeBlack=False)
 	ut.Plot1DOverlay([df_allPions["R"], df_pionsWhichMakeItToPrestop["R"], df_allMuons["R"], df_muonsWhichMakeItToPrestop["R"]], 750, 0, 750, title = ntupleTitle, xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"All $\pi^{-}$", r"Parent $\pi^{-}$ of $\mu^{-}$ reaching ST", r"All $\mu^{-}$", r"$\mu^{-}$ reaching ST"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_particlesMakingItToSTOveraly"+ntupleName+"_logY_"+config+".png", logY=True) # , includeBlack=False)
+	
+	ut.Plot1DOverlay([df_stoppedMuonParentPions["R"], df_orphanStoppedMuons["R"]], 250, 0, 250, title = ntupleTitle,  xlabel = "Radial position [mm]", ylabel = "Counts / mm", labels = [r"Stopped $\mu^{-}$ parent $\pi^{-}$", r"Stopped $\mu^{-}$"], fout = "../img/"+g4blVer+"/StoppedMuons/h1_rad_stoppedMuonsAndParentPionsAt"+ntupleName+"_"+config+".png") # , includeBlack=False)
 
 
 	#  ----------- Radius vs momentum ----------- 
@@ -512,9 +561,15 @@ def RunStoppedMuons(config, ntupleName):
 
 def main():
 
+	# RunStoppedMuons("Mu2E_1e7events_ColdParticles_beamloss", "VirtualDetector/Coll_03_DetIn")
+
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan", "NTuple/Z1965")
 	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber", "NTuple/Z1850")
-	RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850")
-	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn")
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850")
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn")
+	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_05_DetIn")
+	RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915")
+	# ../img/v3.06/StoppedMuons/h1_rad_stoppedAndNonStoppedOverlayAtColl_03_DetIn_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel.png
 	# RunStoppedMuons("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop")
     # RunStoppedMuons("Mu2E_1e7events")
     # RunStoppedMuons("Mu2E_1e7events_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetIn")

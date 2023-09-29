@@ -17,9 +17,9 @@ ROOT.gROOT.Reset()
 def Run():
 
     # inputs
-    finName = "../ntuples/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles.root" 
+    finName = "../ntuples/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles.root" # "../ntuples/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles.root" 
     NTuple = "NTuple" 
-    foutName = "../beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt" 
+    foutName = "../beamFiles/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles_bm.txt" # "../beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt" 
 
     fin = TFile(finName)
     tree = fin.Get(NTuple) 
@@ -72,10 +72,13 @@ def Run():
 
 def Run2():
 
-    # inputs
-    finName = "../ntuples/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles.root" 
+    # # inputs
+    # finName = "../ntuples/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles.root" # "../ntuples/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles.root" 
+    # NTuple = "NTuple" 
+    # foutName = "../beamFiles/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles_bm.txt" # "../beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt" 
+    finName = "../ntuples/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar_ColdParticles.root" # "../ntuples/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles.root" 
     NTuple = "NTuple" 
-    foutName = "../beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt" 
+    foutName = "../beamFiles/v3.06/g4beamline_Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar_ColdParticles_bm.txt" # "../beamFiles/v3.06/g4beamline_Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles_bm.txt" 
 
     fin = TFile(finName)
     tree = fin.Get(NTuple) 

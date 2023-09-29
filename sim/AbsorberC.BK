@@ -1,5 +1,8 @@
 # Employ a ring design and taper into a wedge: minimum thickness of 1 mm at an inner radius of 100 mm and a maximum thickness at a radius of 130 mm; the outer radius is 200 mm (the warm bore of the PS) 
-# Maximum thickness should be 65 mm: the length of Be required to cool pi- from 150 MeV to 100 MeV
+
+# Test 1: Maximum thickness should be 65 mm: the length of Be required to cool pi- from 150 MeV to 100 MeV
+# Test 2: Maximum thickness should be 50 mm: the length of Be required to cool pi- from 140 MeV to 100 MeV
+# Test 3: Maximum thickness should be 30 mm: the length of Be required to cool pi- from 125 MeV to 100 MeV
 # Centred on Z=1915 mm
 
 param -unset ZPOSITION=1915

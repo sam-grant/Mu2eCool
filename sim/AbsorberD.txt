@@ -1,13 +1,14 @@
-# A 55 mm thick cylinder, front face at Z = 1965 + 55/2
-
-# Set z-position
+# Centred on Z=1915 mm
 
 param -unset ZPOSITION=1915
-param -unset THICKNESS=55
+param -unset THICKNESS=25
 
-cylinder Absorber radius=200 length=$THICKNESS material=Be maxStep=50.e-3 color=0,1,1 # 0.66,0.67,0.71 
-# Place it at 0 in front of the muon beam 
-place Absorber z=$ZPOSITION
+# Wedge
+for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44  
+    tubs Wedge outerRadius=200-2*$i innerRadius=198-2*$i length=$THICKNESS-$i*($THICKNESS-1)/44 \ 
+		material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+	place Wedge x=0. z=$ZPOSITION rename=Wedge:$i 
+endfor
 
 # Place two virtualdetectors to catch everything entering the front and back faces of the target 
 
@@ -15,9 +16,9 @@ place Absorber z=$ZPOSITION
 # direction; same dimensions in x-y as the target; make it green
 virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
 # Place it flush with the front face of the target
-place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
+# place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
 
 # This virtualdetector catches everything exiting the target; make it red
 virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
 # Place it flush with the back face of the target
-place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 
+# place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 

@@ -145,7 +145,12 @@ def RunPSZScan(config, particle):
 	beta_ = []
 
 	# Loop through zntuples
-	for i_z in range(265, 3466, 100):
+	# for i_z in range(265, 3466, 100):
+	# for i_z in range(1865, 3466, 100):
+	for i_z in range(1865, 3016, 50):
+	# for i_z in range(3065, 3666, 50):
+		# Indoors
+	# for i_z in range(1765, 2006, 10):
 
 		# Store Z for graphs
 		z_.append(i_z)
@@ -175,34 +180,42 @@ def RunPSZScan(config, particle):
 		# ut.BarChart(df['PDGid'], particleDict, "At "+ntupleName, "", "Percentage / PDGid", fout="../img/"+g4blVer+"/RadiusVsMomentumStudy/bar_ParticleFraction_"+ntupleName+"_upstream.png", percentage=False)
 
 		# Tranvserse momentum 
-		df['PT'] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
+		# df['PT'] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
 		# Total momentum
 		df['P'] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) + pow(df["Pz"],2) ) 
 		# Radius of curvature
 		df['R'] = np.sqrt( pow(df['x'],2) + pow(df['y'],2))
 		# Polar (pitch) angle
-		df['Theta'] = np.arctan(df['PT']/df['Pz'])
-		# Azimuthal angle
-		df['Phi'] = np.arctan(df['Py']/df['Px']) # np.arcsin(df['Px']/df['PT']) 
+		# df['Theta'] = np.arctan(df['PT']/df['Pz'])
+		# # Azimuthal angle
+		# df['Phi'] = np.arctan(df['Py']/df['Px']) # np.arcsin(df['Px']/df['PT']) 
 
-		# Vertical angle 
-		df['Alpha'] = np.arcsin(df['Py']/df['P'])
-		# Horizontal angle
-		df['Beta'] = np.arcsin(df['Px']/df['Py'])
+		# # Vertical angle 
+		# df['Alpha'] = np.arcsin(df['Py']/df['P'])
+		# # Horizontal angle
+		# df['Beta'] = np.arcsin(df['Px']/df['Py'])
 
-		# Store average momentum
-		Pz_.append(np.mean(df['Pz']))
-		PzRMS_.append(np.std(df['Pz']))
+		# # Store average momentum
+		# Pz_.append(np.mean(df['Pz']))
+		# PzRMS_.append(np.std(df['Pz']))
 
-		# Store average pitch
-		theta_.append(np.mean(df['Theta']))
-		thetaRMS_.append(np.std(df['Theta']))
+		# # Store average pitch
+		# theta_.append(np.mean(df['Theta']))
+		# thetaRMS_.append(np.std(df['Theta']))
 
-		# Horizontal and vertical angles
-		alpha_.append(np.mean(df['Alpha']))
-		beta_.append(np.mean(df['Beta']))
+		# # Horizontal and vertical angles
+		# alpha_.append(np.mean(df['Alpha']))
+		# beta_.append(np.mean(df['Beta']))
 
 		title=ut.GetLatexParticleName(particle)+", $Z="+ntupleName.split("Z")[1]+"$ mm"
+
+		ut.Plot2D(df['P'], df['R'], 300, 0, 300, 200, 0, 200, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_rad_vs_mom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+		# ut.Plot2D(df['P'], df['R'], 300, 0, 300, 200, 0, 200, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_rad_vs_mom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+		# ut.Plot2D(df['P'], df['R'], 200, 0, 200, 200, 0, 200, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_rad_vs_mom_"+ntupleName+"_"+particle+"_"+config[:-5]+".png", cb=False)
+
+		continue
+
+		ut.Plot1D(df['P'], 500, 0, 500, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/PSZScan/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
 
 		# Make dispersion plots
 		ut.Plot2D(df['P'], df['x'], 500, 0, 500, 250, -250, 250, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/PSZScan/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
@@ -223,9 +236,9 @@ def RunPSZScan(config, particle):
 		ut.Plot2D(df['x'], df['y'], 400, -200, 200, 400, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/PSZScan/h2_XY_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 
 		# # Plot radius vs. momentum at each z
-		ut.Plot2D(df['P'], df['R'], 500, 0, 500, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
-		ut.Plot2D(df['PT'], df['R'], 500, 0, 500, 200, 0, 200, title, "Tranvserse momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMomT_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
-		ut.Plot2D(df['Pz'], df['R'], 1000, -500, 500, 200, 0, 200, title, "Longitundinal momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMomZ_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+		ut.Plot2D(df['P'], df['R'], 500, 0, 500, 200, 0, 200, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMom_"+ntupleName+"_"+particle+"_"+config[:-5]+".png", cb=False)
+		ut.Plot2D(df['PT'], df['R'], 500, 0, 500, 200, 0, 200, title, "Tranvserse momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMomT_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+		ut.Plot2D(df['Pz'], df['R'], 1000, -500, 500, 200, 0, 200, title, "Longitundinal momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/PSZScan/h2_RVsMomZ_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 		
 		# Mom vs polar angle
 		# ut.Plot2D(df['Pz'], df['Theta'], 1000, -500, 500, int(np.pi)*1000, -np.pi/2, np.pi/2, title, "$P_{z}$ [MeV]", r"$\theta$ [rad]", "../img/"+g4blVer+"/PSZScan/h2_ThetaVsPz_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
@@ -233,13 +246,13 @@ def RunPSZScan(config, particle):
 		# ut.Plot2D(df['P'], df['Theta'], 500, 0, 500, int(np.pi)*1000, -np.pi/2, np.pi/2, title, "Momentum [MeV]", r"$\theta$ [rad]", "../img/"+g4blVer+"/PSZScan/h2_ThetaVsMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 
 		# Rad vs polar angle
-		# ut.Plot2D(df['R'], df['Theta'], 200, 0, 200, int(np.pi)*1000, -np.pi/2, np.pi/2, title, "Radius [mm]", r"$\theta$ [rad]", "../img/"+g4blVer+"/PSZScan/h2_ThetaVsRad_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
+		# ut.Plot2D(df['R'], df['Theta'], 200, 0, 200, int(np.pi)*1000, -np.pi/2, np.pi/2, title, "Radial position [mm]", r"$\theta$ [rad]", "../img/"+g4blVer+"/PSZScan/h2_ThetaVsRad_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 
 		# Plot XY weighted with momentum at each z
 		ut.Plot3D(df['x'], df['y'], df['P'], 80, -200, 200, 80, -200, 200, 500, title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/PSZScan/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", cb=False)
 
 	# Plot particle population as a function of z
-	PlotGraphOverlay(particleNZ, xlabel="z [mm]", ylabel="N / 100 mm", fout="../img/"+g4blVer+"/PSZScan/gr_NvsZ_"+config+".png")
+	# PlotGraphOverlay(particleNZ, xlabel="z [mm]", ylabel="N / 100 mm", fout="../img/"+g4blVer+"/PSZScan/gr_NvsZ_"+config+".png")
 
 	# ut.PlotGraph(x=z_, y=Pz_, xerr=[], yerr=[], xlabel="z [mm]", ylabel=r"$\langle P_{z} \rangle$ [MeV]", fout="../img/"+g4blVer+"/PSZScan/gr_AvgPzVsZ_"+particle+"_"+config+".png")
 	# ut.PlotGraph(x=z_[16:], y=theta_[16:], xerr=[], yerr=[], xlabel="z [mm]", ylabel=r"$\langle \theta \rangle$ [rad]", fout="../img/"+g4blVer+"/PSZScan/gr_AvgThetaVsZ_"+particle+"_"+config+".png")
@@ -285,13 +298,18 @@ def RunSinglePSZ(config, ntupleName):
 def main():
 
 
-	config="Mu2E_1e6events_ManyZNTuple1"
-	particle =  "mu+-" # pi+-" # "mu+-" # "mu+-" # "pi+-" # mu+-" # pi+-" # mu+-" # all" # "pi+-" # "mu+-" # "no_proton"
+	# config="Mu2E_1e6events_ManyZNTuple1"
+	# config="Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan"
+	# config="Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScanExtra"
+	# config="Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScanExtra"
+	config="Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan"
+	particle =  "mu-" # pi-" # pi+-" # "mu+-" # "mu+-" # "pi+-" # mu+-" # pi+-" # mu+-" # all" # "pi+-" # "mu+-" # "no_proton"
 
-	# RunPSZScan(config,  particle) 
+	RunPSZScan(config,  "mu-") 
+	RunPSZScan(config,  "pi-") 
 
 	# I really just want to plot the momentum
-	RunSinglePSZ(config, "Z1965")
+	# RunSinglePSZ(config, "Z1965")
 
 	# --- These functions are commented below main --- 
 	# RunCutLeftRight(config, branchNames, particle, outDir) 

@@ -21,9 +21,6 @@ def RunFilter(df):
 
 def GetLostAndNewParticles(df_in, df_out):
 
-    print(df_in)
-    print(df_out)
-
     # Get particles that are unique to df_in and df_out, using an outer join
     df_unique = df_in.merge(df_out, on=["EventID", "TrackID", "ParentID", "PDGid"], suffixes=("_in", "_out"), how="outer")
 
@@ -38,7 +35,7 @@ def GetLostAndNewParticles(df_in, df_out):
         if col.endswith("_in"):
             df_lost.rename(columns={col: col[:-len("_in")]}, inplace=True)
     # Reorder the columns 
-    df_lost = df_lost[['x', 'y', 'z', 'Px', 'Py', 'Pz', 't', 'PDGid', 'EventID', 'TrackID', 'ParentID', 'Weight', "P"]]
+    df_lost = df_lost[['x', 'y', 'z', 'Px', 'Py', 'Pz', 't', 'PDGid', 'EventID', 'TrackID', 'ParentID', 'Weight', "P", "R"]]
 
     # Select null rows in "in"
     df_new = df_unique[df_unique["x_in"].isnull()] 
@@ -51,7 +48,7 @@ def GetLostAndNewParticles(df_in, df_out):
         if col.endswith("_out"):
             df_new.rename(columns={col: col[:-len("_out")]}, inplace=True)
     # Reorder the columns 
-    df_new = df_new[['x', 'y', 'z', 'Px', 'Py', 'Pz', 't', 'PDGid', 'EventID', 'TrackID', 'ParentID', 'Weight', "P"]]
+    df_new = df_new[['x', 'y', 'z', 'Px', 'Py', 'Pz', 't', 'PDGid', 'EventID', 'TrackID', 'ParentID', 'Weight', "P", "R"]]
 
     return df_lost, df_new
 
@@ -69,6 +66,7 @@ def WriteDataFrameToTTree(df, treeName, foutName):
     x = np.zeros(1, dtype=np.float64)
     y = np.zeros(1, dtype=np.float64)
     z = np.zeros(1, dtype=np.float64)
+    R = np.zeros(1, dtype=np.float64)
     Px = np.zeros(1, dtype=np.float64)
     Py = np.zeros(1, dtype=np.float64)
     Pz = np.zeros(1, dtype=np.float64)
@@ -80,11 +78,11 @@ def WriteDataFrameToTTree(df, treeName, foutName):
     ParentID = np.zeros(1, dtype=np.int32)
     Weight = np.zeros(1, dtype=np.int32)
 
-
     # Create TBranches for each column (without "array_" prefix)
     tree.Branch('x', x, 'x/D')
     tree.Branch('y', y, 'y/D')
     tree.Branch('z', z, 'z/D')
+    tree.Branch('R', R, 'R/D')
     tree.Branch('Px', Px, 'Px/D')
     tree.Branch('Py', Py, 'Py/D')
     tree.Branch('Pz', Pz, 'Pz/D')
@@ -101,6 +99,7 @@ def WriteDataFrameToTTree(df, treeName, foutName):
         x[0] = row['x']
         y[0] = row['y']
         z[0] = row['z']
+        R[0] = row['R']
         Px[0] = row['Px']
         Py[0] = row['Py']
         Pz[0] = row['Pz']
@@ -123,7 +122,7 @@ def WriteDataFrameToTTree(df, treeName, foutName):
 
     return 
 
-def RunWriteColdParticles(config, foutName):
+def RunColdParticles(config, foutName):
 
     # Setup input 
     finName = "../ntuples/"+g4blVer+"/g4beamline_"+config+".root"
@@ -133,26 +132,33 @@ def RunWriteColdParticles(config, foutName):
     # Read in TTree
     df_in = ut.TTreeToDataFrame(finName, "VirtualDetector/BeAbsorber_DetIn", ut.branchNames)
     df_out = ut.TTreeToDataFrame(finName, "VirtualDetector/BeAbsorber_DetOut", ut.branchNames)
+    df_prestop = ut.TTreeToDataFrame(finName, "VirtualDetector/prestop", ut.branchNames)
 
     # Filter
     df_in = RunFilter(df_in)
     df_out = RunFilter(df_out)
+    df_prestop = RunFilter(df_prestop)
 
     # Add momentum column
     df_in["P"] = np.sqrt( pow(df_in["Px"], 2) + pow(df_in["Py"], 2) + pow(df_in["Pz"], 2) ) 
     df_out["P"] = np.sqrt( pow(df_out["Px"], 2) + pow(df_out["Py"], 2) + pow(df_out["Pz"], 2) ) 
+    # Add radius column
+    df_in["R"] = np.sqrt( pow(df_in["x"], 2) + pow(df_in["y"], 2) ) 
+    df_out["R"] = np.sqrt( pow(df_out["x"], 2) + pow(df_out["y"], 2) ) 
 
     # pions and muons
     df_in_pions = ut.FilterParticles(df_in, "pi-")
     df_in_muons = ut.FilterParticles(df_in, "mu-")
     df_out_pions = ut.FilterParticles(df_out, "pi-")
     df_out_muons = ut.FilterParticles(df_out, "mu-")
+    # df_prestop_pions = ut.FilterParticles(df_prestop_pions, "pi-") 
+    # df_prestop_muons = ut.FilterParticles(df_prestop_muons, "mu-") 
 
     # Sanity plots, compare with AbsorberCooling.py
-    ut.Plot1D(df_in_pions["P"], 750, 0, 750, "pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_Mom_In_pi-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_in_muons["P"], 275, 0, 275, "muons in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_Mom_In_mu-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_out_pions["P"], 750, 0, 750, "pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_Mom_Out_pi-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_out_muons["P"], 275, 0, 275, "muons out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_Mom_Out_mu-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_in_pions["P"], 750, 0, 750, "pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_Mom_In_pi-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_in_muons["P"], 275, 0, 275, "muons in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_Mom_In_mu-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_out_pions["P"], 750, 0, 750, "pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_Mom_Out_pi-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_out_muons["P"], 275, 0, 275, "muons out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_Mom_Out_mu-_"+config+".png") # , stats=True) 
 
     # Cold particles, pions below 100 MeV and muons below 50 MeV
     df_in_cold_pions = df_in_pions[df_in_pions["P"] < 100]
@@ -161,10 +167,10 @@ def RunWriteColdParticles(config, foutName):
     df_out_cold_muons = df_out_muons[df_out_muons["P"] < 50]
 
     # More sanity plots, compare with AbsorberCooling.py
-    ut.Plot1D(df_in_cold_pions["P"], 100, 0, 100, "cold pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_mom_in_cold_pi-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_in_cold_muons["P"], 50, 0, 50, "cold muons in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_mom_in_cold_mu-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_out_cold_pions["P"], 100, 0, 100,"cold pions out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_mom_out_cold_pi-_"+config+".png") # , stats=True) 
-    ut.Plot1D(df_out_cold_muons["P"], 50, 0, 50, "cold muons out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_mom_out_cold_mu-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_in_cold_pions["P"], 100, 0, 100, "cold pions in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_mom_in_cold_pi-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_in_cold_muons["P"], 50, 0, 50, "cold muons in", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_mom_in_cold_mu-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_out_cold_pions["P"], 100, 0, 100,"cold pions out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_mom_out_cold_pi-_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_out_cold_muons["P"], 50, 0, 50, "cold muons out", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_mom_out_cold_mu-_"+config+".png") # , stats=True) 
 
     # Get lost and new particles
     df_lost_cold_pions, df_new_cold_pions = GetLostAndNewParticles(df_in_cold_pions, df_out_cold_pions)
@@ -194,9 +200,24 @@ def RunWriteColdParticles(config, foutName):
     df_coldParticles = pd.concat( [df_new_cold_pions, df_new_cold_muons] )
 
     # Sanity plot, compare with P branch in the ntuple
-    ut.Plot1D(df_coldParticles["P"], 120, 0, 120, "cold particles", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/WriteColdParticles/h1_mom_cold_particles_"+config+".png") # , stats=True) 
+    ut.Plot1D(df_coldParticles["P"], 120, 0, 120, "cold particles", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/ColdParticles/h1_mom_cold_particles_"+config+".png") # , stats=True) 
     
-    print("---> Total new cold particles:", df_coldParticles.shape[0])
+    # Presentation plot, compare lost and new
+    ut.Plot1DOverlay([df_lost_cold_pions["P"], df_new_cold_pions["P"]], 100, 0, 100, r"$\pi^{-}$", "Momentum [MeV]", "Counts / MeV", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_mom_cold_pions_overlay_"+config+".png", legPos="best", legFontSize=14)  
+    ut.Plot1DOverlay([df_lost_cold_muons["P"], df_new_cold_muons["P"]], 50, 0, 50, r"$\mu^{-}$", "Momentum [MeV]", "Counts / MeV", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_mom_cold_muons_overlay_"+config+".png", legPos="best", legFontSize=14)
+    ut.Plot1DOverlay([df_lost_cold_pions["R"], df_new_cold_pions["R"]], 200, 0, 200, r"$\pi^{-}$", "Radial position [mm]", "Counts / mm", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_rad_cold_pions_overlay_"+config+".png", legPos="best", legFontSize=14)  
+    ut.Plot1DOverlay([df_lost_cold_muons["R"], df_new_cold_muons["R"]], 40, 0, 200, r"$\mu^{-}$", "Radial position [mm]", "Counts / 5 mm", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_rad_cold_muons_overlay_"+config+".png", legPos="best", legFontSize=14) 
+
+    ut.Plot1DRatio([df_lost_cold_pions["P"], df_new_cold_pions["P"]], 100, 0, 100, r"$\pi^{-}$", "Momentum [MeV]", "Counts / MeV", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_ratio_mom_cold_pions_overlay_"+config+".png", legPos="best", invertRatio=True)
+    ut.Plot1DRatio([df_lost_cold_muons["P"], df_new_cold_muons["P"]], 50, 0, 50, r"$\mu^{-}$", "Momentum [MeV]", "Counts / MeV", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_ratio_mom_cold_muons_overlay_"+config+".png", legPos="best", invertRatio=True)
+    ut.Plot1DRatio([df_lost_cold_pions["R"], df_new_cold_pions["R"]], 200, 0, 200, r"$\pi^{-}$", "Radial position [mm]", "Counts / mm", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_ratio_rad_cold_pions_overlay_"+config+".png", legPos="best", invertRatio=True) 
+    ut.Plot1DRatio([df_lost_cold_muons["R"], df_new_cold_muons["R"]], 40, 0, 200, r"$\mu^{-}$", "Radial position [mm]", "Counts / 5 mm", labels=["Lost", "New"], fout="../img/"+g4blVer+"/ColdParticles/h1_ratio_rad_cold_muons_overlay_"+config+".png", legPos="best", invertRatio=True)
+
+
+    # ut.Plot2D(df_lost_cold_pions["P"], df_lost_cold_pions["R"], )
+    # print("---> Total new cold particles:", df_coldParticles.shape[0])
+
+    print("--->prestop / cold particles:", df_prestop.shape[0] / df_prestop)
 
     # Convert the DataFrame to a TTree
     treeName = "ColdParticles"  
@@ -207,7 +228,11 @@ def RunWriteColdParticles(config, foutName):
 
 def main():
 
-    RunWriteColdParticles("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel", "Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles")
+    # RunColdParticles("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel", "Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles")
+    # RunColdParticles("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel")
+    
+    RunColdParticles("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles")
+    # RunColdParticles("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar_ColdParticles")
 
 if __name__ == "__main__":
     main()

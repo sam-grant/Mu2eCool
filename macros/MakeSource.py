@@ -29,7 +29,7 @@ def Run():
 
     # Assuming the directory structure is "../ntuples/v3.06/g4beamline_Mu2E_1e5events.root"
     # Replace "ntuples" with "beamFiles" in the path
-    foutName = finName.replace("/ntuples/", "/beamFiles/").replace("_Z1850", "").replace(".root", "") + "_" +ZNtuple+ "_noDupes_bm"
+    foutName = finName.replace("/ntuples/", "/beamFiles/").replace("_Z1850", "").replace(".root", "") + "_" +ZNtuple+ "_withSoftElectrons_bm"
 
     # Handle file splitting
     match = re.search(r'_(\d+)e(\d+)events', finName)
@@ -119,9 +119,9 @@ def Run():
         if PDGid > 1000000:
             continue
 
-       # Drop soft e+- in beam source
-        if fabs(PDGid) == 11 and np.sqrt( pow(Px,2) + pow(Py,2) + pow(Pz,2) )<10.0: 
-            continue
+        # Drop soft e+- in beam source
+        # if fabs(PDGid) == 11 and np.sqrt( pow(Px,2) + pow(Py,2) + pow(Pz,2) )<10.0: 
+        #     continue
 
         # Add more filters here as needed
 

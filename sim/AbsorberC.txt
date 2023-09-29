@@ -1,0 +1,45 @@
+# Employ a ring design and taper into a wedge: minimum thickness of 1 mm at an inner radius of 100 mm and a maximum thickness at a radius of 200 mm 
+
+# Test 1: Maximum thickness should be 65 mm: the length of Be required to cool pi- from 150 MeV to 100 MeV
+# Test 2: Maximum thickness should be 50 mm: the length of Be required to cool pi- from 140 MeV to 100 MeV
+# Test 3: Maximum thickness should be 30 mm: the length of Be required to cool pi- from 125 MeV to 100 MeV
+# Centred on Z=1915 mm
+
+param -unset ZPOSITION=1915
+param -unset THICKNESS=25
+
+# Wedge
+# for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49
+#     tubs Wedge outerRadius=200-2*$i innerRadius=198-2*$i length=$THICKNESS-$i*($THICKNESS-1)/49 \ 
+# 		material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+# 	place Wedge x=0. z=$ZPOSITION rename=Wedge:$i 
+# endfor
+
+# Inner radius = 90 mm 
+
+#for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 
+#    tubs Wedge outerRadius=200-2*$i innerRadius=198-2*$i length=$THICKNESS-$i*($THICKNESS-1)/54 \ 
+#		material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+#	place Wedge x=0. z=$ZPOSITION rename=Wedge:$i 
+#endfor
+
+# Inner radius = 127 mm 
+
+for i 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+    tubs Wedge outerRadius=200-2.84*$i innerRadius=198-2.84*$i length=$THICKNESS-$i*($THICKNESS-1)/25 \ 
+		material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+	place Wedge x=0. z=$ZPOSITION rename=Wedge:$i 
+endfor
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
+# Place it flush with the front face of the target
+place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
+# Place it flush with the back face of the target
+place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 

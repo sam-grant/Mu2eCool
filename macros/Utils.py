@@ -178,11 +178,11 @@ def TTreeToDataFrame(finName, treeName, branchNames):
 
 def GetTotalMomentum(df):
     df["P"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) + pow(df["Pz"],2) ) 
-    return df
+    return 
 
 def GetRadialPosition(df):
     df["R"] = np.sqrt( pow(df["x"],2) + pow(df["y"],2) )
-    return df
+    return 
 
 
 # ---------------------------------
@@ -239,6 +239,8 @@ def GetLatexParticleName(particle):
     elif particle == "mu-": return "$\mu^{-}$"
     elif particle == "e+": return "$e^{+}$"
     elif particle == "e-": return "$e^{-}$"
+    elif particle == "e+ >10 MeV": return "$e^{+} > 10$ MeV"
+    elif particle == "e- >10 MeV": return "$e^{-} > 10$ MeV"
     elif particle == "kaon+": return "$K^{+}$"
     elif particle == "kaon-": return "$K^{-}$"
     elif particle == "kaon0": return "$K^{0}$"
@@ -255,6 +257,53 @@ latexParticleDict = {}
 for key, value in  particleDict.items():
     latexParticleDict[key] = GetLatexParticleName(value)
 
+# Misc 
+# Radial postion of helical axis 
+
+def GetHelix(df):
+
+    # Transverse radius of curvature in the B field
+
+    # R = p/qBsin(theta) * gamma
+    # E_k_T = E_T - E_0 = sqrt(p_T^2 + m_0^2) - m_0
+    # E_k=E-E_0=(gamma-1)*m_0*c^2 --> gamma - 1 = E_k / m_0 * c^2 --> gamma = E_k/m_0*c^2 + 1 
+    # --> gamma = E_k/m_0 + 1 
+
+    # sin(Theta) = 1 for 2D, since 
+    # cos(Theta) = BdotP / (Pmag * Bmag) = 0
+    # BdotP = Bx * Px + By * Py + Bz * Pz = 0*Px + 0*Py + Bz*0 = 0
+
+    # —> R = p_T/qB_z * gamma
+
+    # Constants
+    m_0 = 139.570 # pi+- rest mass in MeV/c^2
+    e = 1.602e-19 # C
+    c = 299792458 # m/s
+
+    # Sign of charge 
+    df["Sign"] = df["PDGid"].apply(lambda x: math.copysign(1, x))
+
+    # Tranverse momentum, kinetic energy, and gamma
+    df["PT"] = np.sqrt( pow(df["Px"], 2) + pow(df["Py"], 2) ) 
+    df["EkT"] = np.sqrt(pow(df["PT"], 2) + pow(m_0, 2)) - m_0
+    df["gammaT"] = df["EkT"]/m_0 + 1 
+
+    df["LorentzRadius"] = df["gammaT"] *  (df["PT"] / (df["Sign"] * e * df["Bz"]) ) * (1e6 * e / c) * 1e3 # MeV/c -> J and m -> mm
+
+    # Calculate the helical center 
+    # We a looking into the helix, it spirals towards us
+    # This bit came from ChatGPT, I need to think about it more but it seems to work when testing against the GUI...
+    # In particular, I don't understand the signs. 
+    # You adjust the x, y coordinates based on the radius of curvature, scaled according to the contribution of Px, Py to the total transverse momentum.
+    df["HelixX"] = df["x"] + df["LorentzRadius"] * df["Px"] / df["PT"] # adjust x 
+    df["HelixY"] = df["y"] - df["LorentzRadius"] * df["Py"] / df["PT"] # adjust y 
+    df["HelixZ"] = df["z"]  # Assuming the magnetic field is along the z-axis
+
+    df["HelixR"] = np.sqrt( pow(df["HelixX"], 2) + pow(df["HelixY"], 2) )
+
+    return # df
+
+
 # --------------------
 # Plotting
 # --------------------
@@ -263,14 +312,16 @@ import matplotlib.pyplot as plt
 
 def ProfileX(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=1.0): 
    
-    # Create 2D histogram
+    # Create 2D histogram with one bin on the y-axis 
     hist, xEdge_, yEdge_ = np.histogram2d(x, y, bins=[nBinsX, nBinsY], range=[[xmin, xmax], [ymin, ymax]])
+
+    # hist, xEdge_ = np.histogram(x, bins=nBinsX, range=[xmin, xmax]) # , [ymin, ymax]])
 
     # bin widths
     xBinWidths = xEdge_[1]-xEdge_[0]
 
     # Calculate the mean and RMS values of each vertical slice of the 2D distribution
-    xSlice_, xSliceErr_, ySlice_, ySliceErr_ = [], [], [], []
+    xSlice_, xSliceErr_, ySlice_, ySliceErr_, ySliceRMS_ = [], [], [], [], []
 
     for i in range(len(xEdge_) - 1):
 
@@ -286,11 +337,12 @@ def ProfileX(x, y, nBinsX=100, xmin=-1.0, xmax=1.0, nBinsY=100, ymin=-1.0, ymax=
 
         # Central values are means and errors are standard errors on the mean
         xSlice_.append(np.mean(xSlice))
-        xSliceErr_.append(xSlice.std() / len(xSlice))
+        xSliceErr_.append(stats.sem(xSlice)) # RMS/sqrt(n)
         ySlice_.append(ySlice.mean()) 
-        ySliceErr_.append(ySlice.std() / len(ySlice))
+        ySliceErr_.append(stats.sem(ySlice)) 
+        ySliceRMS_.append(np.std(ySlice))
 
-    return np.array(xSlice_), np.array(xSliceErr_), np.array(ySlice_), np.array(ySliceErr_)
+    return np.array(xSlice_), np.array(xSliceErr_), np.array(ySlice_), np.array(ySliceErr_), np.array(ySliceRMS_)
 
 import matplotlib.cm as cm
 from matplotlib.colors import ListedColormap
@@ -515,7 +567,7 @@ def PlotGraph(x, xerr, y, yerr, title=None, xlabel=None, ylabel=None, fout="scat
     plt.clf()
     plt.close()
 
-def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False, logY=False):
+def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None, ylabel=None, fout="hist.png", labels=None, legPos="upper right", NDPI=300, includeBlack=False, logY=False, legFontSize=12):
 
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -571,7 +623,7 @@ def Plot1DOverlay(hists, nbins=100, xmin=-1.0, xmax=1.0, title=None, xlabel=None
         ax.yaxis.offsetText.set_fontsize(14)
 
     # Add legend to the plot
-    ax.legend(loc=legPos, frameon=False, fontsize=12)
+    ax.legend(loc=legPos, frameon=False, fontsize=legFontSize)
 
     # Save the figure
     plt.savefig(fout, dpi=NDPI, bbox_inches="tight")

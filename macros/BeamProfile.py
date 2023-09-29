@@ -6,6 +6,7 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
+import h5py
 
 # Internal libraries
 import Utils as ut
@@ -232,8 +233,8 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     # Titles and names
     ntupleName = ntupleName.split("/")[1] 
     title = ut.GetLatexParticleName(particle) # 
-    if ntupleName[0] == "Z": title += ", Z = "+ntupleName[1:]+" mm"
-    else: title += ", "+ntupleName
+    if ntupleName[0] == "Z": title += ", Z = "+ntupleName[1:]+" mm" # title += ", Z = "+ntupleName[1:]+" mm"
+    else: title += ", "+ntupleName # ", "+ntupleName
 
     # Particle populations
     ut.BarChart(df["PDGid"], ut.particleDict, title, "", "Percentage / particle", fout="../img/"+g4blVer+"/BeamProfile/bar_ParticleFractionPecentage_"+ntupleName+"_"+config+".png", percentage=True)
@@ -253,11 +254,13 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     # Filter particles
     df = ut.FilterParticles(df, particle)
 
+    print(df.shape[0])
+
     # Need to translate position, based on where we are along the beamline
     df_trans = df 
 
     if ntupleName[:7] == "Coll_03":
-        # x is now z, shifted by z position of collimator 5
+        # x is now z, shifted by z position of collimator 3
         # param Coll_03_up_z=$MECO_G4_zTrans
         # param MECO_G4_zTrans=(5.00+2.929)*1000
         df_trans["x"] = df["z"] - (5.00+2.929)*1000 # 082
@@ -276,61 +279,44 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     df["R"] = np.sqrt( pow(df["x"],2) + pow(df["y"],2)) 
     # Tranvserse momentum 
     df["PT"] = np.sqrt( pow(df["Px"],2) + pow(df["Py"],2) ) 
+    # Helix parameters
+    ut.GetHelix(df)
 
-    # Radial postion of helical axis 
+    ut.Plot1D(df["P"], int(maxMom), 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=False, underOver=True)
 
-    # Radius of curvature in the field: R = p/qBsin(theta) * gamma. 
+    return
 
-    # p is lab frame tranverse momentum, if it's relativistic then there's a factor of gamma.
-    # B is the longitundinal magnetic field 
-    # q = e = +-1
-    # E_k=E-E_0=(gamma-1)*m_0*c^2 --> gamma - 1 = E_k / m_0 * c^2 --> gamma = E_k/m_0*c^2 + 1 --> gamma = E_k/m_0 + 1 (NL)
-    # E_k = E - E_0 = sqrt(p^2 + m_0^2) - m_0
-
-    # m_0 = 139.570 # pi+- rest mass in MeV/c^2
-    # e = 1.602e-19 # C
-    # c = 299792458 # m/s
-
-    # # Longi magnetic field
-    # # df["B"] = np.sqrt( pow(df["Bx"],2) + pow(df["By"],2) + pow(df["Bz"],2) ) 
-
-    # # Transverse kinetic energy 
-    # df["EkT"] = np.sqrt(pow(df["PT"], 2) + pow(m_0, 2)) - m_0
-
-    # # Gamma
-    # df["gamma"] = df["EkT"]/m_0 + 1 
-
-    # # Dot product of B and PT (it's zero)
-    # df["BdotP"] = 0 * df["Px"] + 0 * df["Py"] + df["Bz"] * 0
-    # # Calculate magnitudes of P and B vectors
-    # df["PTmag"] = np.linalg.norm(df[["Px", "Py"]], axis=1)
-    # df["Bzmag"] = np.linalg.norm(df[["Bz"]], axis=1)
-    # df["Theta"] = np.arccos(df["BdotP"] / (df["PTmag"] * df["Bzmag"])) # 
-
-    # # Get the charge sign
-    # df["Sign"] = df["PDGid"].apply(lambda x: math.copysign(1, x))
-
-    # df["R_helix"] = ( df["PT"] * df["gamma"] ) / ( df["Sign"] * e * df["Bz"] * np.sin(df["Theta"]) ) * (1e6 * e / c) * 1e3 
-
-    # df["R_helix"] = df["R_helix"]
-
-    # print(df["R_helix"])
-
-    # Momentum and radial distributions
-    ut.Plot1D(df["P"], 500, 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
-    ut.Plot1D(df[df["R"] > 100]["P"], 500, 0, maxMom, title+", R > 100 mm", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_above100mm_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
-    # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
+    # ut.Plot1D(df["R"]/df["P"], 250, 0, 1, title, "R/p [mm/MeV]", "Counts", "../img/"+g4blVer+"/BeamProfile/h1_rad_over_mom_"+ntupleName+"_"+particle+"_"+config+".png")
+    # ut.Plot1D(np.log(df["R"]/df["P"]), 250, -10, 10, title, "Log(R/p)", "Counts", "../img/"+g4blVer+"/BeamProfile/h1_log_rad_over_mom_"+ntupleName+"_"+particle+"_"+config+".png")
+    # ut.Plot2D(df[(np.log(df["R"]/df["P"]) > -.5) & (np.log(df["R"]/df["P"]) < .5)]["P"], df[(np.log(df["R"]/df["P"]) > -.5) & (np.log(df["R"]/df["P"]) < .5)]["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_cut_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # return
 
+    # ut.Plot1D(df[(df["R"] > 100)]["P"], 500, 0, maxMom, title+", R > 100 mm", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_above100mm_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
+
+    # ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    # ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, "Entering TS collimator 1", "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    # ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, "Entering TS collimator 3", "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    # ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, "Entering TS collimator 5", "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    ut.Plot3D(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, maxMom, "Entering ST", "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_"+ntupleName+"_"+particle+"_"+config+".png", contours=False)
+    Plot3DCustomCircle(df["x"], df["y"], df["P"], 100, -300, 300, 100, -300, 300, 600, title, "x [mm]", "y [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/h3_XYMom_wcirc_"+ntupleName+"_"+particle+"_"+config+".png", contours=False, radius=200)
+    # Momentum and radial distributions
+    # ut.Plot1D(df["P"], 500, 0, maxMom, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
+
+    ut.Plot1D(df[df["R"] > 100]["P"], 500, 0, maxMom, title+", R > 100 mm", "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_above100mm_"+ntupleName+"_"+particle+"_"+config+".png", errors=True, peak=True)
+    # ut.Plot1DWithGaussFit(df["P"], 500, 0, maxMom, 100, 85, 50, 50, 100, title, "Momentum [MeV]", "Counts / MeV", "../img/"+g4blVer+"/BeamProfile/h1_mom_wGausFit_"+ntupleName+"_"+particle+"_"+config+".png", errors=True) # , peak=True)
+
     ut.Plot1D(df["R"], 500, 0, 500, title, "Radial position [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
     ut.Plot1D(df[df["P"] < 50]["R"], 250, 0, 250, title+", <50 MeV", "Radius [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_rad_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+
+    ut.Plot1D(df["HelixR"], 500, 0, 500, title, "Radial position of helical axis [mm]", "Counts / mm", "../img/"+g4blVer+"/BeamProfile/h1_helix_rad_"+ntupleName+"_"+particle+"_"+config+".png", errors=True)
+
+    # return
 
     # Tranvserse position
     # ut.Plot2D(df["x"], df["y"], 400, -200, 200, 400, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
     ut.Plot2D(df["x"], df["y"], 40, -200, 200, 40, -200, 200, title, "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_"+ntupleName+"_"+particle+"_"+config+".png") 
     ut.Plot2D(df[df["P"] < 50]["x"], df[df["P"] < 50]["y"], 40, -200, 200, 40, -200, 200, title+", <50 MeV", "x [mm]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsY_below50MeV_"+ntupleName+"_"+particle+"_"+config+".png") 
-
 
     # Make 2D dispersion plots
     ut.Plot2D(df["P"], df["x"], 250, 0, 250, 440, -220, 220, title, "Momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMom_"+ntupleName+"_"+particle+"_"+config+".png") 
@@ -346,9 +332,17 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     ut.Plot2D(df["Pz"], df["x"], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "x [mm]", "../img/"+g4blVer+"/BeamProfile/h2_XvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png")
     ut.Plot2D(df["Pz"], df["y"], 400, -200, 200, 440, -220, 220, title, "Longitundinal momentum [MeV]", "y [mm]", "../img/"+g4blVer+"/BeamProfile/h2_YvsMomZ_"+ntupleName+"_"+particle+"_"+config+".png")
 
-    ut.Plot2D(df["P"], df["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_"+ntupleName+"_"+particle+"_"+config+".png")
+    ut.Plot2D(df["P"], df["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_"+ntupleName+"_"+particle+"_"+config+".png")
     ut.Plot2D(df["PT"], df["R"], 200, 0, 200, 210, 0, 210, title, "Tranverse momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMomT_"+ntupleName+"_"+particle+"_"+config+".png")
 
+    ut.Plot2D(df["P"], df["HelixR"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radial position of helical axis [mm]", "../img/"+g4blVer+"/BeamProfile/h2_helix_rad_vs_mom_"+ntupleName+"_"+particle+"_"+config+".png")
+    # ut.Plot2D(df["PT"], df["R"], 200, 0, 200, 210, 0, 210, title, "Tranverse momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMomT_"+ntupleName+"_"+particle+"_"+config+".png")
+
+    # P/R and Log(P/R)
+
+    ut.Plot1D(df["R"]/df["P"], 250, 0, 1, title, "R/p [mm/MeV]", "Counts", "../img/"+g4blVer+"/BeamProfile/h1_rad_over_mom_"+ntupleName+"_"+particle+"_"+config+".png")
+    ut.Plot1D(np.log(df["R"]/df["P"]), 250, -10, 10, title, "Log(R/p)", "Counts", "../img/"+g4blVer+"/BeamProfile/h1_log_rad_over_mom_"+ntupleName+"_"+particle+"_"+config+".png")
+    # ut.Plot2D(df[(np.log(df["R"]/df["P"]) > -5.0) & (np.log(df["R"]/df["P"]) < 2.5)]["P"], df[(np.log(df["R"]/df["P"]) > -5.0) & (np.log(df["R"]/df["P"]) < -2.5)]["R"], 250, 0, 250, 210, 0, 210, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_cut_"+ntupleName+"_"+particle+"_"+config+".png")
     # ---- Special plots for illustration ----
 
     Plot2DCustomBox(df["P"], df["R"], 250, 0, 250, 200, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RvsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
@@ -380,19 +374,53 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
     # Plot2DCustomBox(df["P"], df["R"], 25, 0, 25, 20, 0, 200, title, "Momentum [MeV]", "Radius [mm]", "../img/"+g4blVer+"/BeamProfile/h2_RadiusVsMom_wline_"+ntupleName+"_"+particle+"_"+config+".png")
 
     # xProfile of momentum versus radius
-    x_, xerr_, y_, yerr_ = ut.ProfileX(df["P"], df["R"], 250, 0, 250, 200, 0, 200)
-    ut.PlotGraph(x_, xerr_, y_, yerr_, title, "Radius [mm]", "Momentum [MeV]", "../img/"+g4blVer+"/BeamProfile/px_RadiusVsMom_"+ntupleName+"_"+particle+"_"+config+".png")
+    # x_, xerr_, y_, yerr_, yrms_ = ut.ProfileX(df["P"], df["R"], 250, 0, 250, 200, 0, 200)
+    x_, xerr_, y_, yerr_, yrms_ = ut.ProfileX(df[df["P"]<=150]["R"], df[df["P"]<=150]["P"], 200, 0, 200, 250, 0, 250)
+
+    ut.PlotGraph(x_, xerr_, y_, yerr_, title, "Momentum [MeV]", "Radial position [mm]", "../img/"+g4blVer+"/BeamProfile/px_RadiusVsMom_"+ntupleName+"_"+particle+"_"+config+".png")
+
+    # Create an HDF5 file
+    h5File = "../h5/"+g4blVer+"/BeamProfile/dispersion_reversed_150MeVcut_"+ntupleName+"_"+particle+"_"+config+".h5"
+
+    with h5py.File(h5File, "w") as hf:
+        # Create datasets for x_, xerr_, y_, and yerr_
+        hf.create_dataset("x_", data=x_)
+        hf.create_dataset("xerr_", data=xerr_)
+        hf.create_dataset("y_", data=y_)
+        hf.create_dataset("yerr_", data=yerr_)
+        hf.create_dataset("yrms_", data=yrms_)
+
+    print("---> Written", h5File)
 
     return
 
 def main():
 
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "mu-", 600)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1965", "pi-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "pi-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1965", "pi-_and_mu-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "pi-_and_mu-", 1250)
 
+    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True)
+
+    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop", "e-", 100)
+    RunBeamProfile("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel", "VirtualDetector/prestop", "e-", 100)
+
+
+
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar", "VirtualDetector/prestop", "e-", 1250)
+
+
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "mu-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "mu-", 1250)
+    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
+
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-_and_mu-", 600)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn", "pi-_and_mu-", 300)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi-_and_mu-", 150)
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop", "pi-_and_mu-", 150)
     # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-")
-    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan", "NTuple/Z1965", "pi-")
+    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan", "NTuple/Z1965", "pi-")
 
     # RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
     # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
