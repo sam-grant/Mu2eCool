@@ -1,3 +1,5 @@
+## /macros
+
 * __AbsorberCooling.py__: Analyse the momentum change before/after the absorber material within Mu2e geometry.
 
 * __BeamFlux.py__: Analyse the flux of muons through each virtual detector through experiment, creates a .csv file recording the muon flux (included stopped muons).
