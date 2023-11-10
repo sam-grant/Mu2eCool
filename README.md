@@ -13,8 +13,8 @@ Analysis described in [DocDB-46682](https://mu2e-docdb.fnal.gov/cgi-bin/sso/Show
 ## Directories
 
 * [__/macros__](./macros/README.md) : Python macros, for analysing ROOT NTutple output from G4beamline.
-* [__/scripts__](./scripts/README.md): Bash scripts, primarily for locally parallelising G4beamline jobs. Copied to an uncommited /run directory.
-* [__/sim__](./sim/README.md): G4beamline input files. 
+* [__/scripts__](./scripts/README.md): Bash scripts, primarily for locally parallelising G4beamline jobs. 
+* [__/sim__](./sim/README.md): G4beamline beam/geometry files. 
 
 
 
