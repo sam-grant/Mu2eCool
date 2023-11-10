@@ -1,3 +1,4 @@
+## /scripts
 
 * __runPrimary.sh__: Run a primary Mu2E.in job, called in submitPrimary.sh.
 
