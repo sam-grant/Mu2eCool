@@ -1,3 +1,5 @@
+# Samuel Grant 2023
+
 nGifs=3
 gif1="../gif/h2_RadiusVsMom_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif"
 gif2="../gif/h2_RadiusVsPT_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif"

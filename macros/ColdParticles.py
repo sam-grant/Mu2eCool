@@ -1,4 +1,4 @@
-# Write cooled off muons and pions to an ntuple
+# Samuel Grant 2023
 
 # External libraries
 import pandas as pd
@@ -228,11 +228,7 @@ def RunColdParticles(config, foutName):
 
 def main():
 
-    # RunColdParticles("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel", "Mu2E_Absorber3_l40mm_r100mm_fromZ1850_parallel_ColdParticles")
-    # RunColdParticles("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel")
-    
-    RunColdParticles("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticles")
-    # RunColdParticles("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar_ColdParticles")
-
+    RunColdParticles("Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_noColl_noPbar", "Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_noColl_noPbar_ColdParticles")
+  
 if __name__ == "__main__":
     main()

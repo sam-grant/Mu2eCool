@@ -1,4 +1,4 @@
-# Full Mu2e 
+# Mu2e with minimal sheidling for the purpose of illustration
 
 # $Id$
 # $Date$
@@ -646,20 +646,7 @@ endif
 #                                Absorbers
 # ****************************************************************************
 
-param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/AbsorberD.txt 
-include /Users/sgrant/mu2e/Mu2eCool/sim/AbsorberD.txt 
-
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber1.txt 
-
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber2.txt 
-
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.txt 
-
-# param -unset Absorber_File=/Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt 
-# include /Users/sgrant/mu2e/Mu2eCool/sim/Absorber3.1.txt 
+include /Users/sgrant/mu2e/Mu2eCool/sim/PSRing.txt 
 
 # ****************************************************************************
 #                                Proton Beam

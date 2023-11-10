@@ -1,25 +1,2 @@
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h2_RadiusVsMomAll_Z*_no_proton_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_RadiusVsMomAll_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h2_ThetaVsPz_Z*_no_proton_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_ThetaVsPz_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h2_ThetaVsPT_Z*_no_proton_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_ThetaVsPT_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h2_ThetaVsMom_Z*_no_proton_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_ThetaVsMom_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h2_ThetaVsRad_Z*_no_proton_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_ThetaVsRad_Z265_Z3465_no_proton_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h3_XYMom_Z*_mu+-_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h3_XYMomAll_Z265_Z3465_mu+-_Mu2E_1e6events_ManyZNTuple1.gif
-# convert -delay 50 -loop 0 `ls ../img/v3.06/RadiusVsMomentumStudy/h3_XYMom_Z*_pi+-_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h3_XYMomAll_Z265_Z3465_pi+-_Mu2E_1e6events_ManyZNTuple1.gif
-#convert -delay 50 -loop 0 `ls ../img/v3.06/AnaRadius/h2_combined_RadiusVsMom_Ana_Z*_pi+-_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/h2_combined_RadiusVsMom_Ana_Z265_Z3465_pi+-_Mu2E_1e6events_ManyZNTuple1.gif 
-#
-
-# ver="v3.06"
-# dir="PSZScan/CombinedImgs"
-# name="combo_XYRvsMomZ" # combo_XYRvsMomZ" # combo_XY"
-# particle="pi+-" # "pi+-" # "mu+-"
-# config="${name}_${particle}_Mu2E_1e6events_ManyZNTuple1"
-
-# convert -delay 50 -loop 0 `ls ../img/${ver}/${dir}/${name}_Z*_${particle}_Mu2E_1e6events_ManyZNTuple1.png | sort -V` ../gif/${name}_${particle}_Z265_Z3465_Mu2E_1e6events_ManyZNTuple1.gif 
-
-# echo "../gif/${name}_${particle}_Z265_Z3465_Mu2E_1e6events_ManyZNTuple1.gif"
-
-# convert -delay 50 -loop 0 `ls ../img/v3.06/Mu2eZScan/CombinedImgs/combo_XY_Z*_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.png | sort -V` ../gif/combo_XY_Z1850-Z4250_pi-_NoAbsorberVsAbsorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03.gif
-
 convert -delay 45 -loop 0 `ls ../img/v3.06/PSZScan/CombinedImgs/combo_rad_vs_mom_Z*_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.png | sort -V` ../gif/combo_rad_vs_mom_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.gif
 echo "../gif/combo_rad_vs_mom_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.gif"
-# ../img/v3.06/PSZScan/CombinedImgs/combo_rad_vs_mom_Z1865_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan.png

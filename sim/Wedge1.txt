@@ -1,3 +1,0 @@
-tubs MuCool innerRadius=120 outerRadius=174.625 length=100 \
-material=Be initialPhi=0. finalPhi=360.0 color=0,0,1 kill=0
-place MuCool x=0. z=2210

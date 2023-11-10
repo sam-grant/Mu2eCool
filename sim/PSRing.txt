@@ -1,0 +1,26 @@
+# Samuel Grant 2023
+# Employ a ring design with inner radius of 100 mm, outer radius of 200 mm (the warm bore of the PS)
+
+# Centred on Z=1915 mm
+
+# param -unset ZPOSITION=1915
+# param -unset THICKNESS=65
+# param -unset INNER_RADIUS=110
+
+# Ring
+tubs Ring outerRadius=200 innerRadius=$INNER_RADIUS length=$THICKNESS \
+	material=Be initialPhi=0. finalPhi=360. color=0,1,1 kill=0 maxStep=50.e-3 
+place Ring x=0. z=$ZPOSITION 
+
+# Place two virtualdetectors to catch everything entering the front and back faces of the target 
+
+# This virtualdetector catches everything entering the target
+# direction; same dimensions in x-y as the target; make it green
+virtualdetector BeAbsorber_DetIn radius=200 length=1 color=0,1,0,0.3
+# Place it flush with the front face of the target
+place BeAbsorber_DetIn z=$ZPOSITION-$THICKNESS/2-1 format=rootExtended 
+
+# This virtualdetector catches everything exiting the target; make it red
+virtualdetector BeAbsorber_DetOut radius=200 length=1 color=1,0,1,0.3
+# Place it flush with the back face of the target
+place BeAbsorber_DetOut z=$ZPOSITION+$THICKNESS/2+1 format=rootExtended 

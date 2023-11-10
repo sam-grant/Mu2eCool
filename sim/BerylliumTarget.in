@@ -1,4 +1,6 @@
+# Samuel Grant 2023
 # pi- on a Be target
+# This was used originally to investigate a bug in g4bl-3.08
 
 param NEVENTS=1000
 

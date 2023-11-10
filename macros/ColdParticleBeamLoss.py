@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Write cooled off muons and pions to an ntuple
 
 # External libraries
@@ -467,27 +468,7 @@ def RunColdParticlesBeamLoss(config):
 
 def main():
 
-    # Second pass files are called ColdParticle by mistake 
-# 
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticle_beamloss")
-    RunColdParticlesBeamLoss("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_ColdParticle_beamloss_noColl_noPbar")
-
-    # RunColdParticlesBeamLoss("Mu2E_NoAbsorber_1e7events_parallel_fromZ1850_losses_0")
-    # RunColdParticlesBeamLoss("Mu2E_NoAbsorber_1e7events_parallel_fromZ1850_losses_noColl_noPbar_0")
-    
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss") 
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_check") 
-
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_noColl_noPbar")
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_noColl_noPbar_check")
-
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_noColl")
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_noColl_check")
-
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticle_beamloss_noPbar")
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticles_beamloss_noColl_noPbar") 
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticles_beamloss_noTSPbarWindow")
-    # RunColdParticlesBeamLoss("Mu2E_1e7events_ColdParticles_beamloss_noTSPbarWindow_noColl01")
+    RunColdParticlesBeamLoss("Mu2E_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles")
 
 if __name__ == "__main__":
     main()

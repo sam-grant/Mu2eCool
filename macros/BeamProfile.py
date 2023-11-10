@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Make beam profile plots at a zntuple or VD
 # Interested in the relationship between momentum and traverse space, for absorber study
 
@@ -396,75 +397,8 @@ def RunBeamProfile(config, ntupleName, particle, maxMom = 500):
 
 def main():
 
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1965", "pi-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "pi-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1965", "pi-_and_mu-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "pi-_and_mu-", 1250)
-
-    # RunCompareBeams(["Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar", "Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar"], [r"No\ absorber", r"With\ Absorber"], "Mu2E_1e7events_fromZ1850_parallel_NoAbsorberVsAbsorberD_l25mm_r110mm_noColl_noPbar", absorber=True)
-
-    RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop", "e-", 100)
-    RunBeamProfile("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel", "VirtualDetector/prestop", "e-", 100)
-
-
-
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar", "VirtualDetector/prestop", "e-", 1250)
-
-
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "mu-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_finePSZScan", "NTuple/Z1915", "mu-", 1250)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi-", 1250)
-
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-_and_mu-", 600)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn", "pi-_and_mu-", 300)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi-_and_mu-", 150)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "VirtualDetector/prestop", "pi-_and_mu-", 150)
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel", "NTuple/Z1850", "pi-")
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan", "NTuple/Z1965", "pi-")
-
-    # RunBeamProfile("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "NTuple/Z1850", "pi-", 600)
-    # g4beamline_Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03.root
-    
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetOut", "pi-", 600)
-    # RunBeamProfile("Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_01_DetIn", "pi-", 600)
-
-    # RunBeamProfile("Mu2E_1e7events_NoAbsorber_ManyZNTuple3_fromZ1850_parallel_noColl03", "NTuple/Z3550", "pi-", 600)
-    
-
-    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "no_proton", 300)
-    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "pi+-", 300)
-    # RunBeamProfile("Mu2E_1e6events_ManyZNTuple1", "NTuple/Z1965", "mu+-", 300)
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "no_proton", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "pi+-", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "mu+-", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "pi-", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ2265_parallel", "NTuple/Z2265", "mu-", 600)
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "pi+-", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "mu+-", 600)
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "NTuple/Z1850", "no_proton", 600)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_01_DetOut", "no_proton", 300)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "no_proton", 150)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel_noColl03", "VirtualDetector/Coll_03_DetMid", "no_proton", 150)
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/prestop", "no_proton", 150)
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi+-")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi+")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "pi-")
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_01_DetIn", "mu+-")
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+-")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu-")
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetOut", "mu+-")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu+")
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_03_DetIn", "mu-")
-
-    # RunBeamProfile("Mu2E_1e7events_fromZ1850_parallel", "VirtualDetector/Coll_05_DetOut", "mu+-")
+    RunBeamProfile("Mu2E_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850", "VirtualDetector/prestop", "e-", 100)
+    RunBeamProfile("Mu2E_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_noColl_noPbar", "VirtualDetector/prestop", "e-", 100)
 
 if __name__ == "__main__":
     main()

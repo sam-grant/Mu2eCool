@@ -1,3 +1,5 @@
+# Samuel Grant 2023
+
 # External libraries
 import uproot
 import numpy as np

@@ -1,5 +1,5 @@
+# Samuel Grant 2023
 # Common custom functions for plotting, reading data, and other things
-# Sam Grant (June 2023)
 
 # ---------------------------------
 # Calculations and value formatting

@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Summarise the overall flux of particles passing through each virtual detector in the experiment
 
 # External libraries
@@ -277,115 +278,7 @@ def RunMuonFlux(config):
 
 def main():
 
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l25mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l45mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l65mm_r90mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-
-    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l25mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l45mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l65mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-
-    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l45mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberD_l65mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-
-    RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel_noColl_noPbar") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    RunMuonFlux("Mu2E_1e7events_AbsorberD_l25mm_r110mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-
-
-
-
-
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_ColdParticles_beamloss")
-
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel_noColl_noPbar")
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l25mm_r100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l40mm_r85mm_fromZ1850_parallel_noColl03")
-
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03")
-    
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03")
-# ../ntuples/v3.06/g4beamline_Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03.root
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_partialPSZScan")
-    # RunMuonFlux("Mu2E_1e7events_ColdParticles_beamloss")
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber3Vacuum_lmm_r100mm_fromZ1850_parallel")
-
-
-    ####################
-
-    # RunMuonFlux("Mu2E_1e6events")
-    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_noColl03")
-
-    # RunMuonFlux("Mu2E_1e7events_AbsorberA_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_fromZ1850_parallel")
-
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l45mm_r90mm_fromZ1850_parallel", "L = 45 mm, $R_{i}$ = 90 mm")RunMuonFlux("Mu2E_1e7events_AbsorberB_l50mm_r100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberB_l20mm_r100mm_fromZ1850_parallel")
-
-    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l25mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunMuonFlux("Mu2E_1e7events_AbsorberC_l65mm_r127mm_fromZ1850_parallel") # , "L = 25 mm, $R_{i}$ = 90 mm")
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_100mm_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel")
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel_noColl03")
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_100mm_fromZ1850_parallel_noColl03")
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_100mm_fromZ1850_parallel_noColl03")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel_noColl03")
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_20mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_20mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_20mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_20mm_fromZ1850_parallel_noColl03") 
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_30mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_30mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_30mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_30mm_fromZ1850_parallel_noColl03") 
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_55mm_fromZ1850_parallel") 
-
-    # RunMuonFlux("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_l55mm_r85mm_fromZ1850_parallel_noColl03") 
-    # RunMuonFlux("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03")
-    
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl03_noPbarWindow")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_withColl_withPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl_noPbar")
-
-    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_check")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_rseedEventNumber_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_rseedEventNumber_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl03")
-    # RunMuonFlux("Mu2E_1e7events_fromZ1850_parallel_doubleCheck")
-    # RunMuonFlux("Mu2E_1e7events_NoAbsorber_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3_fromZ1850_parallel_noColl_noPbar")
-    # RunMuonFlux("Mu2E_1e7events_Absorber3.1_fromZ1850_parallel_noColl_noPbar")
+    RunMuonFlux("Mu2E_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_noColl_noPbar") 
 
 if __name__ == "__main__":
     main()

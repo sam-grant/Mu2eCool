@@ -1,4 +1,5 @@
-# Work out the gradient required for a TS3 wedge
+# Samuel Grant 2023
+# Attempt to work out the gradient required for a TS3 wedge
 # Slope of <y> vs <mom>
 
 import uproot

@@ -1,0 +1,7 @@
+# Samuel Grant 2023
+
+# Everything in
+g4bl Mu2E_AbsorberStudy.in Absorber=2 Make_BeamLossNTuple=1 histoFile=../ntuples/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles.root Beam_File=../beamFiles/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles_bm.txt No_Pbar_Window=0 No_Coll=0 | tee ../logs/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles.log
+
+# Everything out
+g4bl Mu2E_AbsorberStudy.in Absorber=2 Make_BeamLossNTuple=1 histoFile=../ntuples/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles_noColl_noPbar.root Beam_File=../beamFiles/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles_bm.txt No_Pbar_Window=1 No_Coll=1 | tee ../logs/v3.06/g4beamline_Mu2E_AbsorberStudy_1e7events_PSRingWedge_l25mm_r110mm_fromZ1850_ColdParticles_noColl_noPbar.log

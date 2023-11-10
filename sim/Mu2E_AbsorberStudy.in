@@ -1,11 +1,12 @@
-# Full Mu2e with Be target behind production target
+# Samuel Grant 2023
+# Full Mu2e, adjusted for absorber study
 
 # $Id$
 # $Date$
 # $Author$
 
-param -unset First_Event=1
-param -unset Num_Events=100
+param -unset First_Event=1 
+param -unset Num_Events=100000
 
 #
 #    G4Beamline input file for running on local machines and GRID cluster.
@@ -162,23 +163,19 @@ material TS_Graphite density=1.75 C,1.0
 
 # physics QGSP_BERT
 # physics QGSP_BERT_HP
+physics ShieldingM # Recommended by Rob
 
-physics ShieldingM 
+# Kill neutral particles, neutrons, gammas. Speeds things up by at least 2x. 
 
-# Kill neutral particles, neutrons, gammas, and electrons. Speeds things up by at least 2x. 
-trackcuts kill=neutron,anti_neutron,gamma,e+,e-
-
-# trackcuts keep=proton,pi-,pi+,mu-,mu+
-# trackcuts keep=pi-,pi+,mu-,mu+
-# particlecolor pi-=$Blue 
-# particlecolor mu-=$Red
-# particlecolor proton=$Green 
-# particlecolor pi+=$Purple 
-# particlecolor pi-=$Orange 
-# particlecolor mu+=$Blue
-# particlecolor mu-=$Red
+trackcuts kill=neutron,anti_neutron,gamma
 
 muminuscapturefix neutronMeanNumber=0.277 neutronMeanEnergy=20.07
+
+# ****************************************************************************
+#                                Z-plane demo 
+# ****************************************************************************
+
+# include /Users/sgrant/mu2e/g4bl/sim/ZPlaneDemo.txt
 
 # ****************************************************************************
 #                                Set the kill parameter on various shielding
@@ -193,7 +190,6 @@ param -unset Muon_Dump_kill=0
 param -unset CRV_Shielding=0
 
 param -unset Proton_Dump_kill=1
-
 
 # ****************************************************************************
 #                                Tracking Setup  
@@ -223,11 +219,8 @@ if $Pretty_Pictures==1
 else
    trackcuts kineticEnergyCut=0.0 \
              kill=nu_mu,anti_nu_mu,nu_e,anti_nu_e \ 
-         maxTime=1000000000
+             maxTime=1000000000
 endif
-
-
-
 
 # ****************************************************************************
 #                           Beam Tracing Configuration
@@ -251,10 +244,19 @@ endif
 # interesting event with the same Random Number that it(event) had in 
 # previous run
 
-param -unset Random_Seed=Time
+# EventNumber is the default and permits events to be re-run; None does not re-seed the PRNG at each event, and Time is like None after seeding with the time of day in microseconds; Set (Now) seeds the generator immediately with the value of the second argument (a long), and then acts like None.
 
+# param -unset Random_Seed=Time # Time of day in us
+
+# Set seed to 12345 for debugging 
+# param -unset Random_Seed=Set 
+# randomseed $Random_Seed 12345
+
+# Set seed to EventNumber (default)
+# Keeps things consitent when regenerating from beam file 
+
+param -unset Random_Seed=EventNumber
 randomseed $Random_Seed
-
 
 # ****************************************************************************
 #                           Coordinate System
@@ -265,20 +267,18 @@ randomseed $Random_Seed
 param MECO_G4_xTrans=-(2.929+1.950/2.0)*1000
 param MECO_G4_zTrans=(5.00+2.929)*1000
 
-
 # ****************************************************************************
 #                                Proton Beam Stop
 # ****************************************************************************
 # Includes extinction monitor.
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/GeometryParameters.txt
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/PS_Proton_Beam_Stop.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/GeometryParameters.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/PS_Proton_Beam_Stop.txt
 param -unset UsePrimaryBeam=0
 if $UsePrimaryBeam==1
   param PSshield_Entrance=1
-  include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/ProtonBeam.txt
+  include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/ProtonBeam.txt
 endif
-
 
 # ****************************************************************************
 #                                Walls, Floor, Ceiling
@@ -286,14 +286,12 @@ endif
 # The default walls, floor and ceiling are invisible.
 # If you would like to see everything, define Invisible_Walls parameter to 0
 param -unset Invisible_Walls=1
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Walls_Floors_9_16_13.txt
-
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Walls_Floors_9_16_13.txt
 
 # ****************************************************************************
 #                                Target hall air volume
 # ****************************************************************************
-#include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/TargetHall.txt
-
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/TargetHall.txt
 
 # ****************************************************************************
 #                            Production Solenoid
@@ -309,16 +307,16 @@ param -unset Use_Field=1
 param -unset Generate_Fieldmap=0
 param -unset Use_External_Field=0
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Mu2e_Mau9_Coils.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Mu2e_Mau9_Coils.txt
 
 if $Use_Field==1
    if $Generate_Fieldmap==1
-      include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Generated_Field.txt
+      include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Generated_Field.txt
    
    else
 
       fieldmap PSMagneticField  \
-               file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PSMap.txt
+               file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PSMap.txt
  
       place PSMagneticField \
             x=-3904.0 \
@@ -326,7 +324,7 @@ if $Use_Field==1
             z=7929.0
  
       fieldmap DSMagneticField \
-               file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/DSMap.txt
+               file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/DSMap.txt
  
       place DSMagneticField \
             x=-3904.0 \
@@ -334,7 +332,7 @@ if $Use_Field==1
             z=7929.0
  
       fieldmap TSuMagneticField \
-               file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/TSuMap.txt
+               file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/TSuMap.txt
  
       place TSuMagneticField \
             x=-3904.0 \
@@ -342,7 +340,7 @@ if $Use_Field==1
             z=7929.0
  
       fieldmap TsdMagneticField \
-               file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/TSdMap.txt
+               file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/TSdMap.txt
  
       place TsdMagneticField \
             x=-3904.0 \
@@ -351,7 +349,7 @@ if $Use_Field==1
    
       if $Use_External_Field==1
             fieldmap ExtMonUCIAreaMagneticField \
-                file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/ExtMonUCIAreaMap.txt
+                file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/ExtMonUCIAreaMap.txt
             
             place ExtMonUCIAreaMagneticField \
                 x=-3904.0 \
@@ -359,7 +357,7 @@ if $Use_Field==1
                 z=7929.0
             
             fieldmap ProtonDumpAreaMagneticField \
-                file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/ProtonDumpAreaMap.txt
+                file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/ProtonDumpAreaMap.txt
             
             place ProtonDumpAreaMagneticField \
                 x=-3904.0 \
@@ -367,7 +365,7 @@ if $Use_Field==1
                 z=7929.0
             
             fieldmap PStoDumpAreaMagneticField \
-                file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PStoDumpAreaMap.txt
+                file=/Users/sgrant/mu2e/G4BeamlineScripts/DataFiles/BFieldMaps/GA05/PStoDumpAreaMap.txt
             
             place PStoDumpAreaMagneticField \
                 x=-3904.0 \
@@ -383,8 +381,7 @@ endif
 ## This is used to output the magnetic field along the reference line 
 ## through the center of the solenoidal and torroidal coils.
 
-#probefield file=/Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/FieldProbePoints.txt
-
+#probefield file=/Users/sgrant/mu2e/G4BeamlineScripts/Geometry/FieldProbePoints.txt
 
 # ****************************************************************************
 #                              Electron Beam Stop
@@ -398,10 +395,9 @@ endif
 param -unset MECO_eplug=0
 
 if $MECO_eplug==1
-   include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Electron_Beam_Stop.txt
+   include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Electron_Beam_Stop.txt
 
 endif      
-
 
 # ****************************************************************************
 #           Transport Solenoid and Detector Solenoid Cyrostats
@@ -421,10 +417,9 @@ endif
 param -unset Use_Cryostat=1
 
 if $Use_Cryostat==1
-  include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/TS_Cryostat.txt
-  include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Cryostat.txt
+  include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/TS_Cryostat.txt
+  include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_Cryostat.txt
 endif
-
 
 # ****************************************************************************
 #                         Production Solenoid Shielding
@@ -432,37 +427,36 @@ endif
 # Use the Bronze shielding design- P.Kasper
 #        
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/PScryostat.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/PScryostat.txt
 
 # ****************************************************************************
 #                    CRV Shielding 
 # ****************************************************************************
 #
  
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/CRV_Shielding.txt
-# include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/PS-TS_Shield.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/CRV_Shielding.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/PS-TS_Shield.txt
 
 # ****************************************************************************
 #                         Detector Solenoid Neutron Shield
 # ****************************************************************************
 # From Dave Hedin 5-23-2013 
 
-
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Neutron_Shield.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_Neutron_Shield.txt
 
 # ****************************************************************************
 #                         Detector Solenoid Proton Absorber
 # ****************************************************************************
 # From Dave Hedin 5-23-2013 
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Proton_Absorber.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_Proton_Absorber.txt
 
 # ****************************************************************************
 #                         Muon Beamline Crystal Monitor 
 # ****************************************************************************
 # From Dave Hedin 5-23-2013- Placeholder for now until studies done
 
-#include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_STM_Shield.txt
+#include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_STM_Shield.txt
 
 # ****************************************************************************
 #                                 Cosmic Ray Veto
@@ -477,11 +471,42 @@ include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Proton_A
 param -unset Use_Scin_Det=0
 
 if $Use_Scin_Det==1
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/CRV_10_8_13.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/CRV_10_8_13.txt
 else
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/CRV_10_8_13_noVD.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/CRV_10_8_13_noVD.txt
 endif
 
+# ****************************************************************************
+#                      TS collimator and pbar window controls 
+# ****************************************************************************
+
+# Note: there is a "TS_Collimator_kill" parameter already available, I didn't notice
+
+param -unset No_Coll=0
+param -unset No_Pbar_Window=0
+
+param -unset No_PS_Pbar_Window=0
+param -unset No_TS_Pbar_Window=0
+param -unset No_TS_Pbar_Wedge=0
+param -unset No_Coll_01=0
+param -unset No_Coll_03=0
+param -unset No_Coll_05=0
+
+if $No_Coll==1
+
+    param No_Coll_01=1
+    param No_Coll_03=1
+    param No_Coll_05=1
+
+endif
+
+if $No_Pbar_Window==1
+
+    param No_PS_Pbar_Window=1
+    param No_TS_Pbar_Window=1
+    param No_TS_Pbar_Wedge=1
+
+endif
 
 # ****************************************************************************
 #                                Transport Solenoid 
@@ -491,8 +516,7 @@ endif
 #        "Collimators Design" 
 #        Dob-db 1044-v1, Nikolai Andreev, 8/17/2010
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/TS_Collimators.txt
-
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/TS_Collimators.txt
 
 # ****************************************************************************
 #                                Stopping Target
@@ -503,8 +527,7 @@ include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/TS_Collimat
 
 param -unset Use_Stopping_Target=1
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Stopping_Target.txt
-
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Stopping_Target.txt
 
 # ****************************************************************************
 #                                Tracker
@@ -517,13 +540,13 @@ include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Stopping_Ta
 param -unset tracker=3
 
 if $tracker==1 
-   include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/MECO_Tracker.txt 
+   include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/MECO_Tracker.txt 
 
 elseif $tracker==2
-       include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/T_Tracker_Straws.txt 
+       include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/T_Tracker_Straws.txt 
 
 elseif $tracker==3
-#       include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/T_Tracker_Planes.txt 
+#       include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/T_Tracker_Planes.txt 
 # it's full of geometry collisions!
 
 endif
@@ -534,17 +557,15 @@ endif
 # V. Khalaytan Oct 2013
 #
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Calorimeter_Discs.txt 
-
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Calorimeter_Discs.txt 
 
 # ****************************************************************************
 #                                Muon Beam Dump
 # ****************************************************************************
 # From Dave Hedin 3-2017  default is maybe final version
 
-#include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Muon_Beam_Dump_n14.txt
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Muon_Beam_Dump.txt
-
+#include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_Muon_Beam_Dump_n14.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/DS_Muon_Beam_Dump.txt
 
 # ****************************************************************************
 #                              Proton Target
@@ -583,39 +604,49 @@ include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/DS_Muon_Bea
 param -unset Use_Proton_Target=5
 
 if $Use_Proton_Target==3
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Bicycle.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Bicycle.txt
 
 elseif $Use_Proton_Target==4
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_W.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_W.txt
 
 elseif $Use_Proton_Target==5
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_W.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_W.txt
 
 elseif $Use_Proton_Target==6
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_RAL.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_RAL.txt
 
 elseif $Use_Proton_Target==7
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_RAL_15066.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_RAL_15066.txt
     # This defaults to the Tier 1 milestone target
 
 elseif $Use_Proton_Target==8
     # Hayman 1
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Hayman1.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Hayman1.txt
 
 elseif $Use_Proton_Target==9
     # Hayman 2
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Hayman2.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target_Hayman2.txt
 
 else
-    include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Proton_Target.txt
+    include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Proton_Target.txt
 
 endif
 
 # ****************************************************************************
-#                                Beryllium Target
+#                                Absorbers/degraders
 # ****************************************************************************
 
-# include /Users/samuelgrant/Documents/mu2e/g4bl/sim/PS_BerylliumTarget.txt
+param -unset Absorber=0
+
+param -unset ZPOSITION=1915
+param -unset THICKNESS=25
+param -unset INNER_RADIUS=110
+
+if $Absorber==1
+    include /Users/sgrant/mu2e/Mu2eCool/sim/PSRing.txt
+elseif $Absorber==2
+    include /Users/sgrant/mu2e/Mu2eCool/sim/PSRingWedge.txt  
+endif
 
 # ****************************************************************************
 #                                Proton Beam
@@ -652,19 +683,29 @@ endif
 param -unset READ_Beam_File=0
 param -unset Use_Basic_Det=1
 
+param -unset Beam_File=/Users/sgrant/mu2e/Mu2eCool/beamFiles/v3.06/g4beamline_Mu2E_1e7events_Z1850_bm.txt
+
 # Disable basic detectors for stage 2 to reduce the file size. 
 # Enable by setting Use_Basic_Det=1
 
+# nEvents should be set to an abitrarily high number for reading from a txt file 
+# Thing to consider:
+# Secondary tracks in the z-plane are reset to primaries, so 
+# if you use the same number of events as was used to generate the sample then you will read a truncated subset of events
+
 if $READ_Beam_File==1
-   beam ascii nEvents=$Num_Events\
-    filename=/mu2e/data/users/oksuzian/Source_V21_ps.txt
-   param Use_Basic_Det=0
+   beam ascii nEvents=99999999 \
+    filename=$Beam_File 
+    param Use_Basic_Det=0
 
 elseif $READ_Beam_File==2
-   beam ascii nEvents=$Num_Events\
-        filename=/mu2e/data/users/oksuzian/Source_V21_bm.txt
-   param Use_Basic_Det=0
+   beam ascii nEvents=99999999 \ 
+        filename=$Beam_File
+        param Use_Basic_Det=0
 
+elseif $READ_Beam_File==3
+   beam ascii nEvents=99999999 \ 
+        filename=$Beam_File
 else
    beam gaussian \
         particle=proton \
@@ -676,6 +717,59 @@ else
         meanT=0.0 \
     sigmaT=$BsigmaT \
         rotation=X$BXangle,Y$BYangle
+endif
+
+# ****************************************************************************
+#                      newparticlentuple 
+# ****************************************************************************
+
+# Info about particles at creation
+
+param -unset Make_NewParticleNTuple=0
+
+if $Make_NewParticleNTuple==1
+    newparticlentuple NewParticles format=rootExtended
+endif
+
+# ****************************************************************************
+#                      beamlossntuple
+# ****************************************************************************
+
+# Info about particles at destruction
+
+param -unset Make_BeamLossNTuple=0
+if $Make_BeamLossNTuple==1
+    beamlossntuple BeamLoss format=rootExtended
+endif
+
+# ****************************************************************************
+#                      zntuples
+# ****************************************************************************
+
+param -unset Make_ZNtuple=1
+
+# PT position is 1764.5, place zntuple just in front of it at 1850
+
+if $Make_ZNtuple==1
+    # Main zntuple
+    zntuple BeamFile z=1850 format=rootExtended 
+endif
+
+# Useful for understanding the beamline
+
+param -unset Make_ManyZNTuple=0
+
+if $Make_ManyZNTuple==1
+    
+    # This one is for looking at particle populations from PT to TS1 
+    for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36
+        zntuple BeamFile z=1704.5+$i*50 format=rootExtended
+    endfor
+
+    # This one is for looking at the particle fractions along the beamline
+    # for i 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+    #     zntuple BeamFile z=1264.5+$i*500 format=rootExtended
+    # endfor
 
 endif
 
@@ -688,10 +782,10 @@ endif
 # one detector containing particle tracks when lost in stopping targets (1)
 # All data from those detectors would be in "g4beamline.root" output file
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Basic_Detectors.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Basic_Detectors.txt
 
 # Include the non-intrusive beam tracers here
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Beam_Tracers.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Beam_Tracers.txt
 
 # ****************************************************************************
 #                      Production Target Scanning PWCs
@@ -701,7 +795,7 @@ include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Beam_Tracer
 # multiwire -- it's a bare multiwire with no gas multiplication.
 # This is located just downstream of the protection collimator.
 
-include /Users/samuelgrant/Documents/mu2e/G4BeamlineScripts/Geometry/Beam_Scan_PWCs.txt
+include /Users/sgrant/mu2e/G4BeamlineScripts/Geometry/Beam_Scan_PWCs.txt
 
 # ****************************************************************************
 #                                  THE END

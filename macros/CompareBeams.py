@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # For comparing two beamlines
 # Takes two input files
 # Overlays the momentum distributions at each VD a particular particle species. 
@@ -74,9 +75,9 @@ def RunCompareBeams(config_, label_, name, absorber=False):
         # "NTuple/Z1850":  df_Z_,
         # # "VirtualDetector/BeAbsorber_DetIn": df_BeAbsorber_DetIn_,
         # # "VirtualDetector/BeAbsorber_DetOut": df_BeAbsorber_DetOut_,
-        # "VirtualDetector/Coll_01_DetIn": df_Coll_01_DetIn_,
+        "VirtualDetector/Coll_01_DetIn": df_Coll_01_DetIn_,
         # "VirtualDetector/Coll_01_DetOut": df_Coll_01_DetOut_,
-        # "VirtualDetector/Coll_03_DetIn": df_Coll_03_DetIn_,
+            "VirtualDetector/Coll_03_DetIn": df_Coll_03_DetIn_,
         # "VirtualDetector/Coll_03_DetOut": df_Coll_03_DetOut_,
         # "VirtualDetector/Coll_05_DetIn": df_Coll_05_DetIn_,
         # "VirtualDetector/Coll_05_DetOut": df_Coll_05_DetOut_,

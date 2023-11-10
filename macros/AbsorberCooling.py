@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Analyse cooling effect of the absorber 
 
 # External libraries
@@ -10,33 +11,6 @@ import Utils as ut
 
 # Globals
 g4blVer="v3.06"
-
-# def bin(data, bin_width=1.0): 
-
-#     # Bin the data
-#     bin_edges = np.arange(min(data), max(data) + bin_width, bin_width)
-#     bin_indices = np.digitize(data, bin_edges)
-#     bin_counts = np.bincount(bin_indices)
-
-#     return bin_edges, bin_indices, bin_counts
-
-# def GetMode(data):
-
-#     # Bin
-#     bin_edges, bin_indices, bin_counts = bin(data)
-#     # Get mode index
-#     mode_bin_index = np.argmax(bin_counts)
-#     # Get mode count
-#     mode_count = bin_counts[mode_bin_index]
-#     # Get bin width
-#     bin_width = bin_edges[mode_bin_index] - bin_edges[mode_bin_index + 1]
-#     # Calculate the bin center corresponding to the mode
-#     mode_bin_center = (bin_edges[mode_bin_index] + bin_edges[mode_bin_index + 1]) / 2
-#     # Mode uncertainty 
-#     N = len(data)
-#     mode_bin_center_err = np.sqrt(N / (N - mode_count)) * bin_width
-
-#     return mode_bin_center, abs(mode_bin_center_err)
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
@@ -330,93 +304,6 @@ def main():
     # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
     # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l25mm_r100mm_fromZ1850_parallel", "L = 25 mm, $R_{i}$ = 100 mm")
     # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l50mm_r100mm_fromZ1850_parallel", "L = 50 mm, $R_{i}$ = 100 mm")
-    # ../img/v3.06/AbsorberCooling/h1_Mom_InOut_pi-_Mu2E_1e7events_AbsorberB_l25mm_r90mm_fromZ1850_parallel.png
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l45mm_r90mm_fromZ1850_parallel", "L = 45 mm, $R_{i}$ = 90 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l25mm_r90mm_fromZ1850_parallel", "L = 25 mm, $R_{i}$ = 90 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l25mm_r127mm_fromZ1850_parallel", "L = 25 mm, $R_{i}$ = 127 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l45mm_r127mm_fromZ1850_parallel", "L = 45 mm, $R_{i}$ = 127 mm")
-    # 
-
-     # RunAbsorberCooling("Mu2E_1e7events_AbsorberD_l22.5mm_r90mm_fromZ1850_parallel", "L = 22.5 mm, $R_{i}$ = 90 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberD_l45mm_r90mm_fromZ1850_parallel", "L = 45 mm, $R_{i}$ = 90 mm")
-    
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l25mm_r100mm_fromZ1850_parallel", "L = 25 mm, $R_{i}$ = 100 mm")
-
-    # # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l50mm_r100mm_fromZ1850_parallel", "L = 50 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l50mm_r100mm_fromZ1850_parallel", "L = 50 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l50mm_r100mm_fromZ1850_parallel", "L = 50 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l25mm_r100mm_fromZ1850_parallel", "L = 25 mm, $R_{i}$ = 100 mm")
-
-    # # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l20mm_r100mm_fromZ1850_parallel", "L = 20 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l30mm_r100mm_fromZ1850_parallel", "L = 30 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_fromZ1850_parallel")
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03", "L = 55 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber0_55mm_fromZ1850_parallel_noColl03")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03", "L = 55 mm, $R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r100mm_fromZ1850_parallel")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber1_l55mm_r85mm_fromZ1850_parallel_noColl03", "L = 55 mm, $R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber2_55mm_fromZ1850_parallel_noColl03", "L = 55 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_85mm_fromZ1850_parallel_noColl_noPbar", "$R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_85mm_fromZ1850_parallel_noColl_noPbar", "$R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel_noColl_noPbar", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber4_l90-25mm_r85mm_fromZ1850_parallel_noColl03", "L = 90-25 mm, $R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_fromZ1850_parallel_noColl03", "L = 90 mm, $R_{i}$ = 85 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3.1_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel_oldSample", "L = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "L = 55 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberA_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberB_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_AbsorberC_l65mm_r100mm_fromZ1850_parallel", "L = 65 mm, $R_{i}$ = 100 mm")
-
-    # New sample (slightly cooler beam)
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 55 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l50mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 50 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l45mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 45 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l40mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 40 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l35mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 35 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l30mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 30 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l25mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 25 mm, $R_{i}$ = 100 mm")
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l20mm_r100mm_fromZ1850_parallel", "$L_{max}$ = 20 mm, $R_{i}$ = 100 mm")
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l40mm_r85mm_fromZ1850_parallel", "$L_{max}$ = 40 mm, $R_{i}$ = 85 mm")
-    
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber3_l55mm_r100mm_fromZ1850_parallel")
-
-    # RunAbsorberCooling("Mu2E_1e7events_Absorber0_100mm_fromZ1850_parallel")
-
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Analyse output from cooling scan:
 # zero-emittance beam on a Be slab 
 # /run-3.06/submitCooling.sh /run-3.06/runCooling.sh /sim/Cooling.in
@@ -231,18 +232,7 @@ def main():
 	# momentum_=[75, 100, 125, 150, 175, 200, 225, 250, 275, 300] # MeV
 	momentum_=[60, 70, 80, 90, 100, 110, 120, 130, 140, 150] 
 
-	# ---> pion: 182.31958
-	# ---> muon: 82.702324
-
-	# RunCoolingScanSingle(10000, "pi-", 125, thickness_) 
-	# RunCoolingScanSingle(10000, "pi-", 100, thickness_)
-	# RunCoolingScanSingle(10000, "pi-", 150, thickness_)  
 	RunCoolingScanSingle(10000, "pi-", 110	, thickness_)  
-	# RunCoolingScanSingle(10000, "pi-", 100, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # , 60, 70, 80, 90, 100])
-	# RunCoolingScanSingle(10000, "mu-", 100, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # [10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100])
-	# RunCoolingScanPionsAndMuonsOverlay(10000, ["pi-", "mu-"], 150, [1, 5, 10, 15, 25, 20, 35, 30, 35, 40, 45, 50, 55]) # , 60, 70, 80, 90, 100]) )
-	# RunCoolingScanMultiple(nEvents, particle_, momentum_, thickness_) 
-
 
 if __name__ == "__main__":
     main()

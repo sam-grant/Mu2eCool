@@ -1,3 +1,4 @@
+# Samuel Grant 2023
 # Investigate the two populations of particles seen in radius vs momentum in the PS
 # Rely on a set of 11 ZNTuples spaced around the PT, at 1265:2265:100 mm 
 # Code draws on BeamProfile.py 
@@ -464,8 +465,7 @@ def RunMu2eZScanPS(config, proton=True): # , branchNames, particle):
 	return
 
 def main():
-
-# 	Run("Mu2E_1e7events_ManyZNTuple2_fromZ2265_parallel") 
+	
  	# Run("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
  	# RunMu2eZScanPS("Mu2E_1e7events_Absorber3.1_l90mm_r85mm_ManyZNTuple3_fromZ1850_parallel_noColl03", proton=False) 
 	#" Mu2E_1e7events_Absorber3.1_ManyZNTuple3_fromZ1850_parallel_noColl03

@@ -1,3 +1,5 @@
+# Samuel Grant 2023
+
 from PIL import Image
 
 particle = "pi-"

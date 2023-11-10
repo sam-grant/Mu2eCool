@@ -1,4 +1,6 @@
-# Find the origin of stopped muons and analyse their parent pions at a particular ntuple 
+# Samuel Grant 2023
+# Find the origin of stopped muons and analyse their parent pions at a particular ntuple
+# Track backwards along the beamline 
 
 # External libraries
 import pandas as pd

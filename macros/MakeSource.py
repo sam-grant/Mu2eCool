@@ -1,9 +1,12 @@
+# Samuel Grant 2023, based on Kevin's script
+
 #!/usr/bin/env python3
 # source  /grid/fermiapp/products/mu2e/setupmu2e-art.sh
 # setup root v5_34_05 -qmu2e:e2:prof
 # Run as: python3 MakeSource.py Source.root 0/1
 # 0 - PS Only. Neutrons only
 # 1 - Beam source. All particles, excluding neutrons, soft gammas and electrons
+
 # External libraries
 import ROOT
 from ROOT import TFile, TTree, TH2F, TCanvas

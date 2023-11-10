@@ -1,19 +1,5 @@
-# Run a test to see how momentum is reduced per cm of Be 
-
-# Mean momentum at Z1850 [MeV]
-# ---> pion: 182.31958
-# ---> muon: 82.702324
-
-# Mean momentum [MeV]:
-# ---> all: 325.09283
-# ---> proton: 391.6868
-# ---> pion: 182.31958
-# ---> muon: 82.702324
-# RMS momentum [MeV]:
-# ---> all: 187.39487
-# ---> proton: 174.89955
-# ---> pion: 112.04425
-# ---> muon: 46.529785
+# Samuel Grant 2023
+# Run a test to see how momentum is reduced per mm of Be 
 
 # The "default" physics list is QGSP_BERT
 physics QGSP_BERT
