@@ -1,3 +1,5 @@
+## /sim
+
 * __BerylliumTarget.in__: Pion beam incident on Be slab, for debugging an unphysical ~50 MeV/c peak. 
 
 * __Mu2E_AbsorberStudy.in__: Main input file with Mu2e geometry/beam, modified for this absorber study.
